@@ -76,8 +76,8 @@ export function ProjectsList() {
               )}
             </span>
             <span className="truncate text-xs text-muted-foreground">
-              {project.chatCount}{' '}
-              {project.chatCount === 1 ? 'chat' : 'chats'}
+              {project.chatIds.length}{' '}
+              {project.chatIds.length === 1 ? 'chat' : 'chats'}
             </span>
           </span>
           <span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">

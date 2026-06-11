@@ -3,6 +3,7 @@
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport, type UIMessage } from 'ai'
 import {
+  ArrowUp,
   Check,
   ChevronDown,
   Copy,
@@ -11,6 +12,14 @@ import {
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { DashedSpinner, Starburst } from '@/components/icons'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 /* ────────────────────────── helpers ────────────────────────── */
 
@@ -225,6 +234,15 @@ function FollowUpBar({
   disabled?: boolean
 }) {
   const [value, setValue] = useState('')
+  const [model, setModel] = useState('sin-code-pro')
+
+  const models = [
+    { id: 'sin-code-pro', label: 'SIN-Code Pro', description: 'Most capable model' },
+    { id: 'sin-code-fast', label: 'SIN-Code Fast', description: 'Low-latency responses' },
+    { id: 'sin-code-mini', label: 'SIN-Code Mini', description: 'Lightweight tasks' },
+  ] as const
+
+  const hasText = value.trim().length > 0
 
   function handleSubmit() {
     const text = value.trim()
@@ -260,24 +278,61 @@ function FollowUpBar({
           className="h-8 min-w-0 flex-1 bg-transparent text-[13.5px] text-foreground placeholder:text-muted-foreground focus:outline-none"
         />
 
-        {/* Model */}
-        <button
-          type="button"
-          aria-label="Select model"
-          className="flex h-8 shrink-0 items-center gap-0.5 rounded-lg px-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
-        >
-          <Starburst className="size-4 text-brand" />
-          <ChevronDown className="size-3" />
-        </button>
+        {/* Model selector */}
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <button
+                type="button"
+                aria-label="Select model"
+                className="flex h-8 shrink-0 items-center gap-0.5 rounded-lg px-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
+              />
+            }
+          >
+            <Starburst className="size-4 text-brand" />
+            <ChevronDown className="size-3" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" side="top" className="w-60">
+            <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+              Model
+            </DropdownMenuLabel>
+            <DropdownMenuGroup>
+              {models.map((m) => (
+                <DropdownMenuItem key={m.id} onClick={() => setModel(m.id)}>
+                  <Starburst className="size-4 text-brand" />
+                  <span className="flex min-w-0 flex-1 flex-col">
+                    <span className="text-[13px]">{m.label}</span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {m.description}
+                    </span>
+                  </span>
+                  {model === m.id && <Check className="size-4 shrink-0" />}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-        {/* Mic — solid dark pill like v0 */}
-        <button
-          type="button"
-          aria-label="Voice input"
-          className="flex size-8 shrink-0 items-center justify-center rounded-full bg-foreground text-background hover:opacity-80"
-        >
-          <Mic className="size-4" />
-        </button>
+        {/* Mic → Send toggle (like v0) */}
+        {hasText ? (
+          <button
+            type="button"
+            aria-label="Send message"
+            onClick={handleSubmit}
+            disabled={disabled}
+            className="flex size-8 shrink-0 items-center justify-center rounded-full bg-foreground text-background hover:opacity-80 disabled:opacity-40"
+          >
+            <ArrowUp className="size-4" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            aria-label="Voice input"
+            className="flex size-8 shrink-0 items-center justify-center rounded-full bg-foreground text-background hover:opacity-80"
+          >
+            <Mic className="size-4" />
+          </button>
+        )}
       </div>
     </div>
   )
