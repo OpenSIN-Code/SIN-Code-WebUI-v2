@@ -1,36 +1,32 @@
 /**
  * Purpose: Expose sin-code backend status to the frontend.
- * Docs: GET /api/sin/status → { installed, version?, capabilities?, installCmd? }
- * Related issues: #3
+ * Docs: GET /api/sin/status →
+ *   installed: { installed: true, version, capabilities }
+ *   missing:   { installed: false, error, installCmd }
+ * Related issues: #3, #5
+ *
+ * The response shape matches `SinCodeStatus` from lib/sin/client.ts and the
+ * `Status` type in components/sin-status-tile.tsx — keep all three in sync.
  */
 
 import { getSinCodeStatus } from '@/lib/sin/client'
-
-const MCP_TOOLS = [
-  'sin_discover', 'sin_execute', 'sin_map', 'sin_grasp', 'sin_scout',
-  'sin_harvest', 'sin_orchestrate', 'sin_ibd', 'sin_poc', 'sin_sckg',
-  'sin_adw', 'sin_oracle', 'sin_efm', 'sin_read', 'sin_write',
-  'sin_edit', 'sin_lsp', 'sin_index', 'sin_todo', 'sin_memory',
-  'sin_notifications',
-] as const
+import { SIN_MCP_TOOLS } from '@/lib/sin/tools'
 
 export async function GET() {
   const status = await getSinCodeStatus()
 
   if (!status.installed) {
-    return Response.json(status, { status: 200 })
+    // { installed: false, error, installCmd }
+    return Response.json(status)
   }
 
-  return Response.json(
-    {
-      installed: true,
-      version: status.version,
-      capabilities: {
-        hasMCP: true,
-        subcommandCount: status.subcommands.length,
-        mcpTools: MCP_TOOLS,
-      },
+  return Response.json({
+    installed: true as const,
+    version: status.version,
+    capabilities: {
+      hasMCP: true,
+      subcommandCount: status.subcommands.length,
+      mcpTools: SIN_MCP_TOOLS,
     },
-    { status: 200 },
-  )
+  })
 }
