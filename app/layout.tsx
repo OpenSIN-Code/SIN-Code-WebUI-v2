@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { ThemeProvider } from 'next-themes'
 import { Geist, Geist_Mono, Inter } from 'next/font/google'
 import { ChatStoreProvider } from '@/components/chat-store'
+import { ProjectStoreProvider } from '@/components/project-store'
 import './globals.css'
 
 const inter = Inter({
@@ -11,10 +12,7 @@ const inter = Inter({
   display: 'swap',
 })
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-})
+const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'SIN-Code WebUI v2',
@@ -52,7 +50,9 @@ export default function RootLayout({
     >
       <body className="bg-background font-sans text-foreground antialiased">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <ChatStoreProvider>{children}</ChatStoreProvider>
+          <ChatStoreProvider>
+            <ProjectStoreProvider>{children}</ProjectStoreProvider>
+          </ChatStoreProvider>
         </ThemeProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
