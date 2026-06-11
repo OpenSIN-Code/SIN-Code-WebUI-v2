@@ -76,14 +76,17 @@ SIN-Code MCP tools above are unavailable. To enable them, run:
 Answer from your own knowledge in the meantime.`
 
 export async function POST(req: Request) {
-  const { messages }: { messages: UIMessage[] } = await req.json()
+  const { messages, model: bodyModel }: { messages: UIMessage[]; model?: string } =
+    await req.json()
 
   const sin = await getSinTools()
 
+  // Model selection: client body param wins (UI selector), then env var
+  // (CI / production), then hard-coded default.
+  const selectedModel = bodyModel ?? process.env.SIN_CHAT_MODEL ?? 'openai/gpt-5-mini'
+
   const result = streamText({
-    // Override with SIN_CHAT_MODEL for environments with paid gateway access
-    // (e.g. "anthropic/claude-sonnet-4.5").
-    model: process.env.SIN_CHAT_MODEL ?? 'openai/gpt-5-mini',
+    model: selectedModel,
     system: sin.available ? SYSTEM_PROMPT : `${SYSTEM_PROMPT}\n${FALLBACK_NOTICE}`,
     messages: await convertToModelMessages(messages),
     tools: sin.tools,

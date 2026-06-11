@@ -39,6 +39,7 @@ import { useState } from 'react'
 import { Star } from 'lucide-react'
 import { useChatStore, type ChatEntry } from '@/components/chat-store'
 import { useProjectStore } from '@/components/project-store'
+import { ProjectsSection } from '@/components/projects-section'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -326,6 +327,9 @@ export function AppSidebar() {
           </div>
         )}
       </div>
+
+      {/* ── Projects ─────────────────────────────────── */}
+      <ProjectsSection />
 
       {/* ── Recent Chats ────────────────────────────── */}
       <div className="flex min-h-0 flex-1 flex-col px-2 pt-1.5">

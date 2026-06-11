@@ -12,6 +12,7 @@ import {
   FileKey,
   GitBranch,
   Globe,
+  LayoutGrid,
   LayoutTemplate,
   MoreHorizontal,
   Puzzle,
@@ -33,9 +34,12 @@ import {
 export function ChatHeader({
   title,
   chatId,
+  activeProject,
 }: {
   title: string
   chatId?: string
+  /** Project this chat belongs to (via project.chatIds.includes(chatId)). */
+  activeProject?: { id: string; name: string } | null
 }) {
   const router = useRouter()
   const { removeChat, renameChat, toggleFavorite, recentChats } = useChatStore()
@@ -76,6 +80,18 @@ export function ChatHeader({
         </button>
 
         <span className="select-none text-[14px] text-border/80">/</span>
+
+        {/* Active project badge (when the chat belongs to one) */}
+        {activeProject && (
+          <a
+            href="/projects"
+            title={`In project: ${activeProject.name}`}
+            className="ml-0.5 flex max-w-[180px] items-center gap-1 rounded-md border border-border bg-muted/40 px-1.5 py-0.5 text-[12px] font-medium text-foreground hover:bg-accent"
+          >
+            <LayoutGrid className="size-3 shrink-0 text-muted-foreground" />
+            <span className="truncate">{activeProject.name}</span>
+          </a>
+        )}
 
         {/* Star */}
         <button

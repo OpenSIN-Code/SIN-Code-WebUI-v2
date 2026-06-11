@@ -1,5 +1,5 @@
 import { AppSidebar } from '@/components/app-sidebar'
-import { ChatHeader } from '@/components/chat-header'
+import { ChatHeaderWithProject } from '@/components/chat-header-with-project'
 import { ChatView } from '@/components/chat-view'
 
 export default async function ChatPage({
@@ -20,7 +20,7 @@ export default async function ChatPage({
     <div className="flex h-svh bg-background">
       <AppSidebar />
       <main className="flex min-w-0 flex-1 flex-col">
-        <ChatHeader chatId={id} title={title} />
+        <ChatHeaderWithProject chatId={id} title={title} />
         <ChatView prompt={id === 'repo-review' ? undefined : q} />
       </main>
     </div>

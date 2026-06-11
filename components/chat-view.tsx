@@ -143,8 +143,12 @@ function ThinkingIndicator() {
 /* ────────────────────────── main view ────────────────────────── */
 
 export function ChatView({ prompt }: { prompt?: string }) {
+  const [model, setModel] = useState('sin-code-pro')
   const { messages, sendMessage, status } = useChat({
-    transport: new DefaultChatTransport({ api: '/api/chat' }),
+    transport: new DefaultChatTransport({
+      api: '/api/chat',
+      body: { model },
+    }),
   })
 
   const sentInitial = useRef(false)
@@ -218,6 +222,8 @@ export function ChatView({ prompt }: { prompt?: string }) {
 
       <FollowUpBar
         disabled={status === 'streaming' || status === 'submitted'}
+        model={model}
+        onModelChange={setModel}
         onSend={(text) => sendMessage({ text })}
       />
     </div>
@@ -229,12 +235,15 @@ export function ChatView({ prompt }: { prompt?: string }) {
 function FollowUpBar({
   onSend,
   disabled,
+  model,
+  onModelChange,
 }: {
   onSend: (text: string) => void
   disabled?: boolean
+  model: string
+  onModelChange: (m: string) => void
 }) {
   const [value, setValue] = useState('')
-  const [model, setModel] = useState('sin-code-pro')
 
   const models = [
     { id: 'sin-code-pro', label: 'SIN-Code Pro', description: 'Most capable model' },
@@ -298,7 +307,7 @@ function FollowUpBar({
             </DropdownMenuLabel>
             <DropdownMenuGroup>
               {models.map((m) => (
-                <DropdownMenuItem key={m.id} onClick={() => setModel(m.id)}>
+                <DropdownMenuItem key={m.id} onClick={() => onModelChange(m.id)}>
                   <Starburst className="size-4 text-brand" />
                   <span className="flex min-w-0 flex-1 flex-col">
                     <span className="text-[13px]">{m.label}</span>
