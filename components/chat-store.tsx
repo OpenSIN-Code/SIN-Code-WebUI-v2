@@ -1,7 +1,8 @@
 /**
- * Purpose: Client-side store for chat entries (used by sidebar + chat header).
- * Persists to localStorage so renames/deletes survive reloads.
- * Related issues: #15
+ * Purpose: Client-side store for chat entries.
+ * Persists to localStorage with graceful migration from the v1 key (\`sin-chats-v1\`)
+ * to the new namespaced key (\`sin-code:chats\`). Idempotent.
+ * Related issues: #15, #18
  */
 'use client'
 
@@ -28,22 +29,44 @@ type ChatStore = {
   toggleFavorite: (id: string) => void
 }
 
-const STORAGE_KEY = 'sin-chats-v1'
+const STORAGE_KEY = 'sin-code:chats'
+const STORAGE_KEY_LEGACY = 'sin-chats-v1'
 const DEFAULT_CHAT: ChatEntry = { id: 'repo-review', label: 'Repo review' }
 
 const ChatStoreContext = createContext<ChatStore | null>(null)
 
+/**
+ * Load chats from localStorage. Prefers the new key, falls back to
+ * the legacy v1 key, and migrates the v1 entry to the new key in the
+ * process (one-shot, then deletes the v1 key).
+ */
 function loadFromStorage(): ChatEntry[] {
   if (typeof window === 'undefined') return [DEFAULT_CHAT]
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) return [DEFAULT_CHAT]
-    const parsed = JSON.parse(raw)
-    if (!Array.isArray(parsed) || parsed.length === 0) return [DEFAULT_CHAT]
-    return parsed as ChatEntry[]
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed as ChatEntry[]
+    }
+    // No new key — try the legacy v1 key and migrate.
+    const legacy = window.localStorage.getItem(STORAGE_KEY_LEGACY)
+    if (legacy) {
+      const parsed = JSON.parse(legacy)
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Persist under the new key and drop the legacy one.
+        try {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed))
+        } catch {
+          /* non-fatal */
+        }
+        window.localStorage.removeItem(STORAGE_KEY_LEGACY)
+        return parsed as ChatEntry[]
+      }
+    }
   } catch {
-    return [DEFAULT_CHAT]
+    // Corrupted JSON — fall through to default.
   }
+  return [DEFAULT_CHAT]
 }
 
 function nowLabel(): string {
@@ -68,7 +91,7 @@ export function ChatStoreProvider({ children }: { children: React.ReactNode }) {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(recentChats))
     } catch {
-      // Non-fatal.
+      // Storage full or unavailable — non-fatal.
     }
   }, [recentChats, hydrated])
 

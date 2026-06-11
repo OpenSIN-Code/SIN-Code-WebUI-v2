@@ -34,6 +34,8 @@ import {
 } from '@/components/icons'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { Star } from 'lucide-react'
 import { useChatStore } from '@/components/chat-store'
 import {
   DropdownMenu,
@@ -57,9 +59,12 @@ const navItems = [
 export function AppSidebar() {
   const pathname = usePathname()
   const router = useRouter()
-  const { recentChats, removeChat, renameChat } = useChatStore()
+  const { recentChats, removeChat, renameChat, toggleFavorite } = useChatStore()
   const { theme, setTheme } = useTheme()
+  const [favoritesOpen, setFavoritesOpen] = useState(true)
   const isChatActive = pathname.startsWith('/chat')
+
+  const favoriteChats = recentChats.filter((c) => c.favorite)
 
   function handleDelete(id: string) {
     removeChat(id)
@@ -161,14 +166,87 @@ export function AppSidebar() {
       </nav>
 
       {/* ── Favorites ───────────────────────────────── */}
-      <div className="px-3 pt-2.5">
-        <button
-          type="button"
-          className="flex h-6 w-full items-center justify-between text-[10.5px] font-semibold uppercase tracking-widest text-muted-foreground/50 hover:text-muted-foreground"
-        >
-          Favorites
-          <ChevronRight className="size-3" />
-        </button>
+      <div className="px-2 pt-2.5">
+        <div className="px-1">
+          <button
+            type="button"
+            aria-expanded={favoritesOpen}
+            onClick={() => setFavoritesOpen((v) => !v)}
+            className="flex h-6 w-full items-center justify-between text-[10.5px] font-semibold uppercase tracking-widest text-muted-foreground/50 hover:text-muted-foreground"
+          >
+            Favorites
+            {favoritesOpen ? (
+              <ChevronDown className="size-3" />
+            ) : (
+              <ChevronRight className="size-3" />
+            )}
+          </button>
+        </div>
+        {favoritesOpen && (
+          <div className="flex flex-col pt-0.5">
+            {favoriteChats.length === 0 ? (
+              <p className="px-2 py-1 text-[11.5px] text-muted-foreground/60">
+                No favorites yet.
+              </p>
+            ) : (
+              favoriteChats.map((chat) => (
+                <div
+                  key={chat.id}
+                  className={cn(
+                    'group/chat flex h-7 items-center gap-1.5 rounded-md px-2 text-[12.5px] text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                    pathname === `/chat/${chat.id}` &&
+                      'bg-sidebar-accent text-sidebar-accent-foreground',
+                  )}
+                >
+                  <Link
+                    href={`/chat/${chat.id}`}
+                    className="flex min-w-0 flex-1 items-center gap-2"
+                  >
+                    <Star className="size-3.5 shrink-0 fill-amber-400 text-amber-400" />
+                    <span className="truncate">{chat.label}</span>
+                  </Link>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      render={
+                        <button
+                          type="button"
+                          aria-label="Chat options"
+                          className="flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground opacity-0 hover:text-foreground group-hover/chat:opacity-100 data-[popup-open]:opacity-100"
+                        />
+                      }
+                    >
+                      <MoreHorizontal className="size-3.5" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="start"
+                      side="right"
+                      className="w-44"
+                    >
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem>Share</DropdownMenuItem>
+                        <DropdownMenuItem>Move&hellip;</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => toggleFavorite(chat.id)}>
+                          Remove from Favorites
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleRename(chat.id, chat.label)}
+                        >
+                          Rename
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={() => handleDelete(chat.id)}
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
 
       {/* ── Recent Chats ────────────────────────────── */}
@@ -201,7 +279,11 @@ export function AppSidebar() {
                   href={`/chat/${chat.id}`}
                   className="flex min-w-0 flex-1 items-center gap-2"
                 >
-                  <DashedSpinner className="size-3.5 shrink-0 text-muted-foreground" />
+                  {chat.favorite ? (
+                    <Star className="size-3.5 shrink-0 fill-amber-400 text-amber-400" />
+                  ) : (
+                    <DashedSpinner className="size-3.5 shrink-0 text-muted-foreground" />
+                  )}
                   <span className="truncate">{chat.label}</span>
                 </Link>
                 <DropdownMenu>
@@ -220,7 +302,9 @@ export function AppSidebar() {
                     <DropdownMenuGroup>
                       <DropdownMenuItem>Share</DropdownMenuItem>
                       <DropdownMenuItem>Move&hellip;</DropdownMenuItem>
-                      <DropdownMenuItem>Add to Favorites</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => toggleFavorite(chat.id)}>
+                        {chat.favorite ? 'Remove from Favorites' : 'Add to Favorites'}
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleRename(chat.id, chat.label)}>
                         Rename
                       </DropdownMenuItem>

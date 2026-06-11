@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { ThemeProvider } from 'next-themes'
 import { Geist, Geist_Mono, Inter } from 'next/font/google'
 import { ChatStoreProvider } from '@/components/chat-store'
+import { DesignSystemStoreProvider } from '@/components/design-system-store'
 import { ProjectStoreProvider } from '@/components/project-store'
 import './globals.css'
 
@@ -51,7 +52,11 @@ export default function RootLayout({
       <body className="bg-background font-sans text-foreground antialiased">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <ChatStoreProvider>
-            <ProjectStoreProvider>{children}</ProjectStoreProvider>
+            <ProjectStoreProvider>
+              <DesignSystemStoreProvider>
+                {children}
+              </DesignSystemStoreProvider>
+            </ProjectStoreProvider>
           </ChatStoreProvider>
         </ThemeProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { DashedSpinner, VercelTriangle } from '@/components/icons'
 import { useChatStore } from '@/components/chat-store'
+import { PublishMenu } from '@/components/publish-menu'
 import { ShareMenu } from '@/components/share-menu'
 import {
   DropdownMenu,
@@ -175,6 +176,9 @@ export function ChatHeader({
 
       {/* Share */}
       <ShareMenu chatId={chatId} />
+
+      {/* Publish */}
+      <PublishMenu chatId={chatId} />
     </header>
   )
 }

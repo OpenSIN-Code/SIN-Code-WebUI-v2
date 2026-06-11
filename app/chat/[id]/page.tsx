@@ -20,7 +20,7 @@ export default async function ChatPage({
     <div className="flex h-svh bg-background">
       <AppSidebar />
       <main className="flex min-w-0 flex-1 flex-col">
-        <ChatHeader title={title} chatId={id} />
+        <ChatHeader chatId={id} title={title} />
         <ChatView prompt={id === 'repo-review' ? undefined : q} />
       </main>
     </div>
