@@ -43,6 +43,15 @@ jobs:
       AUDIT_RUN_ID: ${{ github.run_id }}
       AUDIT_SHA: ${{ github.sha }}
     steps:
+      - name: Skip for dependabot dependency bumps
+        if: github.actor == 'dependabot[bot]'
+        run: |
+          echo "Skipping ceo-audit for dependabot[bot] push (deps-only changes)."
+          echo "  Reason: dependency version bumps do not change application logic."
+          echo "  Dependabot PRs are still gated by CODEOWNERS (if configured) and by"
+          echo "  the test/dependabot-aggregator workflow."
+          exit 0
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
