@@ -1,0 +1,48 @@
+# Purpose: Dependabot config — weekly grouped updates with auto-rebase
+# Docs: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+#
+# Stack: Next.js 16 / React 19 / Node 22 (pnpm). No Python, no Docker.
+# Grouped by ecosystem + scope. Auto-rebase enabled to keep PRs mergeable.
+# Schedule: Mondays at 09:00 UTC (low-traffic window for most teams).
+#
+# No secrets required. Dependabot uses the built-in GITHUB_TOKEN.
+
+version: 2
+updates:
+  # npm (pnpm workspace, package.json + pnpm-lock.yaml)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    timezone: "UTC"
+    open-pull-requests-limit: 5
+    rebase-strategy: "auto"
+    groups:
+      npm-minor:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+      npm-major:
+        patterns: ["*"]
+        update-types: ["major"]
+    labels:
+      - "dependencies"
+      - "npm"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    timezone: "UTC"
+    open-pull-requests-limit: 3
+    rebase-strategy: "auto"
+    groups:
+      actions:
+        patterns: ["*"]
+    labels:
+      - "dependencies"
+      - "github-actions"

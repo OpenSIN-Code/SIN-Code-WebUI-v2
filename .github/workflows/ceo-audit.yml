@@ -1,0 +1,94 @@
+# Purpose: CEO Audit — SOTA repository review (47 gates, 8 axes)
+# Docs: https://github.com/OpenSIN-Code/SIN-Code-Bundle/tree/main/src/sin_code_bundle/skills/ceo-audit
+#
+# Runs the full CEO Audit on every push and PR. Posts a Markdown
+# comment on the PR with the grade, top 3 risks, and a link to the
+# full report. Fails if grade < B (configurable via --grade flag).
+#
+# Required secrets: none (uses built-in GITHUB_TOKEN)
+# Optional inputs: profile (default: QUICK), grade (default: B)
+
+name: ceo-audit
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: 'Audit profile: QUICK | RELEASE | SECURITY | FULL'
+        required: false
+        default: 'QUICK'
+      grade:
+        description: 'Minimum grade to pass: A | B | C'
+        required: false
+        default: 'B'
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  ceo-audit:
+    name: CEO Audit (${{ inputs.profile || 'QUICK' }}, grade≥${{ inputs.grade || 'B' }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      AUDIT_PROFILE: ${{ inputs.profile || 'QUICK' }}
+      AUDIT_GRADE: ${{ inputs.grade || 'B' }}
+      AUDIT_REPO: ${{ github.workspace }}
+      AUDIT_RUN_ID: ${{ github.run_id }}
+      AUDIT_SHA: ${{ github.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history for regression detection
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install SIN-Code Bundle (with ceo-audit skill)
+        run: pip install "sin-code-bundle[ceo-audit,dev]"
+
+      - name: Run CEO Audit
+        id: audit
+        run: |
+          sin ceo-audit run . \
+            --profile="$AUDIT_PROFILE" \
+            --grade="$AUDIT_GRADE" \
+            --format=sarif,md,html,json
+        continue-on-error: false
+
+      - name: Upload SARIF to Code Scanning
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: report.sarif
+        continue-on-error: true
+
+      - name: Upload full report as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ceo-audit-report
+          path: |
+            report.md
+            report.sarif
+            report.html
+            report.json
+          retention-days: 30
+
+      - name: Post sticky PR comment
+        if: github.event_name == 'pull_request' && always()
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: ceo-audit
+          path: report.md
+        continue-on-error: true
