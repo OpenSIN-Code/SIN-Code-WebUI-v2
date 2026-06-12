@@ -8,9 +8,9 @@ import {
   Database,
   MoreHorizontal,
   Upload,
-  Globe,
 } from "lucide-react"
 import { VersionDropdown, type Version } from "@/components/workspace/version-dropdown"
+import { DeployStatus } from "@/components/workspace/deploy-status"
 
 export type WorkspaceTab = "preview" | "design" | "code" | "database"
 
@@ -29,7 +29,6 @@ interface WorkspaceHeaderProps {
   onVersionSelect: (id: string | null) => void
   onToggleChat: () => void
   chatCollapsed: boolean
-  onPublish?: () => void
 }
 
 export function WorkspaceHeader({
@@ -40,7 +39,6 @@ export function WorkspaceHeader({
   onVersionSelect,
   onToggleChat,
   chatCollapsed,
-  onPublish,
 }: WorkspaceHeaderProps) {
   return (
     <header className="flex h-12 shrink-0 items-center justify-between gap-2 border-b border-border bg-background px-2">
@@ -98,14 +96,7 @@ export function WorkspaceHeader({
         >
           <Upload className="size-4" />
         </button>
-        <button
-          type="button"
-          onClick={onPublish}
-          className="flex h-8 items-center gap-1.5 rounded-full bg-primary px-3.5 text-[13px] font-medium text-primary-foreground transition-opacity hover:opacity-90"
-        >
-          <Globe className="size-3.5" />
-          Publish
-        </button>
+        <DeployStatus target="preview" />
       </div>
     </header>
   )

@@ -1,7 +1,13 @@
 import { promises as fs } from "fs"
 import path from "path"
 
-const FILE = path.join(process.cwd(), ".sin-webui", "activity.jsonl")
+const BASE = path.join(process.cwd(), ".sin-webui")
+
+function activityFile(userId: string): string {
+  if (userId === "global") return path.join(BASE, "activity.jsonl")
+  const safe = userId.replace(/[^a-zA-Z0-9_-]/g, "_")
+  return path.join(BASE, "users", safe, "activity.jsonl")
+}
 
 export interface ActivityEvent {
   ts: string
@@ -12,15 +18,17 @@ export interface ActivityEvent {
   label?: string
 }
 
-export async function logActivity(event: Omit<ActivityEvent, "ts">): Promise<void> {
-  await fs.mkdir(path.dirname(FILE), { recursive: true })
+export async function logActivity(userId: string = "global", event: Omit<ActivityEvent, "ts">): Promise<void> {
+  const file = activityFile(userId)
+  await fs.mkdir(path.dirname(file), { recursive: true })
   const line = JSON.stringify({ ts: new Date().toISOString(), ...event })
-  await fs.appendFile(FILE, line + "\n", "utf8")
+  await fs.appendFile(file, line + "\n", "utf8")
 }
 
-export async function readActivity(limit = 500): Promise<ActivityEvent[]> {
+export async function readActivity(userId: string = "global", limit = 500): Promise<ActivityEvent[]> {
   try {
-    const raw = await fs.readFile(FILE, "utf8")
+    const file = activityFile(userId)
+    const raw = await fs.readFile(file, "utf8")
     const lines = raw.trim().split("\n")
     return lines
       .slice(-limit)

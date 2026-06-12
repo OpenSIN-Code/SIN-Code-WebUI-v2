@@ -1,9 +1,9 @@
 /**
  * Purpose: Publish / Deploy popover for the chat header.
- * Calls POST /api/publish which triggers the GitHub Actions docker.yml
- * workflow via workflow_dispatch. Cycles through idle → deploying →
- * deployed or error. Idempotent.
- * Related issues: #19, #39
+ * Tries Vercel first (if VERCEL_TOKEN is set), otherwise falls back
+ * to GitHub Actions workflow_dispatch.
+ * Cycles through idle → deploying → deployed or error. Idempotent.
+ * Related issues: #19, #39, #55
  */
 'use client'
 
@@ -20,8 +20,10 @@ type DeployState = 'idle' | 'deploying' | 'deployed' | 'error'
 export function PublishMenu({ chatId }: { chatId?: string }) {
   const [state, setState] = useState<DeployState>('idle')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [deployUrl, setDeployUrl] = useState<string | null>(null)
 
-  const domain = `${chatId ?? 'preview'}.vercel.app`
+  const fallbackDomain = `${chatId ?? 'preview'}.vercel.app`
+  const domain = deployUrl ?? fallbackDomain
 
   const handlePublish = async () => {
     if (state === 'deploying') return
@@ -29,16 +31,30 @@ export function PublishMenu({ chatId }: { chatId?: string }) {
     setErrorMessage(null)
 
     try {
-      const res = await fetch('/api/publish', {
+      // Try Vercel first (#55)
+      let res = await fetch('/api/publish/vercel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          chatId,
-          visibility: 'private',
+          projectName: chatId ?? 'sin-app',
+          target: 'preview',
         }),
       })
 
-      const data = await res.json()
+      let data = await res.json()
+
+      // Fallback to GitHub Actions if Vercel is not configured
+      if (res.status === 503 && data.message?.includes('not configured')) {
+        res = await fetch('/api/publish', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chatId,
+            visibility: 'private',
+          }),
+        })
+        data = await res.json()
+      }
 
       if (!res.ok) {
         setState('error')
@@ -46,6 +62,9 @@ export function PublishMenu({ chatId }: { chatId?: string }) {
         return
       }
 
+      if (data.deployment?.url) {
+        setDeployUrl(data.deployment.url)
+      }
       setState('deployed')
     } catch (err) {
       setState('error')
@@ -74,7 +93,7 @@ export function PublishMenu({ chatId }: { chatId?: string }) {
             </p>
             <p className="text-xs leading-relaxed text-muted-foreground">
               Deploy the latest version of this chat to a public URL via
-              GitHub Actions.
+              Vercel or GitHub Actions.
             </p>
           </div>
 
@@ -85,7 +104,7 @@ export function PublishMenu({ chatId }: { chatId?: string }) {
             </span>
             {state === 'deployed' && (
               <a
-                href={`https://${domain}`}
+                href={domain.startsWith('http') ? domain : `https://${domain}`}
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Open deployment"

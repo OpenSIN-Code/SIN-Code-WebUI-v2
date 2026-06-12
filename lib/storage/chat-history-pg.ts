@@ -41,8 +41,13 @@ export async function upsertChatMeta(
   )
 }
 
-export async function deleteChat(id: string): Promise<void> {
-  await getPool().query(`DELETE FROM chats WHERE id = $1`, [id])
+export async function deleteChat(id: string, userId?: string | null): Promise<void> {
+  await getPool().query(
+    userId
+      ? `DELETE FROM chats WHERE id = $1 AND (user_id = $2 OR user_id IS NULL)`
+      : `DELETE FROM chats WHERE id = $1`,
+    userId ? [id, userId] : [id],
+  )
 }
 
 export async function loadMessages(id: string): Promise<UIMessage[]> {
@@ -56,13 +61,14 @@ export async function loadMessages(id: string): Promise<UIMessage[]> {
 export async function saveMessages(
   id: string,
   messages: UIMessage[],
+  userId?: string | null,
 ): Promise<void> {
   const pool = getPool()
   // Ensure the parent chat row exists (FK), then upsert messages.
   await pool.query(
-    `INSERT INTO chats (id, label) VALUES ($1, $1)
+    `INSERT INTO chats (id, label, user_id) VALUES ($1, $2, $3)
      ON CONFLICT (id) DO UPDATE SET updated_at = NOW()`,
-    [id],
+    [id, id, userId ?? null],
   )
   await pool.query(
     `INSERT INTO chat_messages (chat_id, messages)

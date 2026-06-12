@@ -105,6 +105,7 @@
 
   document.addEventListener("mousedown", function (e) {
     if (!enabled) return
+    if (e.metaKey || e.ctrlKey) return
     var id = findId(e.target)
     if (!id) return
     e.preventDefault()
@@ -119,6 +120,7 @@
 
   document.addEventListener("mousemove", function (e) {
     if (!enabled) return
+    if (e.metaKey || e.ctrlKey) return
     if (dragState) {
       var dx = e.clientX - dragState.startX
       var dy = e.clientY - dragState.startY
@@ -161,6 +163,7 @@
 
   document.addEventListener("click", function (e) {
     if (!enabled) return
+    if (e.metaKey || e.ctrlKey) return
     e.preventDefault()
     e.stopPropagation()
     var id = findId(e.target)
@@ -203,4 +206,76 @@
   })
 
   parent.postMessage({ source: "sin-design", type: "ready" }, PARENT_ORIGIN)
+
+  // === Screenshot area capture (Cmd/Ctrl + Drag) — issue #54 ===
+  var shotState = null
+  var shotRect = null
+  var html2canvasPromise = null
+
+  function loadHtml2Canvas() {
+    if (window.html2canvas) return Promise.resolve(window.html2canvas)
+    if (html2canvasPromise) return html2canvasPromise
+    html2canvasPromise = new Promise(function (resolve, reject) {
+      var s = document.createElement("script")
+      s.src = "https://unpkg.com/html2canvas-pro@1.5.8/dist/html2canvas-pro.min.js"
+      s.onload = function () { resolve(window.html2canvas) }
+      s.onerror = function () { reject(new Error("html2canvas load failed")) }
+      document.head.appendChild(s)
+    })
+    return html2canvasPromise
+  }
+
+  document.addEventListener("mousedown", function (e) {
+    if (!enabled || !(e.metaKey || e.ctrlKey)) return
+    e.preventDefault()
+    e.stopPropagation()
+    shotState = { startX: e.clientX, startY: e.clientY }
+    shotRect = document.createElement("div")
+    shotRect.style.cssText =
+      "position:fixed;z-index:2147483647;border:2px solid #0072f5;" +
+      "background:rgba(0,114,245,0.12);pointer-events:none;border-radius:2px;"
+    document.body.appendChild(shotRect)
+  }, true)
+
+  document.addEventListener("mousemove", function (e) {
+    if (!shotState || !shotRect) return
+    shotRect.style.left = Math.min(shotState.startX, e.clientX) + "px"
+    shotRect.style.top = Math.min(shotState.startY, e.clientY) + "px"
+    shotRect.style.width = Math.abs(e.clientX - shotState.startX) + "px"
+    shotRect.style.height = Math.abs(e.clientY - shotState.startY) + "px"
+  }, true)
+
+  document.addEventListener("mouseup", function (e) {
+    if (!shotState) return
+    var sel = {
+      x: Math.min(shotState.startX, e.clientX) + window.scrollX,
+      y: Math.min(shotState.startY, e.clientY) + window.scrollY,
+      w: Math.abs(e.clientX - shotState.startX),
+      h: Math.abs(e.clientY - shotState.startY),
+    }
+    shotState = null
+    if (shotRect) { shotRect.remove(); shotRect = null }
+    if (sel.w < 5 || sel.h < 5) return
+
+    loadHtml2Canvas()
+      .then(function (h2c) {
+        return h2c(document.body, {
+          x: sel.x, y: sel.y, width: sel.w, height: sel.h,
+          scale: window.devicePixelRatio || 1,
+          useCORS: true, logging: false,
+        })
+      })
+      .then(function (canvas) {
+        parent.postMessage(
+          { source: "sin-design", type: "screenshot", dataUrl: canvas.toDataURL("image/png") },
+          PARENT_ORIGIN,
+        )
+      })
+      .catch(function (err) {
+        parent.postMessage(
+          { source: "sin-design", type: "screenshot-error", error: String(err) },
+          PARENT_ORIGIN,
+        )
+      })
+  }, true)
 })()

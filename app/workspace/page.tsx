@@ -1,3 +1,5 @@
+"use client"
+
 import { Workspace } from "@/components/workspace/workspace"
 import { ChatView } from "@/components/chat/chat-view"
 

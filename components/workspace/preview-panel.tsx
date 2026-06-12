@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import {
   ChevronLeft,
   ChevronRight,
@@ -17,6 +17,14 @@ export function PreviewPanel({ src }: { src: string }) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
   const fullUrl = src.replace(/\/$/, "") + path
+
+  useEffect(() => {
+    function reload() {
+      setReloadKey((k) => k + 1)
+    }
+    window.addEventListener("sin:design-history-changed", reload)
+    return () => window.removeEventListener("sin:design-history-changed", reload)
+  }, [])
 
   return (
     <div className="flex h-full flex-col">

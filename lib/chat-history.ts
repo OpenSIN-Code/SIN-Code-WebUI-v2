@@ -17,6 +17,7 @@ export type ChatMeta = {
   label: string
   favorite: boolean
   workspaceId?: string
+  userId?: string
   createdAt: string
   updatedAt: string
 }

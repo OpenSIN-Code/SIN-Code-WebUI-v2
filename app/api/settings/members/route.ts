@@ -1,64 +1,85 @@
+/**
+ * Purpose: Member management backed by the Better Auth "user" table.
+ * GET lists all users (admin only), PATCH changes a role, DELETE removes
+ * a user. Invitations happen via the public /register page.
+ */
 import { NextResponse } from "next/server"
-import { promises as fs } from "fs"
-import path from "path"
-import crypto from "crypto"
+import { getPool } from "@/lib/db"
+import { isBetterAuthEnabled } from "@/lib/auth/better-auth"
+import { guardRequest } from "@/lib/sin/run"
+import { getSession } from "@/lib/session"
 
-const FILE = path.join(process.cwd(), ".sin-webui", "members.json")
-
-interface Member {
-  id: string
-  email: string
-  role: "owner" | "member"
-  status: "active" | "invited"
-  invitedAt: string
+async function requireAdmin(req: Request): Promise<Response | null> {
+  const guard = await guardRequest(req, "members", 30)
+  if (guard) return guard
+  const session = await getSession()
+  if (!session?.isAdmin) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+  }
+  return null
 }
 
-async function read(): Promise<Member[]> {
-  try {
-    return JSON.parse(await fs.readFile(FILE, "utf8"))
-  } catch {
-    return []
+export async function GET(req: Request) {
+  const denied = await requireAdmin(req)
+  if (denied) return denied
+  if (!isBetterAuthEnabled()) {
+    return NextResponse.json({ members: [], multiUser: false })
   }
+  const { rows } = await getPool().query(
+    `SELECT "id", "name", "email", "role", "createdAt"
+     FROM "user" ORDER BY "createdAt" ASC LIMIT 500`,
+  )
+  return NextResponse.json({
+    multiUser: true,
+    members: rows.map((r) => ({
+      id: r.id,
+      name: r.name,
+      email: r.email,
+      role: r.role,
+      createdAt: r.createdAt,
+    })),
+  })
 }
 
-async function write(members: Member[]) {
-  await fs.mkdir(path.dirname(FILE), { recursive: true })
-  await fs.writeFile(FILE, JSON.stringify(members, null, 2), "utf8")
-}
-
-export async function GET() {
-  return NextResponse.json({ members: await read() })
-}
-
-export async function POST(req: Request) {
-  const { email } = await req.json()
-  if (typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return NextResponse.json({ error: "Valid email required" }, { status: 400 })
+export async function PATCH(req: Request) {
+  const denied = await requireAdmin(req)
+  if (denied) return denied
+  const { id, role } = (await req.json()) as { id?: string; role?: string }
+  if (!id || (role !== "owner" && role !== "member")) {
+    return NextResponse.json({ error: "id and role (owner|member) required" }, { status: 400 })
   }
-  const members = await read()
-  if (members.some((m) => m.email === email.toLowerCase())) {
-    return NextResponse.json({ error: "Already invited" }, { status: 409 })
+  if (role === "member") {
+    const { rows } = await getPool().query(
+      `SELECT COUNT(*)::int AS owners FROM "user" WHERE "role" = 'owner' AND "id" <> $1`,
+      [id],
+    )
+    if (rows[0].owners === 0) {
+      return NextResponse.json({ error: "Cannot demote the last owner" }, { status: 409 })
+    }
   }
-  const member: Member = {
-    id: crypto.randomUUID(),
-    email: email.toLowerCase(),
-    role: members.length === 0 ? "owner" : "member",
-    status: "invited",
-    invitedAt: new Date().toISOString(),
-  }
-  members.push(member)
-  await write(members)
-  return NextResponse.json({ member })
+  await getPool().query(`UPDATE "user" SET "role" = $2, "updatedAt" = NOW() WHERE "id" = $1`, [id, role])
+  return NextResponse.json({ ok: true })
 }
 
 export async function DELETE(req: Request) {
+  const denied = await requireAdmin(req)
+  if (denied) return denied
   const { searchParams } = new URL(req.url)
   const id = searchParams.get("id")
-  const members = await read()
-  const next = members.filter((m) => m.id !== id || m.role === "owner")
-  if (next.length === members.length) {
-    return NextResponse.json({ error: "Not found or owner" }, { status: 404 })
+  if (!id) return NextResponse.json({ error: "id required" }, { status: 400 })
+
+  const session = await getSession()
+  if (session?.userId === id) {
+    return NextResponse.json({ error: "Cannot delete yourself" }, { status: 409 })
   }
-  await write(next)
+  const { rows } = await getPool().query(
+    `SELECT COUNT(*)::int AS owners FROM "user" WHERE "role" = 'owner' AND "id" <> $1`,
+    [id],
+  )
+  const { rows: target } = await getPool().query(`SELECT "role" FROM "user" WHERE "id" = $1`, [id])
+  if (target[0]?.role === "owner" && rows[0].owners === 0) {
+    return NextResponse.json({ error: "Cannot delete the last owner" }, { status: 409 })
+  }
+  await getPool().query(`DELETE FROM "user" WHERE "id" = $1`, [id])
   return NextResponse.json({ ok: true })
 }

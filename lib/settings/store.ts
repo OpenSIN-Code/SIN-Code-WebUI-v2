@@ -1,7 +1,14 @@
 import { promises as fs } from "fs"
 import path from "path"
 
-const DATA_DIR = path.join(process.cwd(), ".sin-webui")
+const BASE = path.join(process.cwd(), ".sin-webui")
+
+/** Per-user settings directory. 'global' keeps the legacy single-user path. */
+function scopedDir(userId: string): string {
+  if (userId === "global") return BASE
+  const safe = userId.replace(/[^a-zA-Z0-9_-]/g, "_")
+  return path.join(BASE, "users", safe)
+}
 
 export type Scope = "user" | "team"
 
@@ -27,34 +34,36 @@ async function ensureDir(dir: string) {
   await fs.mkdir(dir, { recursive: true })
 }
 
-export function safeResolve(...segments: string[]): string {
-  const resolved = path.resolve(DATA_DIR, ...segments)
-  if (!resolved.startsWith(DATA_DIR + path.sep) && resolved !== DATA_DIR) {
+export function safeResolve(userId: string, ...segments: string[]): string {
+  const dir = scopedDir(userId)
+  const resolved = path.resolve(dir, ...segments)
+  if (!resolved.startsWith(dir + path.sep) && resolved !== dir) {
     throw new Error("Invalid path")
   }
   return resolved
 }
 
-export async function readPreferences(): Promise<Preferences> {
+export async function readPreferences(userId: string = "global"): Promise<Preferences> {
   try {
-    const raw = await fs.readFile(safeResolve("preferences.json"), "utf8")
+    const raw = await fs.readFile(safeResolve(userId, "preferences.json"), "utf8")
     return { ...DEFAULT_PREFERENCES, ...JSON.parse(raw) }
   } catch {
     return DEFAULT_PREFERENCES
   }
 }
 
-export async function writePreferences(prefs: Preferences): Promise<void> {
-  await ensureDir(DATA_DIR)
+export async function writePreferences(userId: string = "global", prefs: Preferences): Promise<void> {
+  const dir = scopedDir(userId)
+  await ensureDir(dir)
   await fs.writeFile(
-    safeResolve("preferences.json"),
+    safeResolve(userId, "preferences.json"),
     JSON.stringify(prefs, null, 2),
     "utf8",
   )
 }
 
-export async function listFiles(kind: "memories" | "skills", scope: Scope) {
-  const dir = safeResolve(kind, scope)
+export async function listFiles(userId: string = "global", kind: "memories" | "skills", scope: Scope) {
+  const dir = safeResolve(userId, kind, scope)
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true })
     return entries
@@ -67,32 +76,35 @@ export async function listFiles(kind: "memories" | "skills", scope: Scope) {
 }
 
 export async function readFileContent(
+  userId: string = "global",
   kind: "memories" | "skills",
   scope: Scope,
   name: string,
 ): Promise<string | null> {
   try {
-    return await fs.readFile(safeResolve(kind, scope, name), "utf8")
+    return await fs.readFile(safeResolve(userId, kind, scope, name), "utf8")
   } catch {
     return null
   }
 }
 
 export async function writeFileContent(
+  userId: string = "global",
   kind: "memories" | "skills",
   scope: Scope,
   name: string,
   content: string,
 ): Promise<void> {
-  const file = safeResolve(kind, scope, name)
+  const file = safeResolve(userId, kind, scope, name)
   await ensureDir(path.dirname(file))
   await fs.writeFile(file, content, "utf8")
 }
 
 export async function deleteFile(
+  userId: string = "global",
   kind: "memories" | "skills",
   scope: Scope,
   name: string,
 ): Promise<void> {
-  await fs.unlink(safeResolve(kind, scope, name))
+  await fs.unlink(safeResolve(userId, kind, scope, name))
 }

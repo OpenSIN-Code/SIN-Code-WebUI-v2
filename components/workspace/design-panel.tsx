@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
+import useSWR from "swr"
+import html2canvas from "html2canvas-pro"
 import {
   ChevronRight,
   Box,
@@ -20,6 +22,8 @@ import {
   Layers,
   X,
 } from "lucide-react"
+
+const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 interface DomNode {
   id: string
@@ -135,6 +139,38 @@ export function DesignPanel({ src }: { src: string }) {
   const [applying, setApplying] = useState(false)
   const [applyError, setApplyError] = useState<string | null>(null)
   const [moveHint, setMoveHint] = useState<string | null>(null)
+  const [historyBusy, setHistoryBusy] = useState(false)
+
+  const { data: history, mutate: mutateHistory } = useSWR<{
+    undo: unknown[]
+    redo: unknown[]
+  }>("/api/workspace/design-history", fetcher)
+
+  const runHistory = useCallback(
+    async (action: "undo" | "redo") => {
+      const res = await fetch("/api/workspace/design-history", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      })
+      const json = await res.json().catch(() => null)
+      await mutateHistory()
+      if (json?.ok) {
+        window.dispatchEvent(new CustomEvent("sin:design-history-changed"))
+      }
+    },
+    [mutateHistory],
+  )
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (!(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== "z") return
+      e.preventDefault()
+      runHistory(e.shiftKey ? "redo" : "undo")
+    }
+    window.addEventListener("keydown", onKeyDown)
+    return () => window.removeEventListener("keydown", onKeyDown)
+  }, [runHistory])
 
   const post = useCallback((msg: Record<string, unknown>) => {
     iframeRef.current?.contentWindow?.postMessage({ source: "sin-webui", ...msg }, "*")
@@ -143,7 +179,12 @@ export function DesignPanel({ src }: { src: string }) {
   useEffect(() => {
     function onMessage(e: MessageEvent) {
       const d = e.data
-      if (!d || d.source !== "sin-design") return
+      if (!d) return
+      if (d.type === "sin:screenshot-selection" && d.selection) {
+        handleScreenshot(d.selection)
+        return
+      }
+      if (d.source !== "sin-design") return
       if (d.type === "ready") post({ type: "enable" })
       if (d.type === "tree") setTree(d.tree)
       if (d.type === "inspect") {
@@ -162,10 +203,62 @@ export function DesignPanel({ src }: { src: string }) {
           }${y !== 0 ? `mt-[${y}px]` : ""}`.trim(),
         )
       }
+      if (d.type === "screenshot") {
+        fetch("/api/workspace/screenshot", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ dataUrl: d.dataUrl }),
+        }).then(() => {
+          window.dispatchEvent(new CustomEvent("sin:screenshot-saved"))
+        })
+      }
+      if (d.type === "screenshot-error") {
+        console.error("[sin] Screenshot failed:", d.error)
+      }
     }
     window.addEventListener("message", onMessage)
     return () => window.removeEventListener("message", onMessage)
   }, [post])
+
+  async function handleScreenshot(sel: { x: number; y: number; width: number; height: number; dpr: number }) {
+    const iframe = iframeRef.current
+    if (!iframe?.contentDocument?.body) return
+    try {
+      const canvas = await html2canvas(iframe.contentDocument.body, {
+        scale: sel.dpr,
+        logging: false,
+        useCORS: true,
+        allowTaint: true,
+      })
+      const cropCanvas = document.createElement("canvas")
+      cropCanvas.width = sel.width * sel.dpr
+      cropCanvas.height = sel.height * sel.dpr
+      const ctx = cropCanvas.getContext("2d")
+      if (!ctx) return
+      ctx.drawImage(
+        canvas,
+        sel.x * sel.dpr,
+        sel.y * sel.dpr,
+        sel.width * sel.dpr,
+        sel.height * sel.dpr,
+        0,
+        0,
+        cropCanvas.width,
+        cropCanvas.height,
+      )
+      cropCanvas.toBlob((blob) => {
+        if (!blob) return
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = `screenshot-${Date.now()}.png`
+        a.click()
+        URL.revokeObjectURL(url)
+      }, "image/png")
+    } catch (err) {
+      console.error("Screenshot failed:", err)
+    }
+  }
 
   const dirty = editedClasses !== originalClasses
 
@@ -194,6 +287,7 @@ export function DesignPanel({ src }: { src: string }) {
     })
     if (res.ok) {
       setOriginalClasses(editedClasses)
+      mutateHistory()
     } else {
       const json = await res.json().catch(() => null)
       setApplyError(json?.error ?? "Apply failed")
@@ -335,10 +429,22 @@ export function DesignPanel({ src }: { src: string }) {
 
         <div className="flex shrink-0 items-center justify-between border-t border-border px-3 py-2.5">
           <div className="flex items-center gap-1">
-            <button type="button" aria-label="Undo" className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground">
+            <button
+              type="button"
+              aria-label="Undo (⌘Z)"
+              onClick={() => runHistory("undo")}
+              disabled={!history?.undo?.length || historyBusy}
+              className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40"
+            >
               <Undo2 className="size-3.5" />
             </button>
-            <button type="button" aria-label="Redo" className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground">
+            <button
+              type="button"
+              aria-label="Redo (⌘⇧Z)"
+              onClick={() => runHistory("redo")}
+              disabled={!history?.redo?.length || historyBusy}
+              className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40"
+            >
               <Redo2 className="size-3.5" />
             </button>
           </div>
