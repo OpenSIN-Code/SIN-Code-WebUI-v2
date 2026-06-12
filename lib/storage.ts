@@ -21,7 +21,7 @@ export async function listChats(userId?: string | null) {
     const chatPg = await import('@/lib/storage/chat-history-pg')
     return chatPg.listChats(userId)
   }
-  return chatFile.listChats(userId)
+  return chatFile.listChats()
 }
 
 export async function upsertChatMeta(

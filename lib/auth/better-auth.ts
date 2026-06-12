@@ -8,7 +8,7 @@
  */
 import { betterAuth } from 'better-auth'
 import { kyselyAdapter } from '@better-auth/kysely-adapter'
-import { getPool } from '@/lib/db'
+import { getDb, getPool } from '@/lib/db'
 import { isDbConfigured } from '@/lib/is-db-configured'
 
 export function isBetterAuthEnabled(): boolean {
@@ -28,7 +28,7 @@ export function getAuth() {
     baseURL: process.env.BETTER_AUTH_URL ?? 'http://localhost:3000',
     database: {
       type: 'postgres',
-      adapter: kyselyAdapter(getPool()),
+      adapter: kyselyAdapter(getDb()),
     },
     emailAndPassword: {
       enabled: true,
@@ -45,11 +45,10 @@ export function getAuth() {
       user: {
         create: {
           before: async (user: any) => {
-            const countResult = await getPool()
-              .selectFrom('user')
-              .select(({ fn }) => fn.countAll().as('n'))
-              .executeTakeFirst()
-            return { data: { ...user, role: (countResult?.n ?? 0) === 0 ? 'owner' : 'member' } }
+            const { rows } = await getPool().query(
+              `SELECT COUNT(*)::int AS n FROM "user"`
+            )
+            return { data: { ...user, role: rows[0].n === 0 ? 'owner' : 'member' } }
           },
         },
       },
