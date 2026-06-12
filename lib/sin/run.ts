@@ -94,7 +94,7 @@ export async function runSin(
     )
     const raw = stdout.trim()
 
-    void audit({
+    void await audit({
       actor,
       action: subcommand,
       args: args.join(' ').slice(0, 200),
@@ -114,7 +114,7 @@ export async function runSin(
         ? 'sin-code binary not installed'
         : e.stderr?.trim() || e.message || 'sin-code failed'
 
-    void audit({
+    void await audit({
       actor,
       action: subcommand,
       args: args.join(' ').slice(0, 200),

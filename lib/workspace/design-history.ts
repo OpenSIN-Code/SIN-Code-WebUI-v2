@@ -18,12 +18,35 @@ export type DesignHistoryEntry = {
   description: string
 }
 
-const DIR = path.join(process.cwd(), '.sin-webui')
-const HISTORY_FILE = path.join(DIR, 'design-history.jsonl')
-const REDO_FILE = path.join(DIR, 'design-redo.jsonl')
 const MAX_ENTRIES = 100
 
-const ROOT = process.env.SIN_WORKSPACE_DIR ?? process.cwd()
+let _dir: string | null = null
+// @turbopack-disable-next-line
+function dir(): string {
+  if (!_dir) _dir = path.join(/* turbopackIgnore: true */ process.cwd(), '.sin-webui')
+  return _dir
+}
+
+let _historyFile: string | null = null
+// @turbopack-disable-next-line
+function historyFile(): string {
+  if (!_historyFile) _historyFile = /*turbopackIgnore: true*/ path.join(dir(), 'design-history.jsonl')
+  return _historyFile
+}
+
+let _redoFile: string | null = null
+// @turbopack-disable-next-line
+function redoFile(): string {
+  if (!_redoFile) _redoFile = /*turbopackIgnore: true*/ path.join(dir(), 'design-redo.jsonl')
+  return _redoFile
+}
+
+let _root: string | null = null
+// @turbopack-disable-next-line
+function root(): string {
+  if (!_root) _root = process.env.SIN_WORKSPACE_DIR ?? /* turbopackIgnore: true */ process.cwd()
+  return _root
+}
 
 async function readStack(file: string): Promise<DesignHistoryEntry[]> {
   try {
@@ -35,7 +58,7 @@ async function readStack(file: string): Promise<DesignHistoryEntry[]> {
 }
 
 async function writeStack(file: string, entries: DesignHistoryEntry[]): Promise<void> {
-  await fs.mkdir(DIR, { recursive: true })
+  await fs.mkdir(dir(), { recursive: true })
   const bounded = entries.slice(-MAX_ENTRIES)
   await fs.writeFile(
     file,
@@ -48,7 +71,7 @@ export async function getHistory(): Promise<{
   undo: DesignHistoryEntry[]
   redo: DesignHistoryEntry[]
 }> {
-  const [undo, redo] = await Promise.all([readStack(HISTORY_FILE), readStack(REDO_FILE)])
+  const [undo, redo] = await Promise.all([readStack(historyFile()), readStack(redoFile())])
   return { undo, redo }
 }
 
@@ -62,17 +85,17 @@ export async function pushEntry(
     timestamp: new Date().toISOString(),
     type: 'class-change',
   }
-  const undoStack = await readStack(HISTORY_FILE)
+  const undoStack = await readStack(historyFile())
   undoStack.push(full)
-  await writeStack(HISTORY_FILE, undoStack)
-  await writeStack(REDO_FILE, [])
+  await writeStack(historyFile(), undoStack)
+  await writeStack(redoFile(), [])
   return full
 }
 
 /** Re-applies a value near the recorded line (same strategy as design-edit). */
 async function applyToFile(entry: DesignHistoryEntry, from: string, to: string): Promise<void> {
-  const resolved = path.resolve(ROOT, '.' + path.sep + entry.file)
-  if (!resolved.startsWith(ROOT)) throw new Error('Invalid path')
+  const resolved = /*turbopackIgnore: true*/ path.resolve(root(), '.' + path.sep + entry.file)
+  if (!resolved.startsWith(root())) throw new Error('Invalid path')
   const content = await fs.readFile(resolved, 'utf8')
   const lines = content.split('\n')
   const start = Math.max(0, entry.line - 3)
@@ -88,30 +111,30 @@ async function applyToFile(entry: DesignHistoryEntry, from: string, to: string):
 }
 
 export async function undo(): Promise<DesignHistoryEntry | null> {
-  const stack = await readStack(HISTORY_FILE)
+  const stack = await readStack(historyFile())
   const last = stack.pop()
   if (!last) return null
   await applyToFile(last, last.newValue, last.oldValue)
-  await writeStack(HISTORY_FILE, stack)
-  const redoStack = await readStack(REDO_FILE)
+  await writeStack(historyFile(), stack)
+  const redoStack = await readStack(redoFile())
   redoStack.push(last)
-  await writeStack(REDO_FILE, redoStack)
+  await writeStack(redoFile(), redoStack)
   return last
 }
 
 export async function redo(): Promise<DesignHistoryEntry | null> {
-  const redoStack = await readStack(REDO_FILE)
+  const redoStack = await readStack(redoFile())
   const last = redoStack.pop()
   if (!last) return null
   await applyToFile(last, last.oldValue, last.newValue)
-  await writeStack(REDO_FILE, redoStack)
-  const undoStack = await readStack(HISTORY_FILE)
+  await writeStack(redoFile(), redoStack)
+  const undoStack = await readStack(historyFile())
   undoStack.push(last)
-  await writeStack(HISTORY_FILE, undoStack)
+  await writeStack(historyFile(), undoStack)
   return last
 }
 
 export async function clearHistory(): Promise<void> {
-  await writeStack(HISTORY_FILE, [])
-  await writeStack(REDO_FILE, [])
+  await writeStack(historyFile(), [])
+  await writeStack(redoFile(), [])
 }

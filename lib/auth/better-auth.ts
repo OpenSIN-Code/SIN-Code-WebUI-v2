@@ -1,12 +1,15 @@
 /**
- * Purpose: Better Auth configuration on the existing pg pool.
+ * Purpose: Better Auth configuration using Kysely + @better-auth/kysely-adapter.
  * Requires DATABASE_URL + BETTER_AUTH_SECRET. When either is missing,
  * isBetterAuthEnabled() is false and the legacy token auth
  * (lib/auth.ts / lib/session.ts) remains the active system.
  * Lazy-initialized to avoid build-time database connection errors.
+ * Docs: lib/auth/better-auth.doc.md
  */
 import { betterAuth } from 'better-auth'
-import { getPool, isDbConfigured } from '@/lib/db'
+import { kyselyAdapter } from '@better-auth/kysely-adapter'
+import { getDb, getPool } from '@/lib/db'
+import { isDbConfigured } from '@/lib/is-db-configured'
 
 export function isBetterAuthEnabled(): boolean {
   return isDbConfigured() && Boolean(process.env.BETTER_AUTH_SECRET)
@@ -23,11 +26,13 @@ export function getAuth() {
   _auth = betterAuth({
     secret: process.env.BETTER_AUTH_SECRET,
     baseURL: process.env.BETTER_AUTH_URL ?? 'http://localhost:3000',
-    database: getPool(),
+    database: {
+      type: 'postgres',
+      adapter: kyselyAdapter(getDb()),
+    },
     emailAndPassword: {
       enabled: true,
       sendResetPassword: async ({ user, url }) => {
-        // TODO: real mail provider; for now log to server console
         console.log(`[auth] Password reset for ${user.email}: ${url}`)
       },
     },
@@ -40,8 +45,9 @@ export function getAuth() {
       user: {
         create: {
           before: async (user: any) => {
-            // First registered user becomes owner (bootstrap).
-            const { rows } = await getPool().query(`SELECT COUNT(*)::int AS n FROM "user"`)
+            const { rows } = await getPool().query(
+              `SELECT COUNT(*)::int AS n FROM "user"`
+            )
             return { data: { ...user, role: rows[0].n === 0 ? 'owner' : 'member' } }
           },
         },

@@ -3,14 +3,19 @@ import { promisify } from "util"
 import { execFile } from "child_process"
 
 const execFileAsync = promisify(execFile)
-const ROOT = process.env.SIN_WORKSPACE_DIR ?? process.cwd()
+let _root: string | null = null
+// @turbopack-disable-next-line
+function root(): string {
+  if (!_root) _root = process.env.SIN_WORKSPACE_DIR ?? (/*turbopackIgnore: true*/ process.cwd())
+  return _root
+}
 
 export async function GET() {
   try {
     const { stdout } = await execFileAsync(
       "git",
       ["log", "--pretty=format:%H|%cI|%s", "-n", "50"],
-      { cwd: ROOT },
+      { cwd: root() },
     )
     const versions = stdout
       .trim()

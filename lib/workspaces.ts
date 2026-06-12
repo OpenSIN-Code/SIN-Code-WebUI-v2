@@ -24,8 +24,18 @@ export {
 }
 
 // ── Custom workspace store ──────────────────────────────────────────────
-const DATA_DIR = path.join(process.cwd(), '.sin-webui')
-const WS_FILE = path.join(DATA_DIR, 'workspaces.json')
+let _dataDir: string | null = null
+function dataDir(): string {
+  if (!_dataDir) _dataDir = path.join(/*turbopackIgnore: true*/ process.cwd(), '.sin-webui')
+  return _dataDir
+}
+
+let _wsFile: string | null = null
+function wsFile(): string {
+  if (!_wsFile) _wsFile = path.join(dataDir(), 'workspaces.json')
+  return _wsFile
+}
+
 const SAFE_ID = /^[a-z0-9-]{1,40}$/
 
 export function isValidWorkspaceId(id: string): boolean {
@@ -34,17 +44,17 @@ export function isValidWorkspaceId(id: string): boolean {
 
 async function readFileWorkspaces(): Promise<Workspace[]> {
   try {
-    return JSON.parse(await readFile(WS_FILE, 'utf8')) as Workspace[]
+    return JSON.parse(await readFile(wsFile(), 'utf8')) as Workspace[]
   } catch {
     return []
   }
 }
 
 async function writeFileWorkspaces(list: Workspace[]): Promise<void> {
-  await mkdir(DATA_DIR, { recursive: true })
-  const tmp = `${WS_FILE}.tmp-${Date.now()}`
+  await mkdir(dataDir(), { recursive: true })
+  const tmp = `${wsFile()}.tmp-${Date.now()}`
   await writeFile(tmp, JSON.stringify(list, null, 2), 'utf8')
-  await rename(tmp, WS_FILE)
+  await rename(tmp, wsFile())
 }
 
 function rowToWorkspace(r: Record<string, unknown>): Workspace {

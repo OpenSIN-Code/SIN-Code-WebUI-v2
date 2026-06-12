@@ -1,14 +1,38 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=app
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+      - POSTGRES_DB=sin_webui
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/better-auth-schema.sql:/docker-entrypoint-initdb.d/010-better-auth-schema.sql:ro
+      - ./scripts/001_init.sql:/docker-entrypoint-initdb.d/001-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d sin_webui"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
   webui:
     build: .
     ports:
-      - "3000:3000"
+      - "3100:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
       - AI_GATEWAY_API_KEY=${AI_GATEWAY_API_KEY}
       - SIN_CHAT_MODEL=${SIN_CHAT_MODEL:-openai/gpt-5-mini}
       - SIN_CODE_BIN=/usr/local/bin/sin-code
+      - DATABASE_URL=postgresql://app:${POSTGRES_PASSWORD:-changeme}@postgres:5432/sin_webui?sslmode=disable
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-changeme-insecure-dev-secret-32chars-min}
+      - BETTER_AUTH_URL=${BETTER_AUTH_URL:-http://localhost:3100}
     volumes:
       - sin-webui-data:/app/.sin-webui
 
 volumes:
+  postgres-data:
   sin-webui-data:

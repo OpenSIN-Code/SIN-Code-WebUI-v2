@@ -5,12 +5,17 @@ import crypto from "crypto"
 import { guardRequest } from "@/lib/sin/run"
 import { getSession } from "@/lib/session"
 
-const BASE = path.join(process.cwd(), ".sin-webui")
+let _base: string | null = null
+// @turbopack-disable-next-line
+function base(): string {
+  if (!_base) _base = path.join(/*turbopackIgnore: true*/ process.cwd(), ".sin-webui")
+  return _base
+}
 
 function mcpFile(userId: string): string {
-  if (userId === "global") return path.join(BASE, "mcp-connections.json")
+  if (userId === "global") return path.join(base(), "mcp-connections.json")
   const safe = userId.replace(/[^a-zA-Z0-9_-]/g, "_")
-  return path.join(BASE, "users", safe, "mcp-connections.json")
+  return path.join(base(), "users", safe, "mcp-connections.json")
 }
 
 export interface McpConnection {

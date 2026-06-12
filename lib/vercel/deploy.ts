@@ -3,8 +3,18 @@ import fs from "node:fs/promises"
 import { createHash } from "node:crypto"
 import { vercelFetch, type VercelDeployment } from "./client"
 
-const WORKSPACE_DIR = process.env.SIN_WORKSPACE_DIR || process.cwd()
-const DEPLOYMENTS_FILE = path.join(process.cwd(), ".sin-webui", "deployments.json")
+let _workspaceDir: string | null = null
+function workspaceDir(): string {
+  if (!_workspaceDir) _workspaceDir = process.env.SIN_WORKSPACE_DIR || (/*turbopackIgnore: true*/ process.cwd())
+  return _workspaceDir
+}
+
+let _deploymentsFile: string | null = null
+function deploymentsFile(): string {
+  if (!_deploymentsFile) _deploymentsFile = path.join(/*turbopackIgnore: true*/ process.cwd(), ".sin-webui", "deployments.json")
+  return _deploymentsFile
+}
+
 const IGNORE = new Set(["node_modules", ".next", ".git", ".sin-webui", ".vercel"])
 
 export type DeploymentRecord = {
@@ -33,7 +43,7 @@ export async function createDeployment(opts: {
   projectName: string
   target: "production" | "preview"
 }): Promise<VercelDeployment> {
-  const files = await collectFiles(WORKSPACE_DIR)
+  const files = await collectFiles(workspaceDir())
 
   const fileRefs = await Promise.all(
     files.map(async ({ file, data }) => {
@@ -80,7 +90,7 @@ export async function getDeploymentStatus(id: string): Promise<VercelDeployment>
 
 export async function listDeployments(): Promise<DeploymentRecord[]> {
   try {
-    return JSON.parse(await fs.readFile(DEPLOYMENTS_FILE, "utf8")) as DeploymentRecord[]
+    return JSON.parse(await fs.readFile(deploymentsFile(), "utf8")) as DeploymentRecord[]
   } catch {
     return []
   }
@@ -89,8 +99,8 @@ export async function listDeployments(): Promise<DeploymentRecord[]> {
 async function appendRecord(record: DeploymentRecord): Promise<void> {
   const records = await listDeployments()
   records.unshift(record)
-  await fs.mkdir(path.dirname(DEPLOYMENTS_FILE), { recursive: true })
-  await fs.writeFile(DEPLOYMENTS_FILE, JSON.stringify(records.slice(0, 50), null, 2))
+  await fs.mkdir(path.dirname(deploymentsFile()), { recursive: true })
+  await fs.writeFile(deploymentsFile(), JSON.stringify(records.slice(0, 50), null, 2))
 }
 
 async function updateRecord(id: string, status: string): Promise<void> {
@@ -98,6 +108,6 @@ async function updateRecord(id: string, status: string): Promise<void> {
   const r = records.find((x) => x.id === id)
   if (r && r.status !== status) {
     r.status = status
-    await fs.writeFile(DEPLOYMENTS_FILE, JSON.stringify(records, null, 2))
+    await fs.writeFile(deploymentsFile(), JSON.stringify(records, null, 2))
   }
 }

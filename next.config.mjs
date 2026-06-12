@@ -23,7 +23,16 @@ const nextConfig = {
       './scripts/**',
       './public/**',
       './**/*.test.ts',
+      './lib/storage/**',
+      './lib/db.ts',
+      './lib/auth/better-auth.ts',
+      './lib/chat-history.ts',
+      './lib/tokens.ts',
+      './lib/audit.ts',
     ],
+    'app/api/workspace/**': ['**/*'],
+    'app/api/settings/mcp/route.ts': ['**/*'],
+    'app/api/settings/workspace/route.ts': ['**/*'],
   },
 }
 

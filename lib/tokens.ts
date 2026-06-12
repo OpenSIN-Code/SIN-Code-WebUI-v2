@@ -9,8 +9,17 @@ import { createHash, randomBytes } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
-const DATA_DIR = path.join(process.cwd(), '.sin-webui')
-const TOKENS_FILE = path.join(DATA_DIR, 'tokens.json')
+let _dataDir: string | null = null
+function dataDir(): string {
+  if (!_dataDir) _dataDir = path.join(/*turbopackIgnore: true*/ process.cwd(), '.sin-webui')
+  return _dataDir
+}
+
+let _tokensFile: string | null = null
+function tokensFile(): string {
+  if (!_tokensFile) _tokensFile = path.join(dataDir(), 'tokens.json')
+  return _tokensFile
+}
 
 export type TokenRecord = {
   id: string
@@ -26,17 +35,17 @@ function hashToken(token: string): string {
 
 async function readTokens(): Promise<TokenRecord[]> {
   try {
-    return JSON.parse(await readFile(TOKENS_FILE, 'utf8')) as TokenRecord[]
+    return JSON.parse(await readFile(tokensFile(), 'utf8')) as TokenRecord[]
   } catch {
     return []
   }
 }
 
 async function writeTokens(tokens: TokenRecord[]): Promise<void> {
-  await mkdir(DATA_DIR, { recursive: true })
-  const tmp = `${TOKENS_FILE}.tmp-${Date.now()}`
+  await mkdir(dataDir(), { recursive: true })
+  const tmp = `${tokensFile()}.tmp-${Date.now()}`
   await writeFile(tmp, JSON.stringify(tokens, null, 2), 'utf8')
-  await rename(tmp, TOKENS_FILE)
+  await rename(tmp, tokensFile())
 }
 
 export async function listTokens(): Promise<Omit<TokenRecord, 'hash'>[]> {

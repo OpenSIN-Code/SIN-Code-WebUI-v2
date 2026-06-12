@@ -4,7 +4,7 @@
  * The env SIN_UI_TOKEN remains the irrevocable admin/root identity.
  */
 import { randomBytes } from 'node:crypto'
-import { getPool, isDbConfigured } from '@/lib/db'
+import { isDbConfigured } from '@/lib/is-db-configured'
 
 export type User = {
   id: string
@@ -18,6 +18,7 @@ export function isMultiUserEnabled(): boolean {
 }
 
 export async function listUsers(): Promise<User[]> {
+  const { getPool } = await import('@/lib/db')
   const { rows } = await getPool().query(
     `SELECT u.id, u.name, u.role, u.created_at,
             COUNT(t.id)::int AS token_count
@@ -38,6 +39,7 @@ export async function createUser(
   name: string,
   role: 'admin' | 'member' = 'member',
 ): Promise<User> {
+  const { getPool } = await import('@/lib/db')
   const id = randomBytes(6).toString('hex')
   const { rows } = await getPool().query(
     `INSERT INTO users (id, name, role) VALUES ($1, $2, $3)
@@ -50,12 +52,14 @@ export async function createUser(
 
 export async function deleteUser(id: string): Promise<boolean> {
   // Cascades: tokens and chats of this user are removed (FK ON DELETE CASCADE).
+  const { getPool } = await import('@/lib/db')
   const result = await getPool().query(`DELETE FROM users WHERE id = $1`, [id])
   return (result.rowCount ?? 0) > 0
 }
 
 /** Resolve the user owning a presented token (by hash), or null. */
 export async function findUserByTokenHash(hash: string): Promise<User | null> {
+  const { getPool } = await import('@/lib/db')
   const { rows } = await getPool().query(
     `SELECT u.id, u.name, u.role, u.created_at
      FROM access_tokens t JOIN users u ON u.id = t.user_id

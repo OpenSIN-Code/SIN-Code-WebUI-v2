@@ -4,12 +4,17 @@ import path from "path"
 import { guardRequest } from "@/lib/sin/run"
 import { getSession } from "@/lib/session"
 
-const BASE = path.join(process.cwd(), ".sin-webui")
+let _base: string | null = null
+// @turbopack-disable-next-line
+function base(): string {
+  if (!_base) _base = path.join(/*turbopackIgnore: true*/ process.cwd(), ".sin-webui")
+  return _base
+}
 
 function workspaceFile(userId: string): string {
-  if (userId === "global") return path.join(BASE, "workspace.json")
+  if (userId === "global") return path.join(base(), "workspace.json")
   const safe = userId.replace(/[^a-zA-Z0-9_-]/g, "_")
-  return path.join(BASE, "users", safe, "workspace.json")
+  return path.join(base(), "users", safe, "workspace.json")
 }
 
 interface Workspace {

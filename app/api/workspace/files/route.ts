@@ -2,7 +2,12 @@ import { NextResponse } from "next/server"
 import { promises as fs } from "fs"
 import path from "path"
 
-const ROOT = process.env.SIN_WORKSPACE_DIR ?? process.cwd()
+let _root: string | null = null
+// @turbopack-disable-next-line
+function root(): string {
+  if (!_root) _root = process.env.SIN_WORKSPACE_DIR ?? (/*turbopackIgnore: true*/ process.cwd())
+  return _root
+}
 
 const IGNORE = new Set(["node_modules", ".git", ".next", ".sin-webui", "dist"])
 const MAX_FILE_SIZE = 512 * 1024
@@ -15,8 +20,8 @@ interface TreeNode {
 }
 
 function safeResolve(rel: string): string {
-  const resolved = path.resolve(ROOT, "." + path.sep + rel)
-  if (!resolved.startsWith(ROOT)) throw new Error("Invalid path")
+  const resolved = /*turbopackIgnore: true*/ path.resolve(root(), "." + path.sep + rel)
+  if (!resolved.startsWith(root())) throw new Error("Invalid path")
   return resolved
 }
 
@@ -31,7 +36,7 @@ async function buildTree(dir: string, relBase = ""): Promise<TreeNode[]> {
         name: entry.name,
         path: relPath,
         type: "dir",
-        children: await buildTree(path.join(dir, entry.name), relPath),
+        children: await buildTree(/*turbopackIgnore: true*/ path.join(dir, entry.name), relPath),
       })
     } else {
       nodes.push({ name: entry.name, path: relPath, type: "file" })
@@ -60,5 +65,5 @@ export async function GET(req: Request) {
     }
   }
 
-  return NextResponse.json({ nodes: await buildTree(ROOT) })
+  return NextResponse.json({ nodes: await buildTree(root()) })
 }

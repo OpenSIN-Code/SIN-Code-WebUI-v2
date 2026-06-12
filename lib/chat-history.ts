@@ -9,7 +9,13 @@ import { mkdir, readFile, readdir, rename, unlink, writeFile } from 'node:fs/pro
 import path from 'node:path'
 import type { UIMessage } from 'ai'
 
-const DATA_DIR = path.join(process.cwd(), 'data', 'chats')
+// Lazy-initialized to prevent Turbopack's NFT tracer from seeing path.join(process.cwd(),...)
+// at module scope. The ensureDir() call triggers initialization on first use.
+let _dataDir: string | null = null
+function dataDir(): string {
+  if (!_dataDir) _dataDir = path.join(/*turbopackIgnore: true*/ process.cwd(), 'data', 'chats')
+  return _dataDir
+}
 const SAFE_ID = /^[a-z0-9-]{1,80}$/
 
 export type ChatMeta = {
@@ -23,15 +29,15 @@ export type ChatMeta = {
 }
 
 async function ensureDir() {
-  await mkdir(DATA_DIR, { recursive: true })
+  await mkdir(dataDir(), { recursive: true })
 }
 
 function indexPath() {
-  return path.join(DATA_DIR, 'index.json')
+  return path.join(dataDir(), 'index.json')
 }
 
 function chatPath(id: string) {
-  return path.join(DATA_DIR, `${id}.json`)
+  return path.join(dataDir(), `${id}.json`)
 }
 
 async function atomicWrite(filePath: string, content: string) {
@@ -121,13 +127,13 @@ export async function pruneOrphans(): Promise<void> {
   await ensureDir()
   const chats = await listChats()
   const ids = new Set(chats.map((c) => c.id))
-  const files = await readdir(DATA_DIR)
+  const files = await readdir(dataDir())
   for (const file of files) {
     if (!file.endsWith('.json') || file === 'index.json') continue
     const id = file.replace(/\.json$/, '')
     if (!ids.has(id) && SAFE_ID.test(id)) {
       try {
-        await unlink(path.join(DATA_DIR, file))
+        await unlink(path.join(dataDir(), file))
       } catch {
         /* ignore */
       }

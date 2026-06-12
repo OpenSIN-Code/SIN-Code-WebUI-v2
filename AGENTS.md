@@ -390,6 +390,33 @@ auf Redirects umgestellt werden. Ein PR ist erst fertig, wenn die
 betroffenen Routen im Browser (Screenshot) verifiziert wurden — ein
 grüner tsc/build-Check ist KEIN Beweis für korrektes Rendering.
 
+## §5.10 No Orphaned Components
+
+After every UI refactoring, verify that all old entry points are migrated or
+redirected. A PR is only done when the affected routes are verified in the
+browser (screenshot) — a green tsc/build check is NO proof of correct
+rendering. Use `sin-discover` to detect orphaned components (exported but not
+imported anywhere in nav/sidebar). After wiring a new component, delete the
+legacy file in the same PR. Never leave dangling components.
+
+## §5.11 Routing Protection
+
+When deploying to Docker + Cloudflare Tunnel on macOS:
+
+- Port 3000 may be occupied by other processes (whatsapp-bridge, other dev
+  servers) — always check with `lsof -i :3000` before assuming port is free
+- Remap Docker container to `3100:3000` in docker-compose.yml to avoid conflicts
+- Update `~/.cloudflared/config-sin-code-webui.yml` to point to `localhost:3100`
+- Restart cloudflared tunnel after config changes:
+  ```bash
+  pkill -f "cloudflared tunnel"
+  nohup cloudflared tunnel --config ~/.cloudflared/config-sin-code-webui.yml run sin-code-webui &
+  ```
+- Verify with `curl -s https://sincode-webui.delqhi.com/api/health` — expect
+  Next.js JSON, NOT Express "Invalid Host header"
+- If live domain returns Express headers, a local process (not the container)
+  is hijacking the tunnel
+
 ---
 
 Last updated: aligned with main @ `86872a4` (post deploy work).
