@@ -1,0 +1,41 @@
+# CODEOWNERS file for SIN-Code WebUI v2
+# Single-maintainer project — all areas owned by @jeremy
+# Ref: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# ── Global fallback ──────────────────────────────
+* @jeremy
+
+# ── Core UI components (React components, pages, hooks) ──
+/components/   @jeremy
+/app/          @jeremy
+/lib/          @jeremy
+
+# ── API routes (Next.js server handlers) ─────────
+/app/api/      @jeremy
+
+# ── SIN-Code integration (tools, client, MCP bridge) ──
+/lib/sin/      @jeremy
+
+# ── CI/CD configuration ──────────────────────────
+/.github/      @jeremy
+
+# ── Infrastructure / deployment ──────────────────
+/Dockerfile    @jeremy
+/docker-compose.yml  @jeremy
+/Caddyfile     @jeremy
+/scripts/      @jeremy
+
+# ── Project docs & configuration ─────────────────
+/AGENTS.md     @jeremy
+/PLAN_*.md     @jeremy
+/README.md     @jeremy
+/.env*         @jeremy
+
+# ── Root config files ────────────────────────────
+/package.json      @jeremy
+/pnpm-lock.yaml    @jeremy
+/tsconfig.json     @jeremy
+/next.config.*     @jeremy
+/tailwind.config.* @jeremy
+/eslint*           @jeremy
+/.prettier*        @jeremy
