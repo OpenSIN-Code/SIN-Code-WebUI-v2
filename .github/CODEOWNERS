@@ -1,0 +1,38 @@
+# CODEOWNERS — auto-review routing for PRs
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# Pattern matching: last matching pattern wins.
+# Each line: <pattern> <@owner1> <@owner2> ...
+
+# ── 1. Default owner (fallback for any file not matched below) ──────────────
+# Catch-all ensures every PR gets at least one reviewer auto-requested.
+*                                   @OpenSIN-Code/sin-code-maintainers
+
+# ── 2. Core backend — strict review (2 owners required) ────────────────────
+# lib/sin/ and app/api/ are the sin-code integration layer;
+# bugs here break the entire chat → backend pipeline.
+/lib/sin/                           @Delqhi
+/app/api/                           @Delqhi
+
+# ── 3. CI/CD & infrastructure — strict review ──────────────────────────────
+# Workflow, Docker, and reverse-proxy changes can silently break
+# deploys or introduce supply-chain risk.
+/.github/workflows/                 @Delqhi
+/Dockerfile*                        @Delqhi
+/docker-compose.yml                 @Delqhi
+/Caddyfile                          @Delqhi
+
+# ── 4. Frontend — normal review ────────────────────────────────────────────
+# UI components and page routes; lower blast radius than backend.
+/app/                               @OpenSIN-Code/sin-code-maintainers
+/components/                        @OpenSIN-Code/sin-code-maintainers
+
+# ── 5. Docs — light review ─────────────────────────────────────────────────
+# Markdown and docs carry no runtime risk.
+/*.md                               @OpenSIN-Code/sin-code-maintainers
+/docs/                              @OpenSIN-Code/sin-code-maintainers
+
+# ── 6. Secrets-sensitive — strict review ────────────────────────────────────
+# .env files and secrets directory must never leak real values.
+/.env*                              @Delqhi
+/secrets/                            @Delqhi

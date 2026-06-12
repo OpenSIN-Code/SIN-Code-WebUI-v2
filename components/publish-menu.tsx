@@ -1,11 +1,13 @@
 /**
- * Purpose: Publish / Deploy popover (simulated) for the chat header.
- * Cycles through idle → deploying → deployed; idempotent.
- * Related issues: #19
+ * Purpose: Publish / Deploy popover for the chat header.
+ * Calls POST /api/publish which triggers the GitHub Actions docker.yml
+ * workflow via workflow_dispatch. Cycles through idle → deploying →
+ * deployed or error. Idempotent.
+ * Related issues: #19, #39
  */
 'use client'
 
-import { Check, ExternalLink, Globe, Loader2 } from 'lucide-react'
+import { AlertCircle, Check, ExternalLink, Globe, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import {
   DropdownMenu,
@@ -13,17 +15,43 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-type DeployState = 'idle' | 'deploying' | 'deployed'
+type DeployState = 'idle' | 'deploying' | 'deployed' | 'error'
 
 export function PublishMenu({ chatId }: { chatId?: string }) {
   const [state, setState] = useState<DeployState>('idle')
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const domain = `${chatId ?? 'preview'}.vercel.app`
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     if (state === 'deploying') return
     setState('deploying')
-    window.setTimeout(() => setState('deployed'), 2000)
+    setErrorMessage(null)
+
+    try {
+      const res = await fetch('/api/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chatId,
+          visibility: 'private',
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setState('error')
+        setErrorMessage(data.message ?? `Deploy failed (${res.status})`)
+        return
+      }
+
+      setState('deployed')
+    } catch (err) {
+      setState('error')
+      const msg = err instanceof Error ? err.message : 'Network error'
+      setErrorMessage(msg)
+    }
   }
 
   return (
@@ -45,7 +73,8 @@ export function PublishMenu({ chatId }: { chatId?: string }) {
               Publish your app
             </p>
             <p className="text-xs leading-relaxed text-muted-foreground">
-              Deploy the latest version of this chat to a public URL on Vercel.
+              Deploy the latest version of this chat to a public URL via
+              GitHub Actions.
             </p>
           </div>
 
@@ -74,6 +103,13 @@ export function PublishMenu({ chatId }: { chatId?: string }) {
             </div>
           )}
 
+          {state === 'error' && (
+            <div className="flex items-start gap-1.5 rounded-md border border-destructive/40 bg-destructive/10 px-2.5 py-2 text-xs text-destructive">
+              <AlertCircle className="size-3.5 shrink-0 mt-0.5" />
+              <span className="break-words">{errorMessage}</span>
+            </div>
+          )}
+
           <button
             type="button"
             onClick={handlePublish}
@@ -86,6 +122,7 @@ export function PublishMenu({ chatId }: { chatId?: string }) {
             {state === 'idle' && 'Publish'}
             {state === 'deploying' && 'Publishing…'}
             {state === 'deployed' && 'Update'}
+            {state === 'error' && 'Retry'}
           </button>
         </div>
       </DropdownMenuContent>
