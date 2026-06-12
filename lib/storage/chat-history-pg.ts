@@ -9,9 +9,9 @@ import type { ChatMeta } from '@/lib/chat-history'
 export async function listChats(userId?: string | null): Promise<ChatMeta[]> {
   const { rows } = await getPool().query(
     userId
-      ? `SELECT id, label, favorite, created_at, updated_at
+      ? `SELECT id, label, favorite, workspace_id, created_at, updated_at
          FROM chats WHERE user_id = $1 ORDER BY updated_at DESC LIMIT 500`
-      : `SELECT id, label, favorite, created_at, updated_at
+      : `SELECT id, label, favorite, workspace_id, created_at, updated_at
          FROM chats ORDER BY updated_at DESC LIMIT 500`,
     userId ? [userId] : [],
   )
@@ -19,6 +19,7 @@ export async function listChats(userId?: string | null): Promise<ChatMeta[]> {
     id: r.id,
     label: r.label,
     favorite: r.favorite,
+    workspaceId: r.workspace_id,
     createdAt: r.created_at.toISOString(),
     updatedAt: r.updated_at.toISOString(),
   }))
@@ -29,13 +30,14 @@ export async function upsertChatMeta(
   userId?: string | null,
 ): Promise<void> {
   await getPool().query(
-    `INSERT INTO chats (id, label, favorite, user_id)
-     VALUES ($1, $2, COALESCE($3, FALSE), $4)
+    `INSERT INTO chats (id, label, favorite, workspace_id, user_id)
+     VALUES ($1, $2, COALESCE($3, FALSE), $4, $5)
      ON CONFLICT (id) DO UPDATE SET
        label = EXCLUDED.label,
        favorite = COALESCE($3, chats.favorite),
+       workspace_id = COALESCE($4, chats.workspace_id),
        updated_at = NOW()`,
-    [meta.id, meta.label, meta.favorite ?? null, userId ?? null],
+    [meta.id, meta.label, meta.favorite ?? null, meta.workspaceId ?? null, userId ?? null],
   )
 }
 

@@ -14,6 +14,7 @@ import { useEffect, useRef, useState } from 'react'
 import { AgentPicker } from '@/components/agent-picker'
 import { DashedSpinner, Starburst } from '@/components/icons'
 import { ToolCallCard, type ToolPartLike } from '@/components/tool-call-card'
+import { ChartMessage } from '@/components/chart-message'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -220,15 +221,47 @@ export function ChatView({
             return (
               <div key={message.id} className="flex flex-col gap-3">
                 {message.parts?.map((part, i) => {
-                  if (part.type === 'text') {
-                    return (
-                      <Markdown key={i} content={part.text} />
-                    )
-                  }
-                  if (
-                    part.type.startsWith('tool-') ||
-                    part.type === 'dynamic-tool'
-                  ) {
+  if (part.type === 'text') {
+    return (
+      <Markdown key={i} content={part.text} />
+    )
+  }
+  if (part.type === 'tool-render_chart' && part.state === 'output-available') {
+    return <ChartMessage key={i} spec={part.output as never} />
+  }
+  if (part.type === 'tool-web_search' && part.state === 'output-available') {
+    const out = part.output as { summary?: string; sources?: string[]; error?: string }
+    return (
+      <div
+        key={i}
+        className="rounded-lg border border-border bg-card p-3"
+      >
+        <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-foreground">
+          {out.error ?? out.summary}
+        </p>
+        {out.sources && out.sources.length > 0 && (
+          <ul className="mt-2 flex flex-col gap-1">
+            {out.sources.map((url) => (
+              <li key={url}>
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="break-all font-mono text-[11px] text-brand hover:underline"
+                >
+                  {url}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    )
+  }
+  if (
+    part.type.startsWith('tool-') ||
+    part.type === 'dynamic-tool'
+  ) {
                     return (
                       <ToolCallCard key={i} part={part as ToolPartLike} />
                     )

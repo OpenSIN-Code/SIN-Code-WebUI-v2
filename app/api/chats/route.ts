@@ -16,7 +16,7 @@ export async function POST(req: Request) {
   const guard = await guardRequest(req, 'chats', 30)
   if (guard) return guard
 
-  const body: { id?: string; label?: string; favorite?: boolean } =
+  const body: { id?: string; label?: string; favorite?: boolean; workspace_id?: string } =
     await req.json()
   if (!body.id || !isValidChatId(body.id) || !body.label?.trim()) {
     return Response.json(
@@ -28,6 +28,7 @@ export async function POST(req: Request) {
     id: body.id,
     label: body.label.trim().slice(0, 120),
     favorite: body.favorite,
+    workspaceId: body.workspace_id,
   })
   return Response.json({ ok: true })
 }

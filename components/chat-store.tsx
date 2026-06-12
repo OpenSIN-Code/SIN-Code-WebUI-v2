@@ -12,6 +12,7 @@ export type ChatEntry = {
   id: string
   label: string
   favorite?: boolean
+  workspaceId?: string
 }
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
@@ -31,12 +32,12 @@ export function useChatStore() {
 
   const recentChats: ChatEntry[] = Array.isArray(data?.data) ? data.data : []
 
-  async function addChat(entry: { id: string; label: string }) {
+  async function addChat(entry: { id: string; label: string; workspaceId?: string }) {
     mutate(
       { ok: true, data: [{ ...entry, favorite: false }, ...recentChats] },
       { revalidate: false },
     )
-    await postChat({ id: entry.id, label: entry.label })
+    await postChat({ id: entry.id, label: entry.label, workspaceId: entry.workspaceId })
     mutate()
   }
 

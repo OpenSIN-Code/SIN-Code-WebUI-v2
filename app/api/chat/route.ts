@@ -14,6 +14,8 @@ import { getSinTools } from '@/lib/sin/mcp'
 import { resolveModel } from '@/lib/sin/models'
 import { guardRequest } from '@/lib/sin/run'
 import { SIN_CODE_INSTALL_CMD, SIN_MCP_TOOLS } from '@/lib/sin/tools'
+import { getSession } from '@/lib/session'
+import { getWorkspace, BUILT_IN_WORKSPACES } from '@/lib/workspaces'
 
 export const maxDuration = 120
 
@@ -86,7 +88,11 @@ export async function POST(req: Request) {
     messages,
     model: bodyModel,
     agent,
-  }: { messages: UIMessage[]; model?: string; agent?: string } = await req.json()
+    workspaceId,
+  }: { messages: UIMessage[]; model?: string; agent?: string; workspaceId?: string } = await req.json()
+
+  const session = await getSession()
+  const workspace = await getWorkspace(workspaceId ?? 'code', session?.userId ?? null) ?? BUILT_IN_WORKSPACES[0]
 
   const sin = await getSinTools()
   const selectedModel = resolveModel(bodyModel)
@@ -96,12 +102,17 @@ export async function POST(req: Request) {
     .filter(Boolean)
     .join('\n\n')
 
+  const allTools = sin.tools
+  const enabled = new Set(workspace.enabledTools)
+  const tools = Object.fromEntries(
+    Object.entries(allTools).filter(([key]) => enabled.has(key)),
+  )
+
   const result = streamText({
     model: selectedModel,
-    system,
+    system: [system, workspace.systemPrompt].filter(Boolean).join('\n\n'),
     messages: await convertToModelMessages(messages),
-    tools: sin.tools,
-    stopWhen: stepCountIs(20),
+    ...(Object.keys(tools).length > 0 ? { tools, stopWhen: stepCountIs(15) } : {}),
     onFinish: async () => {
       await sin.close()
     },

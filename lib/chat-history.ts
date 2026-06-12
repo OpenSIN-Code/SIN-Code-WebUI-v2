@@ -16,6 +16,7 @@ export type ChatMeta = {
   id: string
   label: string
   favorite: boolean
+  workspaceId?: string
   createdAt: string
   updatedAt: string
 }
@@ -73,6 +74,7 @@ export async function upsertChatMeta(
           id: meta.id,
           label: meta.label,
           favorite: meta.favorite ?? false,
+          workspaceId: meta.workspaceId,
           createdAt: now,
           updatedAt: now,
         },
