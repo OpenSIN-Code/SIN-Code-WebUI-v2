@@ -27,9 +27,10 @@ interface ChatViewProps {
   status: "idle" | "submitted" | "streaming"
   onSend: (text: string, model: string) => void
   onStop?: () => void
+  initialModel?: string
 }
 
-export function ChatView({ messages, status, onSend, onStop }: ChatViewProps) {
+export function ChatView({ messages, status, onSend, onStop, initialModel }: ChatViewProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -96,7 +97,7 @@ export function ChatView({ messages, status, onSend, onStop }: ChatViewProps) {
 
       <div className="border-t border-border bg-background">
         <div className="mx-auto max-w-3xl px-4 py-3">
-          <PromptComposer onSend={onSend} onStop={onStop} isStreaming={isStreaming} />
+          <PromptComposer onSend={onSend} onStop={onStop} isStreaming={isStreaming} initialModel={initialModel} />
           <p className="mt-2 text-center text-xs text-muted-foreground">
             SIN-Code can make mistakes. Verify important output.
           </p>

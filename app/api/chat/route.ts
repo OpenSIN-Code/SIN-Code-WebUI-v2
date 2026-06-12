@@ -9,6 +9,7 @@ import {
   streamText,
   type UIMessage,
 } from 'ai'
+import { buildAgentContext } from '@/lib/settings/agent-context'
 import { agentPrompt } from '@/lib/sin/agents'
 import { getSinTools } from '@/lib/sin/mcp'
 import { resolveModel } from '@/lib/sin/models'
@@ -98,7 +99,8 @@ export async function POST(req: Request) {
   const selectedModel = resolveModel(bodyModel)
 
   const persona = agentPrompt(agent)
-  const system = [SYSTEM_PROMPT, persona, sin.available ? '' : FALLBACK_NOTICE]
+  const agentContext = await buildAgentContext()
+  const system = [SYSTEM_PROMPT, persona, agentContext, sin.available ? '' : FALLBACK_NOTICE]
     .filter(Boolean)
     .join('\n\n')
 

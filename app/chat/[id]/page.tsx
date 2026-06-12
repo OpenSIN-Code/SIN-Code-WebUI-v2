@@ -1,5 +1,5 @@
 import { AppSidebar } from '@/components/app-sidebar'
-import { ChatView } from '@/components/chat-view'
+import { ChatViewWrapper } from '@/components/chat/chat-view-wrapper'
 
 export default async function ChatPage({
   params,
@@ -15,7 +15,7 @@ export default async function ChatPage({
     <div className="flex h-svh bg-background">
       <AppSidebar />
       <main className="flex min-h-0 flex-1 flex-col">
-        <ChatView chatId={id} prompt={q} initialModel={m} />
+        <ChatViewWrapper chatId={id} prompt={q} initialModel={m} />
       </main>
     </div>
   )

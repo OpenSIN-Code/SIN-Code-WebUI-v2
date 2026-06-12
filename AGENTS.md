@@ -341,8 +341,17 @@ follow-ups to be created as part of the ongoing roadmap:
 - `pnpm tsc --noEmit` in CI ✅ — `.github/workflows/tsc-check.yml` runs on every PR/push to main
 - `pnpm test` setup ✅ — vitest configured with `lib/utils.test.ts` and `lib/sin/client.test.ts` (15 tests passing)
 - `CODEOWNERS` file ✅ — all areas owned by `@jeremy` with section comments
+- Settings System ✅ — Preferences, API Keys, Integrations, Members, Usage, General, Memories, Skills (file-based persistence in `.sin-webui/`)
+- Workspace Panel ✅ — Preview, Code, Design, Database tabs with tab state persistence
+- v0-style Chat UI ✅ — Markdown rendering, Tool Calls, Code Blocks, Shimmer loading, Prompt Composer
+- Design Mode ✅ — Drag-to-Move canvas, Floating Layers, Inspector sidebar, Apply/Reset workflow
+- Agent Context Injection ✅ — Custom Instructions + Memories into system prompt via `buildAgentContext()`
+- Sound Notifications ✅ — audio feedback for events (configurable in settings)
+- Theme Sync ✅ — next-themes integration with system/light/dark modes
+- CI/CD Pipeline ✅ — `tsc-check.yml`, `lint.yml`, `build.yml` workflows
+- Docker Support ✅ — multi-stage Dockerfile + docker-compose.yml + Caddyfile reverse proxy
+- File-based Persistence ✅ — `.sin-webui/` workspace with JSON stores (settings, workspaces, memories, projects)
 - Real Vercel-Deploy behind the Publish button — out of scope (real deploys go through Docker + Cloudflare Tunnel, see `PLAN_DEPLOY.md`)
-- Sidebar collapsibility ✅ — implemented via `useSidebarStore` (SSR-safe, localStorage-persisted). Toggle button in `app-sidebar.tsx` is fully wired and functional.
 
 Check the live issue list before starting any new task.
 

@@ -15,6 +15,7 @@ interface PromptComposerProps {
   onStop?: () => void
   isStreaming?: boolean
   placeholder?: string
+  initialModel?: string
 }
 
 export function PromptComposer({
@@ -22,9 +23,10 @@ export function PromptComposer({
   onStop,
   isStreaming,
   placeholder = "Describe what you want to build…",
+  initialModel,
 }: PromptComposerProps) {
   const [text, setText] = useState("")
-  const [model, setModel] = useState(MODELS[0].id)
+  const [model, setModel] = useState(initialModel ?? MODELS[0].id)
   const [pickerOpen, setPickerOpen] = useState(false)
   const taRef = useRef<HTMLTextAreaElement>(null)
   const pickerRef = useRef<HTMLDivElement>(null)

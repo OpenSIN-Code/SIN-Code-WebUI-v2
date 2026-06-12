@@ -1,6 +1,5 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
-import { ThemeProvider as NextThemesProvider } from 'next-themes'
 import { Geist, Geist_Mono, Inter } from 'next/font/google'
 import { DesignSystemStoreProvider } from '@/components/design-system-store'
 import { ProjectStoreProvider } from '@/components/project-store'
@@ -51,17 +50,15 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="bg-background font-sans text-foreground antialiased">
-        <NextThemesProvider attribute="class" defaultTheme="dark" enableSystem>
-          <ProjectStoreProvider>
-            <DesignSystemStoreProvider>
-              <SidebarStoreProvider>
-                <ThemeProvider>
-                  {children}
-                </ThemeProvider>
-            </SidebarStoreProvider>
-            </DesignSystemStoreProvider>
-          </ProjectStoreProvider>
-        </NextThemesProvider>
+<ThemeProvider>
+  <ProjectStoreProvider>
+    <DesignSystemStoreProvider>
+      <SidebarStoreProvider>
+        {children}
+      </SidebarStoreProvider>
+    </DesignSystemStoreProvider>
+  </ProjectStoreProvider>
+</ThemeProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

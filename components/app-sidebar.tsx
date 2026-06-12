@@ -1,12 +1,12 @@
 'use client'
 
 import {
-  BookOpen, Bot, Brain, Check, ChevronDown, ChevronRight, ChevronsUpDown,
-  CircleDollarSign, CirclePlus, CircleUser, Coins, FileCode, FileText, Gift, GitBranch,
-  LayoutGrid, LayoutTemplate, ListTodo, LogOut, MessageCircleQuestion, Monitor, Moon,
-  MoreHorizontal, PanelLeft, PanelLeftClose, Settings, Settings2, Share2, Star, Sun, Users,
+  Bot, Brain, Check, ChevronDown, ChevronRight, ChevronsUpDown,
+  CirclePlus, FileCode, FileText, GitBranch,
+  LayoutGrid, LayoutTemplate, ListTodo,
+  MoreHorizontal, PanelLeft, PanelLeftClose, Settings2, Share2, Star,
 } from 'lucide-react'
-import { useTheme } from 'next-themes'
+import { AccountMenu } from "@/components/settings/account-menu"
 import { DashedSpinner, NavIconChats, NavIconHome, NavIconProjects, NavIconSearch } from '@/components/icons'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -31,6 +31,7 @@ const navItems = [
   { label: 'Memory', Icon: Brain, href: '/memory' },
   { label: 'Files', Icon: FileCode, href: '/files' },
   { label: 'Workspaces', Icon: LayoutGrid, href: '/workspaces' },
+  { label: 'Workspace', Icon: LayoutGrid, href: '/workspace' },
   { label: 'Settings', Icon: Settings2, href: '/settings' },
 ]
 
@@ -132,8 +133,7 @@ export function AppSidebar() {
 const pathname = usePathname()
 const router = useRouter()
 const { recentChats, removeChat, renameChat, toggleFavorite } = useChatStore()
-const { theme, setTheme } = useTheme()
-const { collapsed, toggleCollapsed } = useSidebarStore()
+  const { collapsed, toggleCollapsed } = useSidebarStore()
 const [favoritesOpen, setFavoritesOpen] = useState(true)
 const [wsFilter, setWsFilter] = useState<string>('all')
 const isChatActive = pathname.startsWith('/chat')
@@ -149,12 +149,6 @@ const filteredChats = wsFilter === 'all'
 
 function handleDelete(id: string) { removeChat(id); if (pathname === `/chat/${id}`) router.push('/') }
 function handleRename(id: string, currentLabel: string) { const next = window.prompt('Rename chat', currentLabel); if (next?.trim()) renameChat(id, next.trim()) }
-
-async function handleSignOut() {
-await fetch('/api/auth/login', { method: 'DELETE' })
-router.push('/login')
-router.refresh()
-}
 
 return (
 <aside className={cn('flex h-svh shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-all duration-200', collapsed ? 'w-14' : 'w-[212px]')}>
@@ -206,24 +200,7 @@ return (
 <SinVersionBadge collapsed={collapsed} />
 
 <div className="flex items-center gap-1 border-t border-sidebar-border px-2 py-1.5">
-<DropdownMenu>
-<DropdownMenuTrigger render={<button type="button" className={cn('flex min-w-0 flex-1 items-center gap-1.5 rounded-md px-1.5 py-1 text-[12.5px] text-sidebar-foreground hover:bg-sidebar-accent', collapsed && 'justify-center px-0')} />}>
-<span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-[9px] font-bold text-white">SC</span>
-{!collapsed && <span className="truncate font-medium">sin-code</span>}
-</DropdownMenuTrigger>
-<DropdownMenuContent align="start" side="top" className="w-60">
-<div className="flex flex-col gap-0.5 px-3 py-2"><span className="text-[13px] font-semibold text-foreground">sin-code</span><span className="text-[12px] text-muted-foreground">hello@sin-code.dev</span></div>
-<DropdownMenuSeparator />
-<DropdownMenuGroup><DropdownMenuItem><CircleUser className="size-4" />Profile</DropdownMenuItem><DropdownMenuItem><Settings className="size-4" />Account Settings</DropdownMenuItem><DropdownMenuItem><CircleDollarSign className="size-4" />Pricing</DropdownMenuItem><DropdownMenuItem><BookOpen className="size-4" />Documentation</DropdownMenuItem><DropdownMenuItem><Users className="size-4" />Community Forum</DropdownMenuItem><DropdownMenuItem><MessageCircleQuestion className="size-4" />Feedback</DropdownMenuItem><DropdownMenuItem><Gift className="size-4" />Refer a Friend</DropdownMenuItem><DropdownMenuItem><Coins className="size-4" />Credits<span className="ml-auto text-[12px] text-muted-foreground">2.89</span></DropdownMenuItem></DropdownMenuGroup>
-<DropdownMenuSeparator />
-<div className="px-3 pb-1 pt-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">Preferences</div>
-<div className="flex items-center justify-between px-3 py-1.5"><span className="text-[13px] text-foreground">Theme</span><div className="flex items-center gap-0.5 rounded-full border border-border bg-muted/40 p-0.5">{([{ value: 'system', Icon: Monitor, label: 'System theme' }, { value: 'light', Icon: Sun, label: 'Light theme' }, { value: 'dark', Icon: Moon, label: 'Dark theme' }] as const).map(({ value, Icon, label }) => (<button key={value} type="button" aria-label={label} onClick={() => setTheme(value)} className={cn('flex size-[22px] items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground', theme === value && 'bg-background text-foreground shadow-sm')}><Icon className="size-3" /></button>))}</div></div>
-<div className="flex items-center justify-between px-3 py-1.5"><span className="text-[13px] text-foreground">Language</span><button type="button" className="flex items-center gap-1 rounded-md border border-border px-2 py-0.5 text-[12px] text-foreground hover:bg-accent">English <ChevronDown className="size-3" /></button></div>
-<div className="flex items-center justify-between px-3 py-1.5"><span className="text-[13px] text-foreground">Chat Position</span><button type="button" className="flex items-center gap-1 rounded-md border border-border px-2 py-0.5 text-[12px] text-foreground hover:bg-accent">Left <ChevronDown className="size-3" /></button></div>
-<DropdownMenuSeparator />
-<DropdownMenuGroup><DropdownMenuItem onClick={handleSignOut}><LogOut className="size-4" />Sign Out</DropdownMenuItem></DropdownMenuGroup>
-</DropdownMenuContent>
-</DropdownMenu>
+<AccountMenu name="thunder-cheetah" email="user@example.com" />
 {!collapsed && <span className="flex h-6 shrink-0 items-center rounded border border-sidebar-border px-2 text-[11.5px] font-medium text-sidebar-foreground">$10</span>}
 </div>
 </aside>
