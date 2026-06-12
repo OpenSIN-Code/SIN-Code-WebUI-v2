@@ -355,12 +355,10 @@ All previously listed follow-ups have been shipped. See the live issue list for 
 - File-based Persistence ✅ — `.sin-webui/` workspace with JSON stores (settings, workspaces, memories, projects)
 
 ### Open Issues (check before starting any new task)
-- **#51** — feat: Implement Better Auth multi-user authentication system
-- **#52** — feat: Undo/Redo history for Design Mode
-- **#53** — fix: Eliminate Turbopack/NFT build warning
-- **#54** — feat: Screenshot area capture (⌘+Drag) in Design Mode
-- **#55** — feat: Real Vercel deployment behind Publish button
-- Real Vercel-Deploy behind the Publish button — out of scope (real deploys go through Docker + Cloudflare Tunnel, see `PLAN_DEPLOY.md`) — superseded by #55
+- **#59** — fix(auth): resolve 401 on all /api/* routes after Better Auth + Kysely integration
+- **#60** — fix(build): eliminate the last Turbopack NFT warning in design-edit route
+- **#61** — feat(design-mode): wire ⌘Z / ⌘⇧Z keyboard shortcuts for Undo/Redo
+- **#62** — ci: verify ceo-audit + tsc-check are green on main @ 30de716
 
 Check the live issue list before starting any new task.
 
@@ -419,4 +417,4 @@ When deploying to Docker + Cloudflare Tunnel on macOS:
 
 ---
 
-Last updated: aligned with main @ `86872a4` (post deploy work).
+Last updated: aligned with main @ `30de716` (post #58 merge).
