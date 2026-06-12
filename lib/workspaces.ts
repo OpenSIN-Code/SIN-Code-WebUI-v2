@@ -24,7 +24,7 @@ export {
 }
 
 // ── Custom workspace store ──────────────────────────────────────────────
-const DATA_DIR = process.env.SIN_DATA_DIR || path.join(process.cwd(), 'data')
+const DATA_DIR = path.join(process.cwd(), 'data')
 const WS_FILE = path.join(DATA_DIR, 'workspaces.json')
 const SAFE_ID = /^[a-z0-9-]{1,40}$/
 

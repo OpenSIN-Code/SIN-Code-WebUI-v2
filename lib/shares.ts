@@ -16,7 +16,7 @@ export type Share = {
 }
 
 const SAFE_SLUG = /^[a-f0-9]{16}$/
-const DATA_DIR = process.env.SIN_DATA_DIR || path.join(process.cwd(), 'data')
+const DATA_DIR = path.join(process.cwd(), 'data')
 const SHARES_FILE = path.join(DATA_DIR, 'shares.json')
 
 export function isValidSlug(slug: string): boolean {

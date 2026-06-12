@@ -18,7 +18,6 @@ import {
 
 const execFileAsync = promisify(execFile)
 
-const BIN = process.env.SIN_CODE_BIN || 'sin-code'
 const TIMEOUT_MS = 30_000
 const MAX_BUFFER = 8 * 1024 * 1024
 
@@ -85,10 +84,11 @@ export async function runSin(
 
   const actor = await resolveActor()
   const started = Date.now()
+  const bin = process.env.SIN_CODE_BIN || 'sin-code'
 
   try {
     const { stdout } = await execFileAsync(
-      BIN,
+      bin,
       [subcommand, ...args, '--format', 'json'],
       { timeout: TIMEOUT_MS, maxBuffer: MAX_BUFFER },
     )

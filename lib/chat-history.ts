@@ -9,7 +9,7 @@ import { mkdir, readFile, readdir, rename, unlink, writeFile } from 'node:fs/pro
 import path from 'node:path'
 import type { UIMessage } from 'ai'
 
-const DATA_DIR = process.env.SIN_DATA_DIR || path.join(process.cwd(), 'data', 'chats')
+const DATA_DIR = path.join(process.cwd(), 'data', 'chats')
 const SAFE_ID = /^[a-z0-9-]{1,80}$/
 
 export type ChatMeta = {

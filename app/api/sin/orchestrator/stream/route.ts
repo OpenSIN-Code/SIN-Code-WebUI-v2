@@ -9,7 +9,6 @@ import { guardRequest } from '@/lib/sin/run'
 
 export const maxDuration = 300
 
-const BIN = process.env.SIN_CODE_BIN || 'sin-code'
 const SAFE_TOKEN = /^[\w@./:=,\- ?!]{1,512}$/
 
 function sse(event: string, data: unknown): string {
@@ -26,10 +25,11 @@ export async function GET(req: Request) {
   }
 
   const encoder = new TextEncoder()
+  const bin = process.env.SIN_CODE_BIN || 'sin-code'
 
   const stream = new ReadableStream<Uint8Array>({
     start(controller) {
-      const child = spawn(BIN, ['orchestrator-run', task], {
+      const child = spawn(bin, ['orchestrator-run', task], {
         timeout: 280_000,
       })
 

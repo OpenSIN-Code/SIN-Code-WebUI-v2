@@ -33,7 +33,10 @@ export function AuditLog() {
     refreshInterval: 30_000,
   })
 
-  const entries: AuditEntry[] = Array.isArray(data?.data) ? data.data : []
+  const entries = useMemo(
+    () => (Array.isArray(data?.data) ? data.data : []) as AuditEntry[],
+    [data],
+  )
   const forbidden = data && data.ok === false
 
   const actors = useMemo(

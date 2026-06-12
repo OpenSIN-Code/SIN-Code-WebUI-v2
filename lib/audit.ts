@@ -7,7 +7,7 @@
 import { appendFile, mkdir, readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
 
-const DATA_DIR = process.env.SIN_DATA_DIR || path.join(process.cwd(), 'data')
+const DATA_DIR = path.join(process.cwd(), 'data')
 const AUDIT_DIR = path.join(DATA_DIR, 'audit')
 
 export type AuditEntry = {
