@@ -44,6 +44,7 @@ pnpm-debug.log*
 # Tooling state (sin-code / sin-brain / sin-goal-mode)
 .sin/
 .sinator/
+.sin-webui/
 .pcache/
 sin_goal_mode.db
 sin_goal_mode.db-*
