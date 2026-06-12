@@ -1,13 +1,17 @@
 import { promises as fs } from "fs"
 import path from "path"
 
-const BASE = path.join(process.cwd(), ".sin-webui")
+let _base: string | null = null
+function base(): string {
+  if (!_base) _base = path.join(/*turbopackIgnore: true*/ process.cwd(), ".sin-webui")
+  return _base
+}
 
 /** Per-user settings directory. 'global' keeps the legacy single-user path. */
 function scopedDir(userId: string): string {
-  if (userId === "global") return BASE
+  if (userId === "global") return base()
   const safe = userId.replace(/[^a-zA-Z0-9_-]/g, "_")
-  return path.join(BASE, "users", safe)
+  return path.join(base(), "users", safe)
 }
 
 export type Scope = "user" | "team"

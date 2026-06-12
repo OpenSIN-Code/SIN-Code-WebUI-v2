@@ -1,7 +1,12 @@
 import path from 'node:path'
 import { promises as fs } from 'node:fs'
 
-const DIR = path.join(process.cwd(), '.sin-webui', 'screenshots')
+let _dir: string | null = null
+// @turbopack-disable-next-line
+function dir(): string {
+  if (!_dir) _dir = /*turbopackIgnore: true*/ path.join(process.cwd(), '.sin-webui', 'screenshots')
+  return _dir
+}
 
 export async function GET(
   _req: Request,
@@ -10,7 +15,7 @@ export async function GET(
   const { filename } = await params
   const safe = path.basename(filename) // path-traversal guard
   try {
-    const buffer = await fs.readFile(path.join(DIR, safe))
+    const buffer = await fs.readFile(/*turbopackIgnore: true*/ path.join(dir(), safe))
     return new Response(new Uint8Array(buffer), {
       headers: { 'Content-Type': 'image/png', 'Cache-Control': 'private, max-age=31536000' },
     })

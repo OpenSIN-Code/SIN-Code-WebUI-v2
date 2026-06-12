@@ -7,8 +7,17 @@
 import { appendFile, mkdir, readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
 
-const DATA_DIR = path.join(process.cwd(), '.sin-webui')
-const AUDIT_DIR = path.join(DATA_DIR, 'audit')
+let _dataDir: string | null = null
+function dataDir(): string {
+  if (!_dataDir) _dataDir = path.join(/*turbopackIgnore: true*/ process.cwd(), '.sin-webui')
+  return _dataDir
+}
+
+let _auditDir: string | null = null
+function auditDir(): string {
+  if (!_auditDir) _auditDir = path.join(dataDir(), 'audit')
+  return _auditDir
+}
 
 export type AuditEntry = {
   ts: string
@@ -24,12 +33,12 @@ export type AuditEntry = {
 function currentFile(): string {
   const now = new Date()
   const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-  return path.join(AUDIT_DIR, `audit-${month}.jsonl`)
+  return path.join(auditDir(), `audit-${month}.jsonl`)
 }
 
 export async function audit(entry: Omit<AuditEntry, 'ts'>): Promise<void> {
   try {
-    await mkdir(AUDIT_DIR, { recursive: true })
+    await mkdir(auditDir(), { recursive: true })
     const record: AuditEntry = { ts: new Date().toISOString(), ...entry }
     await appendFile(currentFile(), `${JSON.stringify(record)}\n`, 'utf8')
   } catch {
@@ -46,7 +55,7 @@ export async function readAudit(options?: {
   const limit = Math.min(options?.limit ?? 200, 1000)
   let files: string[] = []
   try {
-    files = (await readdir(AUDIT_DIR))
+    files = (await readdir(auditDir()))
       .filter((f) => f.startsWith('audit-') && f.endsWith('.jsonl'))
       .sort()
       .reverse()
@@ -58,7 +67,7 @@ export async function readAudit(options?: {
   const entries: AuditEntry[] = []
   for (const file of files) {
     try {
-      const raw = await readFile(path.join(AUDIT_DIR, file), 'utf8')
+      const raw = await readFile(path.join(auditDir(), file), 'utf8')
       for (const line of raw.split('\n')) {
         if (!line.trim()) continue
         try {

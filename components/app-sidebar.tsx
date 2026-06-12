@@ -74,14 +74,18 @@ const json = await res.json()
 setShared(Boolean(json.data?.slug))
 }
 
-async function handleExport() {
-const url = `${window.location.origin}/chat/${chat.id}`
+async function handleExport(format: 'md' | 'json') {
+const res = await fetch(`/api/chats/${chat.id}/export?format=${format}`)
+if (!res.ok) return
+const blob = await res.blob()
+const objectUrl = URL.createObjectURL(blob)
 const a = document.createElement('a')
-a.href = url
-a.download = `${chat.label.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.html`
+a.href = objectUrl
+a.download = `${chat.label.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.${format}`
 document.body.appendChild(a)
 a.click()
 a.remove()
+URL.revokeObjectURL(objectUrl)
 }
 
 function handleMoveToNewProject() {
@@ -108,7 +112,16 @@ return (
 <DropdownMenuContent align="start" side="right" className="w-44">
 <DropdownMenuGroup>
 <DropdownMenuItem onClick={handleShare}><Share2 className="size-4" />{shared ? 'Unshare' : 'Share (copy link)'}</DropdownMenuItem>
-<DropdownMenuItem onClick={handleExport}><FileText className="size-4" />Export as HTML</DropdownMenuItem>
+<DropdownMenuSub>
+  <DropdownMenuSubTrigger>
+    <FileText className="size-4" />
+    Export
+  </DropdownMenuSubTrigger>
+  <DropdownMenuSubContent>
+    <DropdownMenuItem onClick={() => handleExport('md')}>As Markdown</DropdownMenuItem>
+    <DropdownMenuItem onClick={() => handleExport('json')}>As JSON</DropdownMenuItem>
+  </DropdownMenuSubContent>
+</DropdownMenuSub>
 <DropdownMenuSub>
 <DropdownMenuSubTrigger>Move to Project</DropdownMenuSubTrigger>
 <DropdownMenuSubContent className="w-48">

@@ -8,7 +8,7 @@ export function runOrchestratorStream(task: string): Response {
   const stream = new ReadableStream({
     start(controller) {
       const child = spawn(BIN, ["orchestrator-run", task], {
-        cwd: process.env.SIN_WORKSPACE_DIR || process.cwd(),
+        cwd: process.env.SIN_WORKSPACE_DIR || (/*turbopackIgnore: true*/ process.cwd()),
         env: process.env,
       })
       child.stdout.on("data", (chunk: Buffer) => controller.enqueue(encoder.encode(chunk.toString())))
