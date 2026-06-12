@@ -1,22 +1,21 @@
 /**
- * Purpose: Homepage with sidebar, SIN-Code backend status tile, and chat UI.
- * Related issues: #4, #5
+ * Purpose: Homepage — v0-style hero with PromptBox (restored from 3f94740)
+ * plus the SIN-Code backend status tile.
  */
-
 import { AppSidebar } from '@/components/app-sidebar'
-import { SinChat } from '@/components/sin-chat'
+import { PromptBox } from '@/components/prompt-box'
 import { SinStatusTile } from '@/components/sin-status-tile'
 
 export default function Page() {
   return (
     <div className="flex h-svh bg-background">
       <AppSidebar />
-      <main className="flex flex-1 flex-col items-center px-4 pt-[12vh] md:px-8">
+      <main className="flex flex-1 flex-col items-center px-4 pt-[14vh] md:px-8">
         <SinStatusTile />
         <h1 className="mb-5 text-balance text-center text-[1.5rem] font-semibold tracking-[-0.01em] text-foreground">
           What do you want to create?
         </h1>
-        <SinChat />
+        <PromptBox />
       </main>
     </div>
   )

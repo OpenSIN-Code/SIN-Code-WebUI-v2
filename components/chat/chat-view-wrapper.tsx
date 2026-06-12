@@ -5,6 +5,7 @@ import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport, type UIMessage } from 'ai'
 import { ChatView, type ChatMessage, type ChatPart } from '@/components/chat/chat-view'
 import { SIN_MODELS } from '@/lib/sin/models'
+import { useSoundNotification } from '@/hooks/use-sound-notification'
 
 function convertMessages(messages: UIMessage[]): ChatMessage[] {
   return messages.map((msg) => ({
@@ -67,6 +68,7 @@ export function ChatViewWrapper({
   )
   const [agent] = useState<string>('auto')
   const [initialMessages, setInitialMessages] = useState<UIMessage[] | null>(null)
+  const playNotification = useSoundNotification()
 
   useEffect(() => {
     let cancelled = false
@@ -90,6 +92,9 @@ export function ChatViewWrapper({
       api: '/api/chat',
       body: { model, agent },
     }),
+    onFinish: () => {
+      playNotification()
+    },
   })
 
   useEffect(() => {

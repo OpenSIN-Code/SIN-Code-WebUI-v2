@@ -28,6 +28,7 @@ export const ALL_TOOL_KEYS = [
   'sin_search',
   'sin_map',
   'web_search',
+  'render_chart',
 ] as const
 
 export const BUILT_IN_WORKSPACES: Workspace[] = [
@@ -74,7 +75,7 @@ export const BUILT_IN_WORKSPACES: Workspace[] = [
     icon: 'bar-chart',
     systemPrompt:
       'You are a data analyst. The user provides datasets as message context (CSV/JSON excerpts with column metadata). Analyze rigorously: state assumptions, show the calculation path, and answer with concrete numbers. When a chart would help, describe its structure precisely.',
-    enabledTools: [],
+    enabledTools: ['render_chart', 'sin_memory'],
     defaultModel: 'openai/gpt-5-mini',
     layout: 'data',
     builtIn: true,

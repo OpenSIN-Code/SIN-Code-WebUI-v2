@@ -10,6 +10,8 @@ import { PreviewPanel } from "@/components/workspace/preview-panel"
 import { CodePanel } from "@/components/workspace/code-panel"
 import { DatabasePanel } from "@/components/workspace/database-panel"
 import { DesignPanel } from "@/components/workspace/design-panel"
+import { DeployHistory } from "@/components/workspace/deploy-history"
+import { ScreenshotGallery } from "@/components/workspace/screenshot-gallery"
 import type { Version } from "@/components/workspace/version-dropdown"
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
@@ -51,6 +53,8 @@ export function Workspace({ chat, previewSrc }: WorkspaceProps) {
           {tab === "code" && <CodePanel />}
           {tab === "database" && <DatabasePanel />}
           {tab === "design" && <DesignPanel src={previewSrc} />}
+          {tab === "deploys" && <DeployHistory />}
+          {tab === "screenshots" && <ScreenshotGallery />}
         </div>
       </div>
     </div>

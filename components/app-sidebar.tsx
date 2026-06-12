@@ -6,7 +6,7 @@ import {
   LayoutGrid, LayoutTemplate, ListTodo,
   MoreHorizontal, PanelLeft, PanelLeftClose, Settings2, Share2, Star,
 } from 'lucide-react'
-import { AccountMenu } from "@/components/settings/account-menu"
+import { UserMenu } from "@/components/auth/user-menu"
 import { DashedSpinner, NavIconChats, NavIconHome, NavIconProjects, NavIconSearch } from '@/components/icons'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -200,7 +200,7 @@ return (
 <SinVersionBadge collapsed={collapsed} />
 
 <div className="flex items-center gap-1 border-t border-sidebar-border px-2 py-1.5">
-<AccountMenu name="thunder-cheetah" email="user@example.com" />
+<UserMenu />
 {!collapsed && <span className="flex h-6 shrink-0 items-center rounded border border-sidebar-border px-2 text-[11.5px] font-medium text-sidebar-foreground">$10</span>}
 </div>
 </aside>

@@ -17,6 +17,8 @@ import { guardRequest } from '@/lib/sin/run'
 import { SIN_CODE_INSTALL_CMD, SIN_MCP_TOOLS } from '@/lib/sin/tools'
 import { getSession } from '@/lib/session'
 import { getWorkspace, BUILT_IN_WORKSPACES } from '@/lib/workspaces'
+import { webSearchTool } from '@/lib/tools/web-search'
+import { renderChartTool } from '@/lib/tools/render-chart'
 
 export const maxDuration = 120
 
@@ -104,7 +106,11 @@ export async function POST(req: Request) {
     .filter(Boolean)
     .join('\n\n')
 
-  const allTools = sin.tools
+  const allTools = {
+    ...sin.tools,
+    web_search: webSearchTool,
+    render_chart: renderChartTool,
+  }
   const enabled = new Set(workspace.enabledTools)
   const tools = Object.fromEntries(
     Object.entries(allTools).filter(([key]) => enabled.has(key)),

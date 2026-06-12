@@ -13,6 +13,7 @@ import {
   Search,
   Files,
 } from "lucide-react"
+import { HighlightedCode } from "@/components/workspace/highlighted-code"
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -152,9 +153,7 @@ export function CodePanel() {
             <div className="flex h-9 shrink-0 items-center border-b border-border px-3">
               <span className="font-mono text-xs text-muted-foreground">{selected}</span>
             </div>
-            <pre className="flex-1 overflow-auto p-4">
-              <code className="font-mono text-[13px] leading-relaxed">{file.content}</code>
-            </pre>
+            <HighlightedCode code={file.content} path={selected} />
           </>
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center gap-8">

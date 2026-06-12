@@ -1,12 +1,11 @@
-import { SettingsPlaceholder } from '@/components/settings/placeholder'
+/**
+ * Purpose: Workspace members management — uses the fully built MembersPanel
+ * (was orphaned; previously showed only a placeholder).
+ */
+import { MembersPanel } from '@/components/settings/members-panel'
 
 export const metadata = { title: 'Members — Settings' }
 
 export default function MembersPage() {
-  return (
-    <SettingsPlaceholder
-      title="Members"
-      description="Invite and manage team members."
-    />
-  )
+  return <MembersPanel />
 }

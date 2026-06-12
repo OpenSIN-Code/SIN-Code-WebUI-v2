@@ -8,17 +8,21 @@ import {
   Database,
   MoreHorizontal,
   Upload,
+  Rocket,
+  Images,
 } from "lucide-react"
 import { VersionDropdown, type Version } from "@/components/workspace/version-dropdown"
 import { DeployStatus } from "@/components/workspace/deploy-status"
 
-export type WorkspaceTab = "preview" | "design" | "code" | "database"
+export type WorkspaceTab = "preview" | "design" | "code" | "database" | "deploys" | "screenshots"
 
 const TABS: { id: WorkspaceTab; icon: typeof Eye; label: string }[] = [
   { id: "preview", icon: Eye, label: "Preview" },
   { id: "design", icon: PenTool, label: "Design" },
   { id: "code", icon: Code2, label: "Code" },
   { id: "database", icon: Database, label: "Database" },
+  { id: "deploys", icon: Rocket, label: "Deploys" },
+  { id: "screenshots", icon: Images, label: "Screenshots" },
 ]
 
 interface WorkspaceHeaderProps {
