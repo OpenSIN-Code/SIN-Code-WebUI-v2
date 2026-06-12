@@ -7,9 +7,9 @@ import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import { cookies, headers } from 'next/headers'
 import { AUTH_COOKIE, isAuthConfigured, verifyAnyToken } from '@/lib/auth'
-import { resolveActor } from '@/lib/session'
+import { getSession, resolveActor } from '@/lib/session'
 import { audit } from '@/lib/storage'
-import { clientIp, rateLimit, rateLimitResponse, type RateLimitResult } from '@/lib/rate-limit'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import {
   SIN_CODE_INSTALL_CMD,
   SIN_CODE_SUBCOMMANDS,
@@ -53,14 +53,16 @@ export async function guardRequest(
   limit = 30,
   windowMs = 60_000,
 ): Promise<Response | null> {
-  if (!(await assertAuthed())) {
+  const session = await getSession()
+  if (!session) {
     return Response.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
   }
-  const result: RateLimitResult = rateLimit(
-    `${clientIp(req)}:${group}`,
-    limit,
-    windowMs,
-  )
+
+  const identity =
+    session.kind === 'user' ? `u:${session.userId}` : `s:${session.actor}`
+  const budget = session.isAdmin ? limit * 3 : limit
+
+  const result = rateLimit(`${identity}:${group}`, budget, windowMs)
   if (!result.allowed) return rateLimitResponse(result)
   return null
 }

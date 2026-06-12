@@ -5,8 +5,11 @@
  */
 import { cookies } from 'next/headers'
 import { AUTH_COOKIE, isAuthConfigured, verifyAnyToken } from '@/lib/auth'
+import { clientIp, rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
 export async function POST(req: Request) {
+  const limit = rateLimit(`${clientIp(req)}:login`, 10, 60_000)
+  if (!limit.allowed) return rateLimitResponse(limit)
   if (!isAuthConfigured()) {
     return Response.json(
       { ok: false, error: 'SIN_UI_TOKEN is not configured on the server' },

@@ -4,7 +4,7 @@ import {
   BookOpen, Bot, Brain, Check, ChevronDown, ChevronRight, ChevronsUpDown,
   CircleDollarSign, CirclePlus, CircleUser, Coins, FileCode, FileText, Gift, GitBranch,
   LayoutTemplate, ListTodo, LogOut, MessageCircleQuestion, Monitor, Moon,
-  MoreHorizontal, PanelLeft, PanelLeftClose, Settings, Settings2, Star, Sun, Users,
+  MoreHorizontal, PanelLeft, PanelLeftClose, Settings, Settings2, Share2, Star, Sun, Users,
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { DashedSpinner, NavIconChats, NavIconHome, NavIconProjects, NavIconSearch } from '@/components/icons'
@@ -47,10 +47,29 @@ function CollapsedTooltip({ collapsed, label, children }: { collapsed: boolean; 
 
 function SidebarChatRow({ chat, active, collapsed, onRename, onDelete, onToggleFavorite }: { chat: ChatEntry; active: boolean; collapsed: boolean; onRename: () => void; onDelete: () => void; onToggleFavorite: () => void }) {
   const { projects, addProject, moveChatToProject } = useProjectStore()
+  const [shared, setShared] = useState<boolean | null>(null)
 
   async function handleShare() {
-    const url = `${window.location.origin}/chat/${chat.id}`
-    try { await navigator.clipboard.writeText(url) } catch { window.prompt('Copy the link:', url) }
+    if (shared) {
+      await fetch(`/api/chats/${chat.id}/share`, { method: 'DELETE' })
+      setShared(false)
+      return
+    }
+    const res = await fetch(`/api/chats/${chat.id}/share`, { method: 'POST' })
+    const json = await res.json()
+    if (json.ok && json.data?.slug) {
+      await navigator.clipboard.writeText(
+        `${window.location.origin}/share/${json.data.slug}`,
+      )
+      setShared(true)
+    }
+  }
+
+  async function loadShareState(open: boolean) {
+    if (!open || shared !== null) return
+    const res = await fetch(`/api/chats/${chat.id}/share`)
+    const json = await res.json()
+    setShared(Boolean(json.data?.slug))
   }
 
   async function handleExport() {
@@ -80,13 +99,16 @@ function SidebarChatRow({ chat, active, collapsed, onRename, onDelete, onToggleF
           {!collapsed && <span className="truncate">{chat.label}</span>}
         </Link>
         {!collapsed && (
-          <DropdownMenu>
+          <DropdownMenu onOpenChange={loadShareState}>
             <DropdownMenuTrigger render={<button type="button" aria-label="Chat options" className="flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground opacity-0 hover:text-foreground group-hover/chat:opacity-100 data-[popup-open]:opacity-100" />}>
               <MoreHorizontal className="size-3.5" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" side="right" className="w-44">
               <DropdownMenuGroup>
-                <DropdownMenuItem onClick={handleShare}>Share</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleShare}>
+                  <Share2 className="size-4" />
+                  {shared ? 'Unshare' : 'Share (copy link)'}
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleExport}><FileText className="size-4" />Export as HTML</DropdownMenuItem>
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>Move to Project</DropdownMenuSubTrigger>

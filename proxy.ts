@@ -14,6 +14,7 @@ const PUBLIC_PATHS = ['/login', '/api/auth/login', '/api/health']
 function isPublic(pathname: string): boolean {
   return (
     PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`)) ||
+    pathname.startsWith('/share/') ||
     pathname.startsWith('/_next') ||
     pathname === '/favicon.ico' ||
     pathname.startsWith('/images/')
