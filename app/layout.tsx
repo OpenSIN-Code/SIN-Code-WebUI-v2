@@ -5,6 +5,7 @@ import { Geist, Geist_Mono, Inter } from 'next/font/google'
 import { ChatStoreProvider } from '@/components/chat-store'
 import { DesignSystemStoreProvider } from '@/components/design-system-store'
 import { ProjectStoreProvider } from '@/components/project-store'
+import { SidebarStoreProvider } from '@/components/sidebar-store'
 import './globals.css'
 
 const inter = Inter({
@@ -54,7 +55,9 @@ export default function RootLayout({
           <ChatStoreProvider>
             <ProjectStoreProvider>
               <DesignSystemStoreProvider>
+                <SidebarStoreProvider>
                 {children}
+              </SidebarStoreProvider>
               </DesignSystemStoreProvider>
             </ProjectStoreProvider>
           </ChatStoreProvider>
