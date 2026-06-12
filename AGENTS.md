@@ -222,6 +222,38 @@ Force-pushing a PR branch can break GitHub's
 `success` but the PR still shows `blocked`. Fix: push a non-empty
 commit (e.g. touch a file) to retrigger with fresh `head_sha`.
 
+### 5.7 Lockfile sync (after package.json changes)
+PRs that modify `package.json` MUST also regenerate `pnpm-lock.yaml`
+in the same commit. Otherwise the Docker build fails:
+```bash
+pnpm install   # regenerates lockfile
+git add pnpm-lock.yaml
+git commit -m "fix(deps): regenerate pnpm-lock.yaml"
+```
+This happened in PR #48 (added eslint deps) — see commit `09ae541`.
+
+### 5.8 Subagent PR squash-merge collision (package.json)
+When multiple subagent PRs each modify `package.json` and are
+squash-merged sequentially, the later PR **silently overwrites**
+the earlier PR's dependency changes. Symptom: CI passes for the
+later PR but breaks on `main` because a transitive dependency
+(e.g. `vitest` types) is missing. Fix: before merging N+1
+subagent PRs that touch `package.json`, verify the union of all
+devDependencies is present:
+```bash
+# Compare package.json from each subagent PR branch
+git diff main..feat/branch-N -- package.json
+# If anything is missing, restore it on a fix branch
+git checkout -b fix/restore-deps
+# Edit package.json, then:
+pnpm install
+pnpm tsc --noEmit
+pnpm test
+git add package.json pnpm-lock.yaml
+git commit -m "fix(deps): restore <dep> from <PR#>"
+```
+This happened in PR #48 over PR #45 — fixed in commit `a93a5f1`.
+
 ---
 
 ## 6. sin-brain — how to use it for memory
