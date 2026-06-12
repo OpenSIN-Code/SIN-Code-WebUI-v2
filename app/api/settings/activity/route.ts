@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { readActivity, summarize } from "@/lib/settings/activity"
-import { guardRequest } from "@/lib/sin/run"
+import { guardRequest } from "@/lib/sin/guard"
 import { getSession } from "@/lib/session"
 
 export async function GET(req: Request) {

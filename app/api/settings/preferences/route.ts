@@ -4,7 +4,7 @@ import {
   writePreferences,
   DEFAULT_PREFERENCES,
 } from "@/lib/settings/store"
-import { guardRequest } from "@/lib/sin/run"
+import { guardRequest } from "@/lib/sin/guard"
 import { getSession } from "@/lib/session"
 
 export async function GET(req: Request) {

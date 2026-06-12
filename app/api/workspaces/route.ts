@@ -4,7 +4,7 @@
  * POST /api/workspaces {…} — create/update a custom workspace
  * DELETE /api/workspaces { id } — delete own custom workspace
  */
-import { guardRequest } from '@/lib/sin/run'
+import { guardRequest } from '@/lib/sin/guard'
 import { getSession } from '@/lib/session'
 import {
   deleteCustomWorkspace,

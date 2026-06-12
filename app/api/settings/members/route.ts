@@ -6,7 +6,7 @@
 import { NextResponse } from "next/server"
 import { getPool } from "@/lib/db"
 import { isBetterAuthEnabled } from "@/lib/auth/better-auth"
-import { guardRequest } from "@/lib/sin/run"
+import { guardRequest } from "@/lib/sin/guard"
 import { getSession } from "@/lib/session"
 
 async function requireAdmin(req: Request): Promise<Response | null> {

@@ -26,6 +26,13 @@ export function getAuth() {
   _auth = betterAuth({
     secret: process.env.BETTER_AUTH_SECRET,
     baseURL: process.env.BETTER_AUTH_URL ?? 'http://localhost:3000',
+    // Container serves on :3000 but is published on :3100. Trust both so
+    // Better Auth doesn't reject requests on origin mismatch.
+    trustedOrigins: [
+      process.env.BETTER_AUTH_URL ?? 'http://localhost:3000',
+      'http://localhost:3000',
+      'http://localhost:3100',
+    ],
     database: {
       type: 'postgres',
       adapter: kyselyAdapter(getDb()),

@@ -6,7 +6,7 @@ import {
   deleteFile,
   type Scope,
 } from "@/lib/settings/store"
-import { guardRequest } from "@/lib/sin/run"
+import { guardRequest } from "@/lib/sin/guard"
 import { getSession } from "@/lib/session"
 
 type Kind = "memories" | "skills"

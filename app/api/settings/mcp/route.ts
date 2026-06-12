@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { promises as fs } from "fs"
 import path from "path"
 import crypto from "crypto"
-import { guardRequest } from "@/lib/sin/run"
+import { guardRequest } from "@/lib/sin/guard"
 import { getSession } from "@/lib/session"
 
 let _base: string | null = null
