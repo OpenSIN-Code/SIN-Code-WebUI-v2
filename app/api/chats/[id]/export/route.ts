@@ -5,7 +5,7 @@
  */
 import { chatToMarkdown } from '@/lib/chat-export'
 import { isValidChatId, listChats, loadMessages } from '@/lib/storage'
-import { guardRequest } from '@/lib/sin/run'
+import { guardRequest } from '@/lib/sin/guard'
 
 export async function GET(
   req: Request,

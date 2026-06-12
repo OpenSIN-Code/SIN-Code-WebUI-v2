@@ -11,7 +11,7 @@ import {
   loadMessages,
   saveMessages,
 } from '@/lib/storage'
-import { guardRequest } from '@/lib/sin/run'
+import { guardRequest } from '@/lib/sin/guard'
 
 type Params = { params: Promise<{ id: string }> }
 

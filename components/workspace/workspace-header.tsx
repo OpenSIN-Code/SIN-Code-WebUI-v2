@@ -10,6 +10,7 @@ import {
   Upload,
   Rocket,
   Images,
+  Undo2,
 } from "lucide-react"
 import { VersionDropdown, type Version } from "@/components/workspace/version-dropdown"
 import { DeployStatus } from "@/components/workspace/deploy-status"
@@ -77,6 +78,15 @@ export function WorkspaceHeader({
               <Icon className="size-3.5" strokeWidth={1.75} />
             </button>
           ))}
+          {tab === "design" ? (
+            <span
+              title="Undo: ⌘Z / Ctrl+Z · Redo: ⌘⇧Z / Ctrl+Shift+Z"
+              className="ml-1 flex items-center gap-1 rounded-md px-2 text-[11px] text-muted-foreground"
+            >
+              <Undo2 className="size-3.5" strokeWidth={1.75} />
+              <span className="font-mono">⌘Z / ⌘⇧Z</span>
+            </span>
+          ) : null}
         </div>
       </div>
 

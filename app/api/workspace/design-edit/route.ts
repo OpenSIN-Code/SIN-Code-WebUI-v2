@@ -1,80 +1,28 @@
-import { NextResponse } from "next/server"
-import { promises as fs } from "fs"
-import path from "path"
-import { pushEntry } from "@/lib/workspace/design-history"
+import { NextResponse } from 'next/server'
 
-let _root: string | null = null
-// @turbopack-disable-next-line
-function root(): string {
-  if (!_root) _root = /*turbopackIgnore: true*/ (process.env.SIN_WORKSPACE_DIR ?? process.cwd())
-  return _root
-}
-
-function safeResolve(rel: string): string {
-  const resolved = /*turbopackIgnore: true*/ path.resolve(root(), "." + path.sep + rel)
-  if (!resolved.startsWith(root())) throw new Error("Invalid path")
-  return resolved
-}
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
 export async function POST(req: Request) {
   const { loc, oldClasses, newClasses } = await req.json()
 
-  if (typeof oldClasses !== "string" || typeof newClasses !== "string") {
-    return NextResponse.json({ error: "oldClasses and newClasses required" }, { status: 400 })
+  if (typeof oldClasses !== 'string' || typeof newClasses !== 'string') {
+    return NextResponse.json({ error: 'oldClasses and newClasses required' }, { status: 400 })
   }
-  if (typeof loc !== "string" || !loc.includes(":")) {
+  if (typeof loc !== 'string' || !loc.includes(':')) {
     return NextResponse.json(
-      { error: "loc required (file:line). Add data-sin-loc attributes to your dev build." },
+      { error: 'loc required (file:line). Add data-sin-loc attributes to your dev build.' },
       { status: 400 },
     )
   }
 
-  const [file, lineStr] = loc.split(":")
-  const lineNo = parseInt(lineStr, 10)
+  // Dynamic import keeps fs/path/cwd out of the route boundary the NFT
+  // tracer inspects — this is what finally clears the warning (#59).
+  const { applyClassEdit } = await import('@/lib/workspace/design-edit-fs')
+  const result = await applyClassEdit(loc, oldClasses, newClasses)
 
-  let abs: string
-  try {
-    abs = safeResolve(file)
-  } catch {
-    return NextResponse.json({ error: "Invalid path" }, { status: 400 })
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: result.status })
   }
-
-  let content: string
-  try {
-    content = await /*turbopackIgnore: true*/ fs.readFile(abs, "utf8")
-  } catch {
-    return NextResponse.json({ error: "File not found" }, { status: 404 })
-  }
-
-  const lines = content.split("\n")
-  const from = Math.max(0, lineNo - 3)
-  const to = Math.min(lines.length, lineNo + 5)
-  let patched = false
-
-  for (let i = from; i < to; i++) {
-    if (lines[i].includes(oldClasses)) {
-      lines[i] = lines[i].replace(oldClasses, newClasses)
-      patched = true
-      break
-    }
-  }
-
-  if (!patched) {
-    return NextResponse.json(
-      { error: "Could not locate the class string near the reported line." },
-      { status: 409 },
-    )
-  }
-
-  await /*turbopackIgnore: true*/ fs.writeFile(abs, lines.join("\n"), "utf8")
-  const relativeFilePath = file
-  const tagName = "div" // or get from the request context
-  await pushEntry({
-    file: relativeFilePath,
-    line: lineNo,
-    oldValue: oldClasses,
-    newValue: newClasses,
-    description: `Changed ${tagName} class to '${newClasses.slice(0, 60)}'`,
-  })
-  return NextResponse.json({ ok: true, file, line: lineNo })
+  return NextResponse.json({ ok: true, file: result.file, line: result.line })
 }

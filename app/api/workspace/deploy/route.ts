@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { isVercelConfigured } from "@/lib/vercel/client"
 import { createDeployment, getDeploymentStatus } from "@/lib/vercel/deploy"
-import { guardRequest } from "@/lib/sin/run"
+import { guardRequest } from "@/lib/sin/guard"
 
 export const maxDuration = 300
 

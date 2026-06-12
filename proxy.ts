@@ -1,17 +1,24 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Paths that must NEVER be gated by the session proxy.
 const PUBLIC_PATHS = [
   '/login',
   '/register',
   '/forgot-password',
   '/reset-password',
   '/api/auth',
+  '/api/health',
   '/share',
 ]
 
+// The compose file ships a placeholder secret for first boot. Treat it as
+// "auth not really configured" so the container behaves like anonymous/local
+// dev instead of locking every route behind a login that doesn't exist yet.
+const INSECURE_DEFAULT_SECRET = 'changeme-insecure-dev-secret-32chars-min'
+
 export default function proxy(request: NextRequest) {
-  // Backward-compat: ohne konfiguriertes Secret läuft alles anonym weiter
-  if (!process.env.BETTER_AUTH_SECRET) {
+  const secret = process.env.BETTER_AUTH_SECRET
+  if (!secret || secret === INSECURE_DEFAULT_SECRET) {
     return NextResponse.next()
   }
 
@@ -20,7 +27,6 @@ export default function proxy(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Optimistische Prüfung: nur Cookie-Existenz; echte Validierung macht getSession()
   const sessionCookie =
     request.cookies.get('better-auth.session_token') ??
     request.cookies.get('__Secure-better-auth.session_token')

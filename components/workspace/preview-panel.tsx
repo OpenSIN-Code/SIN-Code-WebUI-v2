@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import {
   ChevronLeft,
   ChevronRight,
@@ -14,10 +14,19 @@ export function PreviewPanel({ src }: { src: string }) {
   const [path, setPath] = useState("/")
   const [mobile, setMobile] = useState(false)
   const [reloadKey, setReloadKey] = useState(0)
+  const [toast, setToast] = useState<string | null>(null)
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const fullUrl = src.replace(/\/$/, "") + path
 
+  const flash = useCallback((msg: string) => {
+    setToast(msg)
+    if (toastTimer.current) clearTimeout(toastTimer.current)
+    toastTimer.current = setTimeout(() => setToast(null), 1400)
+  }, [])
+
+  // Reload when the design history changes (undo/redo edits the source).
   useEffect(() => {
     function reload() {
       setReloadKey((k) => k + 1)
@@ -25,6 +34,35 @@ export function PreviewPanel({ src }: { src: string }) {
     window.addEventListener("sin:design-history-changed", reload)
     return () => window.removeEventListener("sin:design-history-changed", reload)
   }, [])
+
+  // Listen for undo/redo requests posted from the design-mode iframe agent (#60).
+  useEffect(() => {
+    async function onMessage(e: MessageEvent) {
+      const d = e.data
+      if (!d || d.source !== "sin-design") return
+      if (d.type !== "design-undo" && d.type !== "design-redo") return
+
+      const action = d.type === "design-undo" ? "undo" : "redo"
+      try {
+        const res = await fetch("/api/workspace/design-history", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action }),
+        })
+        const json = await res.json()
+        if (json?.ok && json.entry) {
+          flash(action === "undo" ? "Undid change" : "Redid change")
+          window.dispatchEvent(new Event("sin:design-history-changed"))
+        } else {
+          flash(action === "undo" ? "Nothing to undo" : "Nothing to redo")
+        }
+      } catch {
+        flash("Undo/redo failed")
+      }
+    }
+    window.addEventListener("message", onMessage)
+    return () => window.removeEventListener("message", onMessage)
+  }, [flash])
 
   return (
     <div className="flex h-full flex-col">
@@ -93,7 +131,7 @@ export function PreviewPanel({ src }: { src: string }) {
         </button>
       </div>
 
-      <div className="flex flex-1 items-stretch justify-center overflow-hidden bg-background">
+      <div className="relative flex flex-1 items-stretch justify-center overflow-hidden bg-background">
         <iframe
           key={reloadKey}
           ref={iframeRef}
@@ -104,6 +142,15 @@ export function PreviewPanel({ src }: { src: string }) {
             mobile ? "w-[390px] border-x border-border" : "w-full"
           }`}
         />
+        {toast ? (
+          <div
+            role="status"
+            aria-live="polite"
+            className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-md bg-foreground px-3 py-1.5 text-xs font-medium text-background shadow-lg"
+          >
+            {toast}
+          </div>
+        ) : null}
       </div>
     </div>
   )

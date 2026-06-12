@@ -2,14 +2,16 @@
  * Purpose: Generic, safe runner for whitelisted sin-code subcommands.
  * Used by /api/sin/{agents,todos,memory,notifications,orchestrator}.
  * Security: execFile (no shell), subcommand whitelist, per-token sanitization.
+ *
+ * `guardRequest` lives in `./guard.ts` so the NFT tracer doesn't pull
+ * node:child_process + storage into every API route boundary (#59 / #60).
  */
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import { cookies, headers } from 'next/headers'
 import { AUTH_COOKIE, isAuthConfigured, verifyAnyToken } from '@/lib/auth'
-import { getSession, resolveActor } from '@/lib/session'
+import { resolveActor } from '@/lib/session'
 import { audit } from '@/lib/storage'
-import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import {
   SIN_CODE_INSTALL_CMD,
   SIN_CODE_SUBCOMMANDS,
@@ -41,29 +43,6 @@ export async function assertAuthed(): Promise<boolean> {
     .get('authorization')
     ?.replace(/^Bearer\s+/i, '')
   return (await verifyAnyToken(cookieToken)) || (await verifyAnyToken(headerToken))
-}
-
-/**
- * Combined guard for route handlers: auth + rate limit in one call.
- */
-export async function guardRequest(
-  req: Request,
-  group: string,
-  limit = 30,
-  windowMs = 60_000,
-): Promise<Response | null> {
-  const session = await getSession()
-  if (!session) {
-    return Response.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const identity =
-    session.kind === 'user' ? `u:${session.userId}` : `s:${session.actor}`
-  const budget = session.isAdmin ? limit * 3 : limit
-
-  const result = rateLimit(`${identity}:${group}`, budget, windowMs)
-  if (!result.allowed) return rateLimitResponse(result)
-  return null
 }
 
 export async function runSin(

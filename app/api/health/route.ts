@@ -4,6 +4,9 @@
  */
 import { isDbConfigured, getPool } from '@/lib/db'
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function GET() {
   let db: 'ok' | 'error' | 'file' = 'file'
   if (isDbConfigured()) {

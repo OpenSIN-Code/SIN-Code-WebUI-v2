@@ -207,6 +207,32 @@
 
   parent.postMessage({ source: "sin-design", type: "ready" }, PARENT_ORIGIN)
 
+  // === Undo/Redo keyboard shortcuts (#60) ===
+  // Only active in Design Mode, and never while typing in a field.
+  document.addEventListener(
+    "keydown",
+    function (e) {
+      if (!enabled) return
+      var tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : ""
+      var isEditable =
+        tag === "input" ||
+        tag === "textarea" ||
+        tag === "select" ||
+        (e.target && e.target.isContentEditable)
+      if (isEditable) return
+
+      var mod = e.metaKey || e.ctrlKey
+      if (!mod) return
+      if (e.key !== "z" && e.key !== "Z") return
+
+      e.preventDefault()
+      e.stopPropagation()
+      var type = e.shiftKey ? "design-redo" : "design-undo"
+      parent.postMessage({ source: "sin-design", type: type }, PARENT_ORIGIN)
+    },
+    true,
+  )
+
   // === Screenshot area capture (Cmd/Ctrl + Drag) — issue #54 ===
   var shotState = null
   var shotRect = null
