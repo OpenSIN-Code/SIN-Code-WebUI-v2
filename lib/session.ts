@@ -13,7 +13,6 @@ import { cookies, headers } from 'next/headers'
 import { AUTH_COOKIE, isAuthConfigured, verifyToken } from '@/lib/auth'
 import { findUserByTokenHash, isMultiUserEnabled, type User } from '@/lib/users'
 import { findTokenName } from '@/lib/storage'
-import { getAuth, isBetterAuthEnabled } from '@/lib/auth/better-auth'
 
 export type Session =
   | { kind: 'root'; isAdmin: true; userId: null; actor: 'root' }
@@ -33,6 +32,7 @@ async function presentedToken(): Promise<string | null> {
 }
 
 async function getBetterAuthSession(): Promise<Session | null> {
+  const { isBetterAuthEnabled, getAuth } = await import('@/lib/auth/better-auth')
   if (!isBetterAuthEnabled()) return null
   try {
     const auth = getAuth()

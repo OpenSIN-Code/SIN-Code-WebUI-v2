@@ -1,13 +1,15 @@
 /**
- * Purpose: Postgres pool singleton. Works with Neon (sslmode=require in
- * the connection string) and self-hosted Postgres alike.
- * Set DATABASE_URL to enable the Postgres store; without it, the
- * file-based store remains active (see lib/storage.ts).
+ * Purpose: Postgres pool singleton + Kysely instance for better-auth.
+ * Set DATABASE_URL to enable. pg Pool for direct queries (health checks);
+ * Kysely + PostgresDialect for better-auth's kysely-adapter.
+ * Docs: lib/db.doc.md
  */
 import { Pool } from 'pg'
+import { Kysely, PostgresDialect } from 'kysely'
 
 declare global {
   var __sinPgPool: Pool | undefined
+  var __sinKysely: Kysely<any> | undefined
 }
 
 export function isDbConfigured(): boolean {
@@ -26,4 +28,16 @@ export function getPool(): Pool {
     })
   }
   return globalThis.__sinPgPool
+}
+
+export function getDb(): Kysely<any> {
+  if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL is not set')
+  }
+  if (!globalThis.__sinKysely) {
+    globalThis.__sinKysely = new Kysely({
+      dialect: new PostgresDialect({ pool: getPool() }),
+    })
+  }
+  return globalThis.__sinKysely
 }

@@ -27,5 +27,5 @@ export async function verifyAnyToken(
 ): Promise<boolean> {
   if (!token) return false
   if (verifyToken(token)) return true
-  return verifyStoredToken(token)
+  return await verifyStoredToken(token)
 }
