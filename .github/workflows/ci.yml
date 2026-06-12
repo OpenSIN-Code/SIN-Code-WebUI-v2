@@ -1,0 +1,46 @@
+# Purpose: CI for SIN-Code-WebUI-v2. Typecheck + lint + production build
+# on every push/PR; Docker image build on main to catch Dockerfile drift.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit
+
+      - name: Lint
+        run: pnpm exec biome check . || pnpm exec next lint
+
+      - name: Build
+        run: pnpm build
+        env:
+          # Build must succeed without secrets — all env access is runtime-only.
+          NEXT_TELEMETRY_DISABLED: 1
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: check
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build --build-arg SIN_CODE_REF=main -t sincode-webui:ci .
