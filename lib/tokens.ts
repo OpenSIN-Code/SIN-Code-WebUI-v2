@@ -9,7 +9,7 @@ import { createHash, randomBytes } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
-const DATA_DIR = path.join(process.cwd(), 'data')
+const DATA_DIR = path.join(process.cwd(), '.sin-webui')
 const TOKENS_FILE = path.join(DATA_DIR, 'tokens.json')
 
 export type TokenRecord = {
