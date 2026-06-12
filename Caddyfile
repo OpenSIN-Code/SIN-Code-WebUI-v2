@@ -1,0 +1,60 @@
+# ──────────────────────────────────────────────────────────────
+# Caddyfile — reverse proxy for the SIN-Code WebUI stack.
+#
+# Topology (docker compose):
+#   :80                    → webui:3000      (Next.js standalone)
+#   :8090                  → sin-code:8090   (Go MCP server, optional)
+#
+# In production, point a real domain at this and Caddy auto-issues
+# Let's Encrypt certs. In dev, use scripts/tunnel-up.sh for a free
+# *.trycloudflare.com URL.
+# ──────────────────────────────────────────────────────────────
+
+{
+    # Email for Let's Encrypt notifications in production.
+    # admin{$HOSTNAME}
+}
+
+# Dev: HTTP only, single port.
+:80 {
+    # Forward everything to the webui container.
+    reverse_proxy webui:3000
+
+    # Forward standard proxy headers so Next.js sees the real client IP.
+    header_up Host {host}
+    header_up X-Real-IP {remote}
+    header_up X-Forwarded-For {remote}
+    header_up X-Forwarded-Proto {scheme}
+
+    # Long-lived SSE responses (the /api/chat stream).
+    reverse_proxy webui:3000 {
+        flush_interval -1
+        transport http {
+            dial_timeout 30s
+            response_header_timeout 0
+        }
+    }
+
+    # Security headers.
+    header {
+        # Disable for now; tighten in production.
+        # Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        # X-Content-Type-Options "nosniff"
+        # Referrer-Policy "strict-origin-when-cross-origin"
+        # Permissions-Policy "geolocation=(), microphone=(), camera=()"
+        -Server
+    }
+
+    # Encode responses.
+    encode {
+        gzip 6
+        zstd
+    }
+}
+
+# Optional: expose the sin-code stdio bridge on a separate port.
+# Used by tools like `sin-code client` to talk to the same server
+# the webui is talking to. Disabled by default to reduce attack surface.
+# :8090 {
+#     reverse_proxy sin-code:8090
+# }
