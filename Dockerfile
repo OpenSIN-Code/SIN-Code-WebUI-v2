@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ── Stage 1: Build the sin-code Go binary ─────────────────────────────
-FROM golang:1.23-alpine AS sincode
+FROM golang:1.25-alpine AS sincode
 RUN apk add --no-cache git
 # Pin a tag/commit instead of main for reproducible builds.
 ARG SIN_CODE_REF=main
@@ -15,7 +15,7 @@ FROM node:22-alpine AS deps
 RUN corepack enable
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN corepack prepare pnpm@9.15.4 --activate && pnpm install --frozen-lockfile
 
 # ── Stage 3: Build the Next.js app ────────────────────────────────────
 FROM node:22-alpine AS builder
