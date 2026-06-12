@@ -382,4 +382,14 @@ If any of these fail, fix it before reporting done.
 
 ---
 
+## §5.9 Migrations-Pflicht bei UI-Refactorings
+
+Wenn ein neues Layout/Routing-System eingeführt wird, MÜSSEN alle alten
+Einstiegspunkte (Index-Routen, Legacy-Pages) im selben PR migriert oder
+auf Redirects umgestellt werden. Ein PR ist erst fertig, wenn die
+betroffenen Routen im Browser (Screenshot) verifiziert wurden — ein
+grüner tsc/build-Check ist KEIN Beweis für korrektes Rendering.
+
+---
+
 Last updated: aligned with main @ `86872a4` (post deploy work).

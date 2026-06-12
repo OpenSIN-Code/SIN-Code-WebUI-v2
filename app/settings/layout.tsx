@@ -13,6 +13,7 @@ import {
   Users,
   Activity,
   KeyRound,
+  Bot,
 } from "lucide-react"
 
 const NAV = [
@@ -24,6 +25,7 @@ const NAV = [
     group: "Workspace",
     items: [
       { href: "/settings/general", label: "General", icon: Building2 },
+      { href: "/settings/agent", label: "Agent & Models", icon: Bot },
       { href: "/settings/memories", label: "Memories", icon: BookMarked },
       { href: "/settings/skills", label: "Skills", icon: Sparkles },
       { href: "/settings/integrations", label: "Integrations", icon: Cable },
