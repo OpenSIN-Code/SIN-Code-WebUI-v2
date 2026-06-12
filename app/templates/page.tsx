@@ -41,7 +41,7 @@ export default function TemplatesPage() {
   const router = useRouter()
   const { addChat } = useChatStore()
 
-  const useTemplate = (name: string) => {
+  const handleTemplate = (name: string) => {
     const id = `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now()}`
     addChat({ id, label: name })
     router.push(
@@ -56,7 +56,7 @@ export default function TemplatesPage() {
           <button
             key={template.name}
             type="button"
-            onClick={() => useTemplate(template.name)}
+            onClick={() => handleTemplate(template.name)}
             className="group flex flex-col gap-3 rounded-xl border border-border/60 bg-card p-4 text-left hover:border-border"
           >
             <span className="flex aspect-video items-center justify-center rounded-lg bg-secondary">
