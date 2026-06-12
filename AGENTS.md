@@ -337,7 +337,9 @@ issue history are good enough substitutes for most queries.
 ## 9. Open follow-ups (live issue tracker)
 
 The previous 34 issues have all been closed and shipped. Open
-follow-ups to be created as part of the ongoing roadmap:
+All previously listed follow-ups have been shipped. See the live issue list for current open work.
+
+### Completed (retained for reference)
 - `pnpm tsc --noEmit` in CI ✅ — `.github/workflows/tsc-check.yml` runs on every PR/push to main
 - `pnpm test` setup ✅ — vitest configured with `lib/utils.test.ts` and `lib/sin/client.test.ts` (15 tests passing)
 - `CODEOWNERS` file ✅ — all areas owned by `@jeremy` with section comments
@@ -351,7 +353,14 @@ follow-ups to be created as part of the ongoing roadmap:
 - CI/CD Pipeline ✅ — `tsc-check.yml`, `lint.yml`, `build.yml` workflows
 - Docker Support ✅ — multi-stage Dockerfile + docker-compose.yml + Caddyfile reverse proxy
 - File-based Persistence ✅ — `.sin-webui/` workspace with JSON stores (settings, workspaces, memories, projects)
-- Real Vercel-Deploy behind the Publish button — out of scope (real deploys go through Docker + Cloudflare Tunnel, see `PLAN_DEPLOY.md`)
+
+### Open Issues (check before starting any new task)
+- **#51** — feat: Implement Better Auth multi-user authentication system
+- **#52** — feat: Undo/Redo history for Design Mode
+- **#53** — fix: Eliminate Turbopack/NFT build warning
+- **#54** — feat: Screenshot area capture (⌘+Drag) in Design Mode
+- **#55** — feat: Real Vercel deployment behind Publish button
+- Real Vercel-Deploy behind the Publish button — out of scope (real deploys go through Docker + Cloudflare Tunnel, see `PLAN_DEPLOY.md`) — superseded by #55
 
 Check the live issue list before starting any new task.
 
