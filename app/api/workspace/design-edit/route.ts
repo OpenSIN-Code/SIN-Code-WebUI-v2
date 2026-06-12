@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { promises as fs } from "fs"
 import path from "path"
+import { pushEntry } from "@/lib/workspace/design-history"
 
 const ROOT = process.env.SIN_WORKSPACE_DIR ?? process.cwd()
 
@@ -61,5 +62,14 @@ export async function POST(req: Request) {
   }
 
   await fs.writeFile(abs, lines.join("\n"), "utf8")
+  const relativeFilePath = file
+  const tagName = "div" // or get from the request context
+  await pushEntry({
+    file: relativeFilePath,
+    line: lineNo,
+    oldValue: oldClasses,
+    newValue: newClasses,
+    description: `Changed ${tagName} class to '${newClasses.slice(0, 60)}'`,
+  })
   return NextResponse.json({ ok: true, file, line: lineNo })
 }

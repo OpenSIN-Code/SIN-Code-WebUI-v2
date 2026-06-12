@@ -4,9 +4,10 @@
  * Emits: event "line" per stdout line, event "done" with exit code,
  *        event "error" on failure.
  */
-import { spawn } from 'node:child_process'
 import { guardRequest } from '@/lib/sin/run'
 
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
 export const maxDuration = 300
 
 const SAFE_TOKEN = /^[\w@./:=,\- ?!]{1,512}$/
@@ -26,6 +27,7 @@ export async function GET(req: Request) {
 
   const encoder = new TextEncoder()
   const bin = process.env.SIN_CODE_BIN || 'sin-code'
+  const { spawn } = await import('node:child_process')
 
   const stream = new ReadableStream<Uint8Array>({
     start(controller) {
@@ -84,4 +86,10 @@ export async function GET(req: Request) {
       Connection: 'keep-alive',
     },
   })
+}
+
+export async function POST(req: Request) {
+  const { task } = await req.json()
+  const { runOrchestratorStream } = await import("@/lib/sin/orchestrator-runner")
+  return runOrchestratorStream(task)
 }
