@@ -17,6 +17,8 @@ import {
   Redo2,
   RotateCcw,
   Eye,
+  Layers,
+  X,
 } from "lucide-react"
 
 interface DomNode {
@@ -32,6 +34,7 @@ interface InspectedNode {
   tag: string
   classes: string
   text: string
+  loc: string | null
   rect: { width: number; height: number }
   styles: Record<string, string>
 }
@@ -126,6 +129,12 @@ export function DesignPanel({ src }: { src: string }) {
   const [tree, setTree] = useState<DomNode | null>(null)
   const [inspected, setInspected] = useState<InspectedNode | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [layersOpen, setLayersOpen] = useState(true)
+  const [editedClasses, setEditedClasses] = useState("")
+  const [originalClasses, setOriginalClasses] = useState("")
+  const [applying, setApplying] = useState(false)
+  const [applyError, setApplyError] = useState<string | null>(null)
+  const [moveHint, setMoveHint] = useState<string | null>(null)
 
   const post = useCallback((msg: Record<string, unknown>) => {
     iframeRef.current?.contentWindow?.postMessage({ source: "sin-webui", ...msg }, "*")
@@ -140,38 +149,60 @@ export function DesignPanel({ src }: { src: string }) {
       if (d.type === "inspect") {
         setInspected(d.node)
         setSelectedId(d.node.id)
+        setEditedClasses(d.node.classes)
+        setOriginalClasses(d.node.classes)
+        setApplyError(null)
+        setMoveHint(null)
+      }
+      if (d.type === "moved") {
+        const { x, y } = d.delta
+        setMoveHint(
+          `Element moved by ${x}px / ${y}px — suggest e.g. ${
+            x !== 0 ? `ml-[${x}px] ` : ""
+          }${y !== 0 ? `mt-[${y}px]` : ""}`.trim(),
+        )
       }
     }
     window.addEventListener("message", onMessage)
     return () => window.removeEventListener("message", onMessage)
   }, [post])
 
-  return (
-    <div className="flex h-full">
-      <div className="flex w-[300px] shrink-0 flex-col border-r border-border bg-background">
-        <div className="flex h-9 shrink-0 items-center border-b border-border px-3">
-          <span className="text-[13px] font-medium">Layers</span>
-        </div>
-        <div className="flex-1 overflow-y-auto p-1.5">
-          {tree ? (
-            <LayerItem
-              node={tree}
-              depth={0}
-              selectedId={selectedId}
-              onHover={(id) => post({ type: "highlight", id })}
-              onSelect={(id) => {
-                setSelectedId(id)
-                post({ type: "select", id })
-              }}
-            />
-          ) : (
-            <p className="px-2 py-4 text-xs text-muted-foreground">
-              Waiting for preview…
-            </p>
-          )}
-        </div>
-      </div>
+  const dirty = editedClasses !== originalClasses
 
+  function previewClasses(value: string) {
+    setEditedClasses(value)
+    if (selectedId) post({ type: "preview-classes", id: selectedId, classes: value })
+  }
+
+  function resetClasses() {
+    previewClasses(originalClasses)
+    setApplyError(null)
+  }
+
+  async function apply() {
+    if (!inspected || !dirty) return
+    setApplying(true)
+    setApplyError(null)
+    const res = await fetch("/api/workspace/design-edit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        loc: inspected.loc,
+        oldClasses: originalClasses,
+        newClasses: editedClasses,
+      }),
+    })
+    if (res.ok) {
+      setOriginalClasses(editedClasses)
+    } else {
+      const json = await res.json().catch(() => null)
+      setApplyError(json?.error ?? "Apply failed")
+    }
+    setApplying(false)
+  }
+
+  return (
+    <div className="relative flex h-full">
       <div className="min-w-0 flex-1 bg-background">
         <iframe
           ref={iframeRef}
@@ -181,6 +212,49 @@ export function DesignPanel({ src }: { src: string }) {
           className="h-full w-full border-0"
         />
       </div>
+
+      {layersOpen ? (
+        <div className="animate-fade-up absolute left-3 top-3 z-20 flex max-h-[70%] w-[300px] flex-col overflow-hidden rounded-xl border border-border bg-popover shadow-lg">
+          <div className="flex h-9 shrink-0 items-center justify-between border-b border-border px-3">
+            <span className="text-[13px] font-medium">Layers</span>
+            <button
+              type="button"
+              onClick={() => setLayersOpen(false)}
+              aria-label="Close layers"
+              className="flex size-6 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground"
+            >
+              <X className="size-3.5" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-1.5">
+            {tree ? (
+              <LayerItem
+                node={tree}
+                depth={0}
+                selectedId={selectedId}
+                onHover={(id) => post({ type: "highlight", id })}
+                onSelect={(id) => {
+                  setSelectedId(id)
+                  post({ type: "select", id })
+                }}
+              />
+            ) : (
+              <p className="px-2 py-4 text-xs text-muted-foreground">
+                Waiting for preview…
+              </p>
+            )}
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setLayersOpen(true)}
+          aria-label="Open layers"
+          className="absolute left-3 top-3 z-20 flex size-8 items-center justify-center rounded-lg border border-border bg-popover text-muted-foreground shadow-lg transition-colors hover:text-foreground"
+        >
+          <Layers className="size-4" strokeWidth={1.75} />
+        </button>
+      )}
 
       <div className="flex w-[300px] shrink-0 flex-col border-l border-border bg-background">
         <div className="flex h-9 shrink-0 items-center justify-between border-b border-border px-3">
@@ -205,12 +279,33 @@ export function DesignPanel({ src }: { src: string }) {
                     {inspected.rect.width}×{inspected.rect.height}
                   </span>
                 </p>
-                {inspected.classes && (
-                  <p className="mt-1 break-all font-mono text-xs leading-relaxed text-muted-foreground">
-                    {inspected.classes}
+                {inspected.loc && (
+                  <p className="mt-0.5 font-mono text-xs text-muted-foreground">
+                    {inspected.loc}
                   </p>
                 )}
               </div>
+
+              <div>
+                <p className="mb-1.5 text-xs font-medium text-muted-foreground">Classes</p>
+                <textarea
+                  value={editedClasses}
+                  onChange={(e) => previewClasses(e.target.value)}
+                  rows={4}
+                  aria-label="Tailwind classes"
+                  className="w-full resize-y rounded-lg border border-border bg-transparent p-2.5 font-mono text-xs leading-relaxed outline-none focus:border-ring"
+                />
+                {applyError && (
+                  <p className="mt-1.5 text-xs text-destructive">{applyError}</p>
+                )}
+              </div>
+
+              {moveHint && (
+                <div className="rounded-lg border border-border bg-secondary/50 p-2.5">
+                  <p className="text-xs leading-relaxed text-muted-foreground">{moveHint}</p>
+                </div>
+              )}
+
               <div className="flex flex-col gap-1.5 rounded-lg border border-border p-2.5">
                 {Object.entries(inspected.styles).map(([key, value]) => (
                   <div key={key} className="flex items-center justify-between gap-2">
@@ -219,13 +314,6 @@ export function DesignPanel({ src }: { src: string }) {
                   </div>
                 ))}
               </div>
-              {inspected.text && (
-                <div className="rounded-lg border border-border p-2.5">
-                  <p className="text-xs leading-relaxed text-muted-foreground">
-                    {inspected.text}
-                  </p>
-                </div>
-              )}
             </div>
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-4 px-6">
@@ -255,15 +343,22 @@ export function DesignPanel({ src }: { src: string }) {
             </button>
           </div>
           <div className="flex items-center gap-1.5">
-            <button type="button" className="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground">
+            <button
+              type="button"
+              onClick={resetClasses}
+              disabled={!dirty}
+              className="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40"
+            >
               <RotateCcw className="size-3" />
               Reset
             </button>
             <button
               type="button"
-              className="flex h-7 items-center rounded-md bg-[#0072f5] px-3 text-xs font-medium text-white transition-opacity hover:opacity-90"
+              onClick={apply}
+              disabled={!dirty || applying}
+              className="flex h-7 items-center rounded-md bg-[#0072f5] px-3 text-xs font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40"
             >
-              Apply
+              {applying ? "Applying…" : "Apply"}
             </button>
           </div>
         </div>

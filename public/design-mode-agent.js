@@ -6,6 +6,7 @@
   var enabled = false
   var idCounter = 0
   var nodeMap = new Map()
+  var dragState = null
 
   var overlay = document.createElement("div")
   overlay.style.cssText =
@@ -76,6 +77,7 @@
           tag: el.tagName.toLowerCase(),
           classes: typeof el.className === "string" ? el.className : "",
           text: (el.textContent || "").slice(0, 120),
+          loc: el.getAttribute("data-sin-loc") || null,
           rect: { width: Math.round(r.width), height: Math.round(r.height) },
           styles: {
             display: cs.display,
@@ -101,9 +103,60 @@
     return found
   }
 
+  document.addEventListener("mousedown", function (e) {
+    if (!enabled) return
+    var id = findId(e.target)
+    if (!id) return
+    e.preventDefault()
+    dragState = {
+      el: e.target,
+      id: id,
+      startX: e.clientX,
+      startY: e.clientY,
+      moved: false,
+    }
+  }, true)
+
   document.addEventListener("mousemove", function (e) {
     if (!enabled) return
+    if (dragState) {
+      var dx = e.clientX - dragState.startX
+      var dy = e.clientY - dragState.startY
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+        dragState.moved = true
+        dragState.el.style.transform = "translate(" + dx + "px," + dy + "px)"
+        dragState.el.style.opacity = "0.8"
+        highlight(dragState.el)
+      }
+      return
+    }
     highlight(e.target)
+  }, true)
+
+  document.addEventListener("mouseup", function (e) {
+    if (!enabled || !dragState) return
+    var s = dragState
+    dragState = null
+    if (s.moved) {
+      var dx = e.clientX - s.startX
+      var dy = e.clientY - s.startY
+      s.el.style.transform = ""
+      s.el.style.opacity = ""
+      parent.postMessage(
+        {
+          source: "sin-design",
+          type: "moved",
+          node: {
+            id: s.id,
+            tag: s.el.tagName.toLowerCase(),
+            classes: typeof s.el.className === "string" ? s.el.className : "",
+            loc: s.el.getAttribute("data-sin-loc") || null,
+          },
+          delta: { x: Math.round(dx), y: Math.round(dy) },
+        },
+        PARENT_ORIGIN,
+      )
+    }
   }, true)
 
   document.addEventListener("click", function (e) {
@@ -138,6 +191,13 @@
       if (sel) {
         highlight(sel)
         inspect(sel, d.id)
+      }
+    }
+    if (d.type === "preview-classes") {
+      var target = nodeMap.get(d.id)
+      if (target) {
+        target.className = d.classes
+        highlight(target)
       }
     }
   })

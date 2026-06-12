@@ -3,7 +3,7 @@ import nextConfig from "eslint-config-next";
 const config = [
   ...nextConfig,
   {
-    ignores: ["coverage/**", ".next/**"],
+    ignores: ["coverage/**", ".next/**", "lib/jsx-loc-plugin.mjs"],
   },
   {
     rules: {

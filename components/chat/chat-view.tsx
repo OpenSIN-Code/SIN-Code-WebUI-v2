@@ -5,6 +5,7 @@ import { Message } from "@/components/chat/message"
 import { ThinkingIndicator, LoadingDots } from "@/components/chat/thinking-indicator"
 import { ToolCall } from "@/components/chat/tool-call"
 import { PromptComposer } from "@/components/chat/prompt-composer"
+import { MarkdownMessage } from "@/components/chat/markdown-message"
 
 export interface ChatPart {
   type: "text" | "tool"
@@ -76,9 +77,7 @@ export function ChatView({ messages, status, onSend, onStop }: ChatViewProps) {
                       detail={part.toolDetail}
                     />
                   ) : (
-                    <p key={i} className="whitespace-pre-wrap">
-                      {part.text}
-                    </p>
+                    <MarkdownMessage key={i} content={part.text ?? ""} />
                   ),
                 )}
               </Message>
