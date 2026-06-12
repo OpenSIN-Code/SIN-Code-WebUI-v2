@@ -47,10 +47,11 @@ export const SIN_CODE_SUBCOMMANDS = [
   // Plugin & index (2)
   'plugin',
   'index',
-  // Orchestrator (3)
+  // Orchestrator (4)
   'orchestrator-run',
   'orchestrator-agents',
   'orchestrator-plan',
+  'agent',
   // UI (2)
   'tui',
   'webui',

@@ -11,7 +11,9 @@ import {
   SquareTerminal,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { AgentPicker } from '@/components/agent-picker'
 import { DashedSpinner, Starburst } from '@/components/icons'
+import { ToolCallCard, type ToolPartLike } from '@/components/tool-call-card'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +22,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { type SinAgentId } from '@/lib/sin/agents'
+import { SIN_MODELS, type SinModelId } from '@/lib/sin/models'
 
 /* ────────────────────────── helpers ────────────────────────── */
 
@@ -42,7 +46,6 @@ function CopyButton({ text }: { text: string }) {
   )
 }
 
-/** Render inline text with `code` spans */
 function InlineText({ text }: { text: string }) {
   const parts = text.split(/(`[^`]+`)/g)
   return (
@@ -50,14 +53,12 @@ function InlineText({ text }: { text: string }) {
       {parts.map((part, i) =>
         part.startsWith('`') && part.endsWith('`') ? (
           <code
-            // biome-ignore lint/suspicious/noArrayIndexKey: static split
             key={i}
             className="rounded-[3px] bg-muted px-[4px] py-[1px] font-mono text-[0.78em] text-foreground"
           >
             {part.slice(1, -1)}
           </code>
         ) : (
-          // biome-ignore lint/suspicious/noArrayIndexKey: static split
           <span key={i}>{part}</span>
         ),
       )}
@@ -65,7 +66,6 @@ function InlineText({ text }: { text: string }) {
   )
 }
 
-/** Minimal markdown renderer: fenced code blocks + paragraphs + inline code */
 function Markdown({ content }: { content: string }) {
   const segments = content.split(/(```[\s\S]*?(?:```|$))/g)
   return (
@@ -76,7 +76,6 @@ function Markdown({ content }: { content: string }) {
           const lang = seg.match(/^```([^\n]*)/)?.[1]?.trim() || 'code'
           return (
             <div
-              // biome-ignore lint/suspicious/noArrayIndexKey: static split
               key={i}
               className="overflow-hidden rounded-xl border border-border/60 bg-card"
             >
@@ -99,7 +98,6 @@ function Markdown({ content }: { content: string }) {
           .filter((p) => p.trim())
           .map((para, j) => (
             <p
-              // biome-ignore lint/suspicious/noArrayIndexKey: static split
               key={`${i}-${j}`}
               className="text-pretty text-[14px] leading-relaxed text-foreground"
             >
@@ -120,17 +118,6 @@ function getMessageText(message: UIMessage): string {
   )
 }
 
-/** Tool-call indicator — shows which SIN tool is running */
-function ToolBadge({ name }: { name: string }) {
-  return (
-    <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-card px-3 py-2">
-      <DashedSpinner className="size-3.5 animate-[spin_2s_linear_infinite] text-muted-foreground" />
-      <span className="font-mono text-[12px] text-muted-foreground">{name}</span>
-    </div>
-  )
-}
-
-/** Spinning dashed circle + shimmer text — v0's thinking indicator */
 function ThinkingIndicator() {
   return (
     <div className="flex items-center gap-2 py-1">
@@ -142,30 +129,79 @@ function ThinkingIndicator() {
 
 /* ────────────────────────── main view ────────────────────────── */
 
-export function ChatView({ prompt }: { prompt?: string }) {
-  const [model, setModel] = useState('sin-code-pro')
+export function ChatView({
+  chatId,
+  prompt,
+  initialModel,
+}: {
+  chatId: string
+  prompt?: string
+  initialModel?: string
+}) {
+  const [model, setModel] = useState<SinModelId>(
+    (SIN_MODELS.some((m) => m.id === initialModel)
+      ? (initialModel as SinModelId)
+      : 'sin-code-pro'),
+  )
+  const [agent, setAgent] = useState<SinAgentId>('auto')
+
+  const [initialMessages, setInitialMessages] = useState<UIMessage[] | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch(`/api/chats/${chatId}`)
+      .then((r) => r.json())
+      .then((json) => {
+        if (!cancelled) setInitialMessages(Array.isArray(json.data) ? json.data : [])
+      })
+      .catch(() => {
+        if (!cancelled) setInitialMessages([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [chatId])
+
   const { messages, sendMessage, status } = useChat({
+    id: chatId,
+    messages: initialMessages ?? [],
     transport: new DefaultChatTransport({
       api: '/api/chat',
-      body: { model },
+      body: { model, agent },
     }),
   })
 
+  useEffect(() => {
+    if (status !== 'ready' || messages.length === 0) return
+    fetch(`/api/chats/${chatId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages }),
+    }).catch(() => {})
+  }, [status, messages, chatId])
+
   const sentInitial = useRef(false)
   useEffect(() => {
-    if (prompt && !sentInitial.current && messages.length === 0) {
+    if (prompt && !sentInitial.current && messages.length === 0 && initialMessages !== null) {
       sentInitial.current = true
       sendMessage({ text: prompt })
     }
-  }, [prompt, messages.length, sendMessage])
+  }, [prompt, messages.length, sendMessage, initialMessages])
 
   const scrollRef = useRef<HTMLDivElement>(null)
-  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll on new content
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
   }, [messages])
 
   const isThinking = status === 'submitted'
+
+  if (initialMessages === null) {
+    return (
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center">
+        <ThinkingIndicator />
+      </div>
+    )
+  }
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -186,19 +222,15 @@ export function ChatView({ prompt }: { prompt?: string }) {
                 {message.parts?.map((part, i) => {
                   if (part.type === 'text') {
                     return (
-                      // biome-ignore lint/suspicious/noArrayIndexKey: part order is stable
                       <Markdown key={i} content={part.text} />
                     )
                   }
                   if (
-                    part.type.startsWith('tool-') &&
-                    'state' in part &&
-                    (part.state === 'input-streaming' ||
-                      part.state === 'input-available')
+                    part.type.startsWith('tool-') ||
+                    part.type === 'dynamic-tool'
                   ) {
                     return (
-                      // biome-ignore lint/suspicious/noArrayIndexKey: part order is stable
-                      <ToolBadge key={i} name={part.type.replace('tool-', '')} />
+                      <ToolCallCard key={i} part={part as ToolPartLike} />
                     )
                   }
                   return null
@@ -224,6 +256,8 @@ export function ChatView({ prompt }: { prompt?: string }) {
         disabled={status === 'streaming' || status === 'submitted'}
         model={model}
         onModelChange={setModel}
+        agent={agent}
+        onAgentChange={setAgent}
         onSend={(text) => sendMessage({ text })}
       />
     </div>
@@ -237,19 +271,17 @@ function FollowUpBar({
   disabled,
   model,
   onModelChange,
+  agent,
+  onAgentChange,
 }: {
   onSend: (text: string) => void
   disabled?: boolean
-  model: string
-  onModelChange: (m: string) => void
+  model: SinModelId
+  onModelChange: (m: SinModelId) => void
+  agent: SinAgentId
+  onAgentChange: (a: SinAgentId) => void
 }) {
   const [value, setValue] = useState('')
-
-  const models = [
-    { id: 'sin-code-pro', label: 'SIN-Code Pro', description: 'Most capable model' },
-    { id: 'sin-code-fast', label: 'SIN-Code Fast', description: 'Low-latency responses' },
-    { id: 'sin-code-mini', label: 'SIN-Code Mini', description: 'Lightweight tasks' },
-  ] as const
 
   const hasText = value.trim().length > 0
 
@@ -263,7 +295,6 @@ function FollowUpBar({
   return (
     <div className="shrink-0 px-4 pb-4">
       <div className="mx-auto flex w-full max-w-[672px] items-center gap-1 rounded-[14px] border border-border bg-card px-1.5 py-1.5 shadow-[0_2px_8px_0_oklch(0_0_0/10%)]">
-        {/* Attach — circle+plus like v0 */}
         <button
           type="button"
           aria-label="Add attachment"
@@ -275,7 +306,6 @@ function FollowUpBar({
           </svg>
         </button>
 
-        {/* Input */}
         <input
           type="text"
           value={value}
@@ -287,7 +317,8 @@ function FollowUpBar({
           className="h-8 min-w-0 flex-1 bg-transparent text-[13.5px] text-foreground placeholder:text-muted-foreground focus:outline-none"
         />
 
-        {/* Model selector */}
+        <AgentPicker agent={agent} onAgentChange={onAgentChange} />
+
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
@@ -306,7 +337,7 @@ function FollowUpBar({
               Model
             </DropdownMenuLabel>
             <DropdownMenuGroup>
-              {models.map((m) => (
+              {SIN_MODELS.map((m) => (
                 <DropdownMenuItem key={m.id} onClick={() => onModelChange(m.id)}>
                   <Starburst className="size-4 text-brand" />
                   <span className="flex min-w-0 flex-1 flex-col">
@@ -322,7 +353,6 @@ function FollowUpBar({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Mic → Send toggle (like v0) */}
         {hasText ? (
           <button
             type="button"

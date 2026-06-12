@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowUp, Mic, Paperclip, Sparkles } from 'lucide-react'
+import { ArrowUp, Check, Mic, Paperclip, Sparkles } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
 import { useChatStore } from '@/components/chat-store'
@@ -12,19 +12,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { SIN_MODELS, type SinModelId } from '@/lib/sin/models'
 
 const SUGGESTIONS = [
-  'Contact Form',
-  'Image Editor',
-  'Mini Game',
-  'Finance Calculator',
+  'Map this repo architecture',
+  'Find architectural debt',
+  'Plan a refactor with the orchestrator',
+  'What changed since last session?',
 ]
 
 export function PromptBox() {
   const router = useRouter()
   const { addChat } = useChatStore()
   const [value, setValue] = useState('')
+  const [model, setModel] = useState<SinModelId>('sin-code-pro')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const currentModel = SIN_MODELS.find((m) => m.id === model) ?? SIN_MODELS[0]
 
   function handleSubmit() {
     const prompt = value.trim()
@@ -38,9 +42,9 @@ export function PromptBox() {
         .slice(0, 4)
         .join('-') || 'new-chat'
     const words = prompt.split(/\s+/)
-    const label = words.slice(0, 5).join(' ') + (words.length > 5 ? '\u2026' : '')
+    const label = words.slice(0, 5).join(' ') + (words.length > 5 ? '…' : '')
     addChat({ id: slug, label })
-    router.push(`/chat/${slug}?q=${encodeURIComponent(prompt)}`)
+    router.push(`/chat/${slug}?q=${encodeURIComponent(prompt)}&m=${model}`)
   }
 
   function fillSuggestion(text: string) {
@@ -89,16 +93,25 @@ export function PromptBox() {
               }
             >
               <Starburst className="size-4 text-brand" />
-              <span>SIN 2</span>
+              <span>{currentModel.label}</span>
               <svg viewBox="0 0 16 16" className="size-3 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M4 6 8 10 12 6" />
               </svg>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-44">
+            <DropdownMenuContent align="start" className="w-60">
               <DropdownMenuGroup>
-                <DropdownMenuItem>SIN 2</DropdownMenuItem>
-                <DropdownMenuItem>SIN 2 Mini</DropdownMenuItem>
-                <DropdownMenuItem>SIN 1.5</DropdownMenuItem>
+                {SIN_MODELS.map((m) => (
+                  <DropdownMenuItem key={m.id} onClick={() => setModel(m.id)}>
+                    <Starburst className="size-4 text-brand" />
+                    <span className="flex min-w-0 flex-1 flex-col">
+                      <span className="text-[13px]">{m.label}</span>
+                      <span className="truncate text-xs text-muted-foreground">
+                        {m.description}
+                      </span>
+                    </span>
+                    {model === m.id && <Check className="size-4 shrink-0" />}
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -46,7 +46,7 @@ export function ChatsList() {
           </Link>
           <span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
             <Clock className="size-3" />
-            {chat.updated ?? '1:22 PM'}
+            {'1:22 PM'}
           </span>
           <button
             type="button"

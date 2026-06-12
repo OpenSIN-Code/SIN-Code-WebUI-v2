@@ -1,71 +1,12 @@
-# ──────────────────────────────────────────────────────────────
-# SIN-Code WebUI v2 — .dockerignore
-# Files NOT shipped to the Docker build context.
-# ──────────────────────────────────────────────────────────────
-
-# Dependencies — installed inside the image
 node_modules
-.pnpm-store
-
-# Build output — generated inside the image
 .next
-out
-build
-dist
-
-# Tooling state (sin-code / sin-brain / sin-goal-mode)
-.sin
-.sinator
-.pcache
-sin_goal_mode.db
-sin_goal_mode.db-*
-.sin_memory.db
-*.db
-*.db-shm
-*.db-wal
-
-# Test / coverage artifacts
-.coverage
-.pytest_cache
-.ruff_cache
-__snapshots__
-coverage
-
-# IDE / editor
-.vscode
-.idea
-.DS_Store
-
-# Secrets — never build these into an image
+data
 .env
-.env*.local
-.env.development.local.md
+.env.*
 !.env.example
-
-# Local override of gitignore
-.env.development
-.env.production
-
-# Vercel / Next.js
-.vercel
-.next-env.d.ts
-
-# Git
 .git
-.gitignore
-.github
-
-# Documentation (kept in repo, not in image)
-*.md
-!docs/**/*.md
-
-# Test / debug
 *.log
-*.tsbuildinfo
-
-# CI workflows (not needed in image)
-.github/workflows
-
-# Lockfile — pnpm fetches its own
-# (kept: ensures reproducible builds across platforms via pnpm install --frozen-lockfile)
-# pnpm-lock.yaml
+deploy
+docker-compose.yml
+Dockerfile
+README.md

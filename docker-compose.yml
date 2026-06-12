@@ -1,83 +1,51 @@
-# ──────────────────────────────────────────────────────────────
-# docker-compose.yml — SIN-Code WebUI v2 local stack
-#
-# Run on macOS with OrbStack (use `orb` instead of `docker`):
-#   orb compose up -d
-# Or on Linux with Docker:
-#   docker compose up -d
-#
-# Tear down: orb compose down
-# Tail logs: orb compose logs -f webui
-# ──────────────────────────────────────────────────────────────
-
-name: sin-code-webui-v2
+# Purpose: Self-hosted deployment for sincode-webui.delqhi.com.
+# Usage:
+#   cp .env.example .env   # fill in secrets
+#   docker compose up -d --build
+#   docker compose exec -T db psql -U sin -d sincode < scripts/001_init.sql
 
 services:
-  # ── 1. sin-code MCP server (Go binary) ──────────────────────────
-  # Exposes the 44 sin_* tools to the webui via HTTP/JSON-RPC.
-  # The webui talks to this instead of spawning its own `sin-code serve`.
-  sin-code:
-    image: ghcr.io/opensin-code/sin-code:v2.5.0
-    container_name: sin-code-server
-    restart: unless-stopped
-    profiles: [tools] # only started with `orb compose --profile tools up`
-    command: ["serve", "--http", "--port=8090"]
-    ports:
-      - "${SIN_CODE_PORT:-8090}:8090"
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8090/healthz"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-
-  # ── 2. webui (Next.js standalone) ───────────────────────────
-  # Built locally from the Dockerfile in this repo. Listens on :3000,
-  # reverse-proxied through caddy to :80.
-  webui:
+  app:
     build:
       context: .
-      dockerfile: Dockerfile
       args:
-        # Override at build time: --build-arg SIN_CODE_VERSION=v2.5.1
-        SIN_CODE_VERSION: v2.5.0
-    image: sin-code-webui-v2:local
-    container_name: sin-code-webui
-    restart: unless-stopped
-    # No depends_on here — caddy depends on webui, not the other way around.
-    # Adding webui → caddy would create a cycle.
-    environment:
-      NODE_ENV: production
-      PORT: 3000
-      HOSTNAME: 0.0.0.0
-      AI_GATEWAY_API_KEY: ${AI_GATEWAY_API_KEY:-}
-      SIN_CHAT_MODEL: ${SIN_CHAT_MODEL:-openai/gpt-5-mini}
-      # The sin-code binary is bundled inside the webui image
-      # (downloaded in the Dockerfile's `sin-code` stage). The webui
-      # spawns it via execFile, so we point SIN_CODE_BIN at /usr/local/bin.
-      SIN_CODE_BIN: /usr/local/bin/sin-code
-    healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/sin/status').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-
-  # ── 3. caddy (reverse proxy + automatic HTTPS) ───────────────
-  caddy:
-    image: caddy:2.8-alpine
-    container_name: sin-code-caddy
+        SIN_CODE_REF: main
     restart: unless-stopped
     ports:
-      # Public HTTP. In production, also expose 443; Caddy will
-      # auto-issue a Let's Encrypt cert when a real domain is pointed here.
-      - "${WEBUI_PORT:-8080}:80"
+      - "127.0.0.1:3000:3000"   # only nginx talks to it; not exposed publicly
+    environment:
+      SIN_UI_TOKEN: ${SIN_UI_TOKEN}
+      DATABASE_URL: postgres://sin:${POSTGRES_PASSWORD}@db:5432/sincode
+      AI_GATEWAY_API_KEY: ${AI_GATEWAY_API_KEY}
+      SIN_MODEL_PRO: ${SIN_MODEL_PRO:-anthropic/claude-sonnet-4.5}
+      SIN_MODEL_FAST: ${SIN_MODEL_FAST:-openai/gpt-5-mini}
+      SIN_MODEL_MINI: ${SIN_MODEL_MINI:-google/gemini-3-flash}
+      SIN_CODE_BIN: /usr/local/bin/sin-code
+      SIN_DATA_DIR: /data
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
+      - sin-data:/data            # file-store fallback + workspace state
+      - sin-workspace:/workspace  # repo the sin-code agent operates on
+    working_dir: /app
     depends_on:
-      webui:
+      db:
         condition: service_healthy
 
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: sincode
+    volumes:
+      - sin-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sin -d sincode"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
-  caddy_data:
-  caddy_config:
+  sin-data:
+  sin-pgdata:
+  sin-workspace:

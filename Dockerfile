@@ -1,109 +1,59 @@
-# syntax=docker/dockerfile:1.7
-# ──────────────────────────────────────────────────────────────
-# SIN-Code WebUI v2 — Dockerfile
-#
-# Multi-stage build:
-#   1. deps        — pnpm install with frozen lockfile
-#   2. sin-code    — download the sin-code Go binary from the
-#                    SIN-Code-Bundle release (single static binary)
-#   3. builder     — Next.js standalone build
-#   4. runner      — slim runtime: node 22-slim + the standalone bundle
-#                    + the sin-code binary on PATH
-#
-# Build:   docker build -t sin-code-webui-v2 .
-# Run:     docker run --rm -p 3000:3000 sin-code-webui-v2
-# Env:     See .env.example for AI_GATEWAY_API_KEY etc.
-# ──────────────────────────────────────────────────────────────
+# syntax=docker/dockerfile:1
 
-# ─── 1. deps ────────────────────────────────────────────────────
+# ── Stage 1: Build the sin-code Go binary ─────────────────────────────
+FROM golang:1.23-alpine AS sincode
+RUN apk add --no-cache git
+# Pin a tag/commit instead of main for reproducible builds.
+ARG SIN_CODE_REF=main
+RUN git clone --depth 1 --branch ${SIN_CODE_REF} \
+      https://github.com/OpenSIN-Code/SIN-Code.git /src
+WORKDIR /src
+RUN CGO_ENABLED=0 go build -o /out/sin-code ./cmd/sin-code
+
+# ── Stage 2: Install Node dependencies ────────────────────────────────
 FROM node:22-alpine AS deps
+RUN corepack enable
 WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
-# pnpm via corepack (ships with Node 22)
-ENV PNPM_HOME=/pnpm
-ENV PATH=$PNPM_HOME:$PATH
-RUN corepack enable && corepack prepare pnpm@10.10.0 --activate
-
-COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile --ignore-scripts
-
-# ─── 2. sin-code binary ────────────────────────────────────────
-# We download the official release binary. Override SIN_CODE_VERSION
-# at build time with `--build-arg SIN_CODE_VERSION=v2.5.1` etc.
-#
-# Release URL pattern (verified against v2.5.0):
-#   https://github.com/OpenSIN-Code/SIN-Code-Bundle/releases/download/{TAG}/sin-code-linux-{ARCH}.tar.gz
-#   {TAG}  = v2.5.0  (with the leading v, NOT stripped)
-#   {ARCH} = amd64 | arm64
-FROM alpine:3.20 AS sin-code
-ARG SIN_CODE_VERSION=v2.5.0
-ARG SIN_CODE_REPO=OpenSIN-Code/SIN-Code-Bundle
-WORKDIR /out
-# NOTE: do NOT default TARGETARCH — docker buildx auto-injects it
-# (amd64 or arm64) when you pass --platform. A hard default
-# shadows the buildx injection and breaks cross-arch builds.
-ARG TARGETARCH
-RUN apk add --no-cache curl tar \
- && case "$TARGETARCH" in \
-      amd64) ARCH=amd64 ;; \
-      arm64) ARCH=arm64 ;; \
-      *) echo "unsupported arch: ${TARGETARCH:-<unset>}" && exit 1 ;; \
-    esac \
- && echo "Downloading sin-code ${SIN_CODE_VERSION} for ${ARCH}…" \
- && curl -fsSL "https://github.com/${SIN_CODE_REPO}/releases/download/${SIN_CODE_VERSION}/sin-code-linux-${ARCH}.tar.gz" \
-      -o /tmp/sin-code.tar.gz \
- || (echo ":: Trying latest release as fallback ::" \
-     && curl -fsSL "https://github.com/${SIN_CODE_REPO}/releases/latest/download/sin-code-linux-${ARCH}.tar.gz" \
-        -o /tmp/sin-code.tar.gz) \
- && tar -xzf /tmp/sin-code.tar.gz -C /out \
- && chmod +x /out/sin-code \
- && /out/sin-code --version
-
-# ─── 3. builder ───────────────────────────────────────────────
+# ── Stage 3: Build the Next.js app ────────────────────────────────────
 FROM node:22-alpine AS builder
+RUN corepack enable
 WORKDIR /app
-
-ENV PNPM_HOME=/pnpm
-ENV PATH=$PNPM_HOME:$PATH
-ENV NEXT_TELEMETRY_DISABLED=1
-RUN corepack enable && corepack prepare pnpm@10.10.0 --activate
-
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN pnpm build
 
-# Required at build time so `next build` can inline them; can be empty.
-ENV AI_GATEWAY_API_KEY=""
-ENV SIN_CODE_BIN=/usr/local/bin/sin-code
-ENV SIN_CHAT_MODEL=openai/gpt-5-mini
-
-RUN pnpm run build
-
-# ─── 4. runner ────────────────────────────────────────────────
-FROM node:22-slim AS runner
+# ── Stage 4: Runtime ──────────────────────────────────────────────────
+FROM node:22-alpine AS runner
+RUN apk add --no-cache curl
 WORKDIR /app
-
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
-ENV SIN_CODE_BIN=/usr/local/bin/sin-code
+# File-store fallback location (used when DATABASE_URL is unset)
+ENV SIN_DATA_DIR=/data
 
-# Bring the sin-code binary from the sin-code stage
-COPY --from=sin-code /out/sin-code /usr/local/bin/sin-code
+RUN addgroup -S sin && adduser -S sin -G sin
 
-# Bring the Next.js standalone bundle
-COPY --from=builder /app/.next/standalone ./
-# Static assets must be copied manually (Next.js docs: "You should also
-# copy the public and .next/static folders")
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
+# sin-code backend binary
+COPY --from=sincode /out/sin-code /usr/local/bin/sin-code
 
-# Run as non-root
-RUN useradd -m -u 1001 nextjs && chown -R nextjs:nextjs /app
-USER nextjs
+# Next.js standalone server + static assets
+COPY --from=builder --chown=sin:sin /app/.next/standalone ./
+COPY --from=builder --chown=sin:sin /app/.next/static ./.next/static
+COPY --from=builder --chown=sin:sin /app/public ./public
 
+RUN mkdir -p /data && chown sin:sin /data
+VOLUME /data
+
+USER sin
 EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD node -e "fetch('http://127.0.0.1:3000/api/sin/status').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD curl -fsS http://localhost:3000/api/health || exit 1
 
 CMD ["node", "server.js"]

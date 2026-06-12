@@ -1,20 +1,21 @@
 'use client'
 
 import {
-  BookOpen, Check, ChevronDown, ChevronRight, ChevronsUpDown,
-  CircleDollarSign, CirclePlus, CircleUser, Coins, Gift, GitBranch,
-  LayoutTemplate, LogOut, MessageCircleQuestion, Monitor, Moon,
-  MoreHorizontal, PanelLeft, PanelLeftClose, Settings, Sun, Users,
+  BookOpen, Bot, Brain, Check, ChevronDown, ChevronRight, ChevronsUpDown,
+  CircleDollarSign, CirclePlus, CircleUser, Coins, FileCode, FileText, Gift, GitBranch,
+  LayoutTemplate, ListTodo, LogOut, MessageCircleQuestion, Monitor, Moon,
+  MoreHorizontal, PanelLeft, PanelLeftClose, Settings, Settings2, Star, Sun, Users,
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { DashedSpinner, NavIconChats, NavIconDesignSystems, NavIconHome, NavIconProjects, NavIconSearch, NavIconTemplates } from '@/components/icons'
+import { DashedSpinner, NavIconChats, NavIconHome, NavIconProjects, NavIconSearch } from '@/components/icons'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Star } from 'lucide-react'
 import { useChatStore, type ChatEntry } from '@/components/chat-store'
 import { useProjectStore } from '@/components/project-store'
 import { ProjectsSection } from '@/components/projects-section'
+import { SinVersionBadge } from '@/components/sin-version-badge'
+import { NotificationsBell } from '@/components/notifications-bell'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { useSidebarStore } from '@/components/sidebar-store'
@@ -25,8 +26,11 @@ const navItems = [
   { label: 'Home', Icon: NavIconHome, href: '/' },
   { label: 'Projects', Icon: NavIconProjects, href: '/projects' },
   { label: 'Chats', Icon: NavIconChats, href: '/chats' },
-  { label: 'Design Systems', Icon: NavIconDesignSystems, href: '/design-systems' },
-  { label: 'Templates', Icon: NavIconTemplates, href: '/templates' },
+  { label: 'Agents', Icon: Bot, href: '/agents' },
+  { label: 'Tasks', Icon: ListTodo, href: '/tasks' },
+  { label: 'Memory', Icon: Brain, href: '/memory' },
+  { label: 'Files', Icon: FileCode, href: '/files' },
+  { label: 'Settings', Icon: Settings2, href: '/settings' },
 ]
 
 function CollapsedTooltip({ collapsed, label, children }: { collapsed: boolean; label: string; children: React.ReactNode }) {
@@ -47,6 +51,16 @@ function SidebarChatRow({ chat, active, collapsed, onRename, onDelete, onToggleF
   async function handleShare() {
     const url = `${window.location.origin}/chat/${chat.id}`
     try { await navigator.clipboard.writeText(url) } catch { window.prompt('Copy the link:', url) }
+  }
+
+  async function handleExport() {
+    const url = `${window.location.origin}/chat/${chat.id}`
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${chat.label.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.html`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
   }
 
   function handleMoveToNewProject() {
@@ -73,6 +87,7 @@ function SidebarChatRow({ chat, active, collapsed, onRename, onDelete, onToggleF
             <DropdownMenuContent align="start" side="right" className="w-44">
               <DropdownMenuGroup>
                 <DropdownMenuItem onClick={handleShare}>Share</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExport}><FileText className="size-4" />Export as HTML</DropdownMenuItem>
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>Move to Project</DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="w-48">
@@ -106,6 +121,12 @@ export function AppSidebar() {
   function handleDelete(id: string) { removeChat(id); if (pathname === `/chat/${id}`) router.push('/') }
   function handleRename(id: string, currentLabel: string) { const next = window.prompt('Rename chat', currentLabel); if (next?.trim()) renameChat(id, next.trim()) }
 
+  async function handleSignOut() {
+    await fetch('/api/auth/login', { method: 'DELETE' })
+    router.push('/login')
+    router.refresh()
+  }
+
   return (
     <aside className={cn('flex h-svh shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-all duration-200', collapsed ? 'w-14' : 'w-[212px]')}>
       <div className="flex h-11 items-center gap-1 px-2 border-b border-sidebar-border/60">
@@ -133,11 +154,17 @@ export function AppSidebar() {
         )})}
       </nav>
 
+      <div className="px-2">
+        <NotificationsBell collapsed={collapsed} />
+      </div>
+
       {!collapsed && (<div className="px-2 pt-2.5"><div className="px-1"><button type="button" aria-expanded={favoritesOpen} onClick={() => setFavoritesOpen((v) => !v)} className="flex h-6 w-full items-center justify-between text-[10.5px] font-semibold uppercase tracking-widest text-muted-foreground/50 hover:text-muted-foreground">Favorites{favoritesOpen ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}</button></div>{favoritesOpen && (<div className="flex flex-col pt-0.5">{favoriteChats.length === 0 ? (<p className="px-2 py-1 text-[11.5px] text-muted-foreground/60">No favorites yet.</p>) : (favoriteChats.map((chat) => (<SidebarChatRow key={chat.id} chat={chat} active={pathname === `/chat/${chat.id}`} collapsed={collapsed} onRename={() => handleRename(chat.id, chat.label)} onDelete={() => handleDelete(chat.id)} onToggleFavorite={() => toggleFavorite(chat.id)} />)))}</div>)}</div>)}
 
       <ProjectsSection collapsed={collapsed} />
 
       {!collapsed && (<div className="flex min-h-0 flex-1 flex-col px-2 pt-1.5"><div className="px-1 pb-0.5"><button type="button" className="flex h-6 w-full items-center justify-between text-[10.5px] font-semibold uppercase tracking-widest text-muted-foreground/50 hover:text-muted-foreground">Recent Chats<ChevronDown className="size-3" /></button></div><div className="flex flex-col overflow-y-auto pt-0.5">{recentChats.length === 0 ? (<div className="mx-1 mt-2 rounded-lg border border-dashed border-sidebar-border px-3 py-4 text-center text-[11.5px] text-muted-foreground">No chats yet.</div>) : (recentChats.map((chat) => (<SidebarChatRow key={chat.id} chat={chat} active={pathname === `/chat/${chat.id}`} collapsed={collapsed} onRename={() => handleRename(chat.id, chat.label)} onDelete={() => handleDelete(chat.id)} onToggleFavorite={() => toggleFavorite(chat.id)} />)))}</div></div>)}
+
+      <SinVersionBadge collapsed={collapsed} />
 
       <div className="flex items-center gap-1 border-t border-sidebar-border px-2 py-1.5">
         <DropdownMenu>
@@ -155,7 +182,7 @@ export function AppSidebar() {
             <div className="flex items-center justify-between px-3 py-1.5"><span className="text-[13px] text-foreground">Language</span><button type="button" className="flex items-center gap-1 rounded-md border border-border px-2 py-0.5 text-[12px] text-foreground hover:bg-accent">English <ChevronDown className="size-3" /></button></div>
             <div className="flex items-center justify-between px-3 py-1.5"><span className="text-[13px] text-foreground">Chat Position</span><button type="button" className="flex items-center gap-1 rounded-md border border-border px-2 py-0.5 text-[12px] text-foreground hover:bg-accent">Left <ChevronDown className="size-3" /></button></div>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup><DropdownMenuItem><LogOut className="size-4" />Sign Out</DropdownMenuItem></DropdownMenuGroup>
+            <DropdownMenuGroup><DropdownMenuItem onClick={handleSignOut}><LogOut className="size-4" />Sign Out</DropdownMenuItem></DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
         {!collapsed && <span className="flex h-6 shrink-0 items-center rounded border border-sidebar-border px-2 text-[11.5px] font-medium text-sidebar-foreground">$10</span>}

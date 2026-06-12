@@ -1,5 +1,4 @@
 import { AppSidebar } from '@/components/app-sidebar'
-import { ChatHeaderWithProject } from '@/components/chat-header-with-project'
 import { ChatView } from '@/components/chat-view'
 
 export default async function ChatPage({
@@ -7,21 +6,16 @@ export default async function ChatPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ q?: string }>
+  searchParams: Promise<{ q?: string; m?: string }>
 }) {
   const { id } = await params
-  const { q } = await searchParams
-  const title = id
-    .split('-')
-    .map((w, i) => (i === 0 ? w.charAt(0).toUpperCase() + w.slice(1) : w))
-    .join(' ')
+  const { q, m } = await searchParams
 
   return (
     <div className="flex h-svh bg-background">
       <AppSidebar />
-      <main className="flex min-w-0 flex-1 flex-col">
-        <ChatHeaderWithProject chatId={id} title={title} />
-        <ChatView prompt={id === 'repo-review' ? undefined : q} />
+      <main className="flex min-h-0 flex-1 flex-col">
+        <ChatView chatId={id} prompt={q} initialModel={m} />
       </main>
     </div>
   )

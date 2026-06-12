@@ -1,18 +1,15 @@
-/**
- * Purpose: /search route — wraps the SearchPanel (client component).
- */
-import type { Metadata } from 'next'
-import { PageShell } from '@/components/page-shell'
-import { SearchPanel } from '@/components/search-panel'
+import { AppSidebar } from '@/components/app-sidebar'
+import { SearchView } from '@/components/search-view'
 
-export const metadata: Metadata = {
-  title: 'Search - SIN-Code WebUI v2',
-}
+export const metadata = { title: 'Search — SIN-Code' }
 
 export default function SearchPage() {
   return (
-    <PageShell title="Search">
-      <SearchPanel />
-    </PageShell>
+    <div className="flex h-svh bg-background">
+      <AppSidebar />
+      <main className="flex-1 overflow-y-auto">
+        <SearchView />
+      </main>
+    </div>
   )
 }

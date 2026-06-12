@@ -2,7 +2,6 @@ import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 import { ThemeProvider } from 'next-themes'
 import { Geist, Geist_Mono, Inter } from 'next/font/google'
-import { ChatStoreProvider } from '@/components/chat-store'
 import { DesignSystemStoreProvider } from '@/components/design-system-store'
 import { ProjectStoreProvider } from '@/components/project-store'
 import { SidebarStoreProvider } from '@/components/sidebar-store'
@@ -52,15 +51,13 @@ export default function RootLayout({
     >
       <body className="bg-background font-sans text-foreground antialiased">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <ChatStoreProvider>
-            <ProjectStoreProvider>
-              <DesignSystemStoreProvider>
-                <SidebarStoreProvider>
-                {children}
-              </SidebarStoreProvider>
-              </DesignSystemStoreProvider>
-            </ProjectStoreProvider>
-          </ChatStoreProvider>
+          <ProjectStoreProvider>
+            <DesignSystemStoreProvider>
+              <SidebarStoreProvider>
+              {children}
+            </SidebarStoreProvider>
+            </DesignSystemStoreProvider>
+          </ProjectStoreProvider>
         </ThemeProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

@@ -54,11 +54,9 @@ export function SearchPanel() {
             >
               <SquarePen className="size-3.5 shrink-0 text-muted-foreground" />
               <span className="min-w-0 flex-1 truncate">{chat.label}</span>
-              {chat.updated && (
-                <span className="shrink-0 text-xs text-muted-foreground">
-                  {chat.updated}
-                </span>
-              )}
+              <span className="shrink-0 text-xs text-muted-foreground">
+                {chat.label}
+              </span>
             </Link>
           ))
         )}
