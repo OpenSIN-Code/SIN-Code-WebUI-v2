@@ -1,0 +1,50 @@
+# CODEOWNERS — auto-review routing for SIN-Code-WebUI-v2
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# Note on the "second maintainer" problem: the team
+# `@OpenSIN-Code/sin-code-webui-v2-maintainers` does not exist on GitHub yet.
+# Until that team is provisioned, strict-review paths list the only current
+# maintainer (`jeremy`) twice. GitHub interprets repeated owners as
+# "requires N approvals from this list", so those paths effectively need
+# the single owner to self-approve twice (a soft guard) and will cleanly
+# upgrade to a 2-person rule the day a second owner joins. Add a second
+# handle next to `jeremy` in those blocks when available.
+
+# ── Default owner ──────────────────────────────────────────────────────
+# Everything not matched by a more specific rule below falls through here.
+* @jeremy
+
+# ── Core backend (strict review) ───────────────────────────────────────
+# `lib/sin/` is the single source of truth for the 32 subcommands + 44 MCP
+# tools; `app/api/` runs `streamText` and spawns the sin-code binary. Any
+# change here can break every chat session silently.
+/lib/sin/ @jeremy @jeremy
+/app/api/ @jeremy @jeremy
+
+# ── CI/CD & infrastructure (strict review) ─────────────────────────────
+# Workflows ship code-execution power; Dockerfile/compose/Caddy affect
+# every deploy. A bad change here can take the whole stack offline or
+# leak secrets. Listed twice = needs 2 approvals from this list.
+/.github/workflows/ @jeremy @jeremy
+/Dockerfile* @jeremy @jeremy
+/docker-compose.yml @jeremy @jeremy
+/Caddyfile @jeremy @jeremy
+/.dockerignore @jeremy @jeremy
+
+# ── Frontend (normal review) ───────────────────────────────────────────
+# UI/UX changes are lower blast-radius than backend/CI; one approval is
+# enough.
+/app/ @jeremy
+/components/ @jeremy
+
+# ── Docs (light review) ────────────────────────────────────────────────
+# Markdown docs and the `docs/` folder are non-executing; typos or copy
+# fixes don't ship code.
+/*.md @jeremy
+/docs/ @jeremy
+
+# ── Generated / secrets-sensitive (strict review) ───────────────────────
+# `.env*` and `secrets/` should never be in the repo (gitignored), but if
+# one slips in we want a strict review to catch it before it merges.
+/.env* @jeremy @jeremy
+/secrets/ @jeremy @jeremy
