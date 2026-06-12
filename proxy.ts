@@ -1,6 +1,13 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
-const PUBLIC_PATHS = ['/login', '/register', '/forgot-password', '/reset-password', '/api/auth']
+const PUBLIC_PATHS = [
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+  '/api/auth',
+  '/share',
+]
 
 export default function proxy(request: NextRequest) {
   // Backward-compat: ohne konfiguriertes Secret läuft alles anonym weiter
