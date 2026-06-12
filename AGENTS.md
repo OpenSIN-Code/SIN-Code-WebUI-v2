@@ -338,11 +338,11 @@ issue history are good enough substitutes for most queries.
 
 The previous 34 issues have all been closed and shipped. Open
 follow-ups to be created as part of the ongoing roadmap:
-- `pnpm tsc --noEmit` in CI (currently only local)
-- `pnpm test` setup (no tests yet)
-- `CODEOWNERS` file (PR auto-routing)
-- Real Vercel-Deploy behind the Publish button
-- Sidebar collapsibility (toggle button is currently visual-only)
+- `pnpm tsc --noEmit` in CI ✅ — `.github/workflows/tsc-check.yml` runs on every PR/push to main
+- `pnpm test` setup ✅ — vitest configured with `lib/utils.test.ts` and `lib/sin/client.test.ts` (15 tests passing)
+- `CODEOWNERS` file ✅ — all areas owned by `@jeremy` with section comments
+- Real Vercel-Deploy behind the Publish button — out of scope (real deploys go through Docker + Cloudflare Tunnel, see `PLAN_DEPLOY.md`)
+- Sidebar collapsibility ✅ — implemented via `useSidebarStore` (SSR-safe, localStorage-persisted). Toggle button in `app-sidebar.tsx` is fully wired and functional.
 
 Check the live issue list before starting any new task.
 
