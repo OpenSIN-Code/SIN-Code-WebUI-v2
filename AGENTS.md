@@ -355,10 +355,16 @@ All previously listed follow-ups have been shipped. See the live issue list for 
 - File-based Persistence ✅ — `.sin-webui/` workspace with JSON stores (settings, workspaces, memories, projects)
 
 ### Open Issues (check before starting any new task)
-- **#59** — fix(auth): resolve 401 on all /api/* routes after Better Auth + Kysely integration
-- **#60** — fix(build): eliminate the last Turbopack NFT warning in design-edit route
-- **#61** — feat(design-mode): wire ⌘Z / ⌘⇧Z keyboard shortcuts for Undo/Redo
-- **#62** — ci: verify ceo-audit + tsc-check are green on main @ 30de716
+**None.** The issue tracker is empty; `gh issue list --state open` returns no results.
+Before starting new work, run `gh issue list --state open` and update this section.
+
+### Recently Shipped (retained for reference)
+- **#59** ✅ — fix(auth): resolve 401 on all /api/* routes after Better Auth + Kysely integration
+- **#60** ✅ — fix(build): eliminate the last Turbopack NFT warning in design-edit route
+- **#61** ✅ — feat(design-mode): wire ⌘Z / ⌘⇧Z keyboard shortcuts for Undo/Redo
+- **#62** ✅ — ci: verify ceo-audit + tsc-check are green on main @ 30de716
+- **#65** ✅ — feat(ui): restore v0-style sidebar dropdown + ChatHeader (legendary theme switch)
+- **#66** ✅ — fix(ui): v0-strict sidebar dropdown + chat-view hero (functional preserved)
 
 Check the live issue list before starting any new task.
 
