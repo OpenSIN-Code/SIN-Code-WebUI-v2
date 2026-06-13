@@ -56,3 +56,7 @@ sin_goal_mode.db-*
 *.tsbuildinfo
 next-env.d.ts
 .audit/
+
+# Test coverage artifacts
+coverage/
+
