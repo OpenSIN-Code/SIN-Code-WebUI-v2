@@ -5,7 +5,9 @@
 import {
   BarChart3,
   ChevronDown,
+  FileCode,
   FileKey,
+  FileText,
   GitBranch,
   Globe,
   LayoutTemplate,
@@ -24,7 +26,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-export function ChatHeader({ title }: { title: string }) {
+export function ChatHeader({ title, chatId }: { title: string; chatId?: string }) {
+  function exportChat(format: 'md' | 'json') {
+    if (!chatId) return
+    const a = document.createElement('a')
+    a.href = `/api/chats/${chatId}/export?format=${format}`
+    a.download = ''
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  }
+
   return (
     <header className="flex h-11 shrink-0 items-center gap-1.5 border-b border-border/60 px-3">
       {/* Breadcrumb */}
@@ -69,6 +81,19 @@ export function ChatHeader({ title }: { title: string }) {
               <DropdownMenuItem>Add to Favorites</DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
+            {chatId && (
+              <>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem onClick={() => exportChat('md')}>
+                    <FileText className="size-4" />Export as Markdown
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => exportChat('json')}>
+                    <FileCode className="size-4" />Export as JSON
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+              </>
+            )}
             <DropdownMenuGroup>
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuItem>Transfer&hellip;</DropdownMenuItem>

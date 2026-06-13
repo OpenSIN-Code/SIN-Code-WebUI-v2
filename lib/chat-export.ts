@@ -14,6 +14,7 @@ type AnyPart = {
   input?: unknown
   output?: unknown
   errorText?: string
+  toolName?: string
 }
 
 function fence(value: unknown, lang = 'json'): string {
@@ -43,7 +44,10 @@ export function chatToMarkdown(
         continue
       }
       if (part.type.startsWith('tool-') || part.type === 'dynamic-tool') {
-        const toolName = part.type.replace(/^tool-/, '')
+        const toolName =
+          part.type === 'dynamic-tool'
+            ? (part.toolName ?? 'dynamic-tool')
+            : part.type.replace(/^tool-/, '')
         const failed = part.state === 'output-error'
         lines.push(
           `<details>`,
