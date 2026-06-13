@@ -19,4 +19,12 @@ describe('cn()', () => {
   it('returns empty string for no inputs', () => {
     expect(cn()).toBe('')
   })
+
+  it('merges arrays and objects', () => {
+    expect(cn(['a', 'b'], { c: true, d: false })).toBe('a b c')
+  })
+
+  it('handles null and undefined gracefully', () => {
+    expect(cn('a', null, undefined, 'b')).toBe('a b')
+  })
 })

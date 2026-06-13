@@ -6,7 +6,7 @@ import path from 'node:path'
 export default defineConfig({
   resolve: {
     alias: {
-      '@/*': path.resolve(__dirname, './'),
+      '@/': path.resolve(__dirname, './'),
     },
   },
   test: {
@@ -14,8 +14,8 @@ export default defineConfig({
     include: ['lib/**/*.test.ts'],
     coverage: {
       provider: 'v8',
-      include: ['lib/sin/**/*.ts'],
-      exclude: ['lib/sin/**/*.test.ts'],
+      include: ['lib/**/*.ts'],
+      exclude: ['lib/**/*.test.ts', 'lib/**/*.doc.md'],
     },
   },
 })
