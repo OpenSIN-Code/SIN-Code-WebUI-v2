@@ -4,7 +4,6 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import useSWR from "swr"
-import html2canvas from "html2canvas-pro"
 import {
   ChevronRight,
   Box,
@@ -182,6 +181,7 @@ export function DesignPanel({ src }: { src: string }) {
     const iframe = iframeRef.current
     if (!iframe?.contentDocument?.body) return
     try {
+      const html2canvas = (await import("html2canvas-pro")).default
       const canvas = await html2canvas(iframe.contentDocument.body, {
         scale: sel.dpr,
         logging: false,

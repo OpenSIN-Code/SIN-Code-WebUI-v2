@@ -4,17 +4,35 @@
 
 import { useState } from "react"
 import useSWR from "swr"
+import dynamic from "next/dynamic"
 import {
   WorkspaceHeader,
   type WorkspaceTab,
 } from "@/components/workspace/workspace-header"
 import { PreviewPanel } from "@/components/workspace/preview-panel"
-import { CodePanel } from "@/components/workspace/code-panel"
 import { DatabasePanel } from "@/components/workspace/database-panel"
-import { DesignPanel } from "@/components/workspace/design-panel"
 import { DeployHistory } from "@/components/workspace/deploy-history"
 import { ScreenshotGallery } from "@/components/workspace/screenshot-gallery"
 import type { Version } from "@/components/workspace/version-dropdown"
+
+const CodePanel = dynamic(
+  () => import("@/components/workspace/code-panel").then((m) => m.CodePanel),
+  { ssr: false, loading: () => <TabSkeleton /> },
+)
+
+const DesignPanel = dynamic(
+  () =>
+    import("@/components/workspace/design-panel").then((m) => m.DesignPanel),
+  { ssr: false, loading: () => <TabSkeleton /> },
+)
+
+function TabSkeleton() {
+  return (
+    <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+      Loading tab…
+    </div>
+  )
+}
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
