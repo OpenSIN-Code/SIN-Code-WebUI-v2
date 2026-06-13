@@ -17,14 +17,18 @@ describe('chatToMarkdown()', () => {
 
   it('renders an assistant message', () => {
     const messages: UIMessage[] = [
-      { role: 'assistant', id: '2', parts: [{ type: 'text', text: 'Hi there' }] },
+      {
+        role: 'assistant',
+        id: '2',
+        parts: [{ type: 'text', text: 'Hi there' }],
+      },
     ]
     const md = chatToMarkdown({ id: 'chat-2', label: 'Chat Two' }, messages)
     expect(md).toContain('## SIN')
     expect(md).toContain('Hi there')
   })
 
-  it('renders a tool call with input and output', () => {
+  it('renders a dynamic-tool call with real toolName (PR #75 fix)', () => {
     const messages: UIMessage[] = [
       {
         role: 'assistant',
@@ -48,7 +52,7 @@ describe('chatToMarkdown()', () => {
     expect(md).toContain('"ok": true')
   })
 
-  it('renders a failed tool call with error text', () => {
+  it('renders a failed dynamic-tool call with error text', () => {
     const messages: UIMessage[] = [
       {
         role: 'assistant',

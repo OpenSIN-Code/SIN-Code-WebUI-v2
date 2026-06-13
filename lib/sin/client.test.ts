@@ -172,6 +172,49 @@ describe('runSinCodeCommand', () => {
       exitCode: 1,
     })
   })
+
+  // ── Options ───────────────────────────────────────────────────
+  it('passes cwd and timeout options to execFile', async () => {
+    /** Custom cwd and timeout should be forwarded to the child process. */
+    wireMock('{"ok":true}')
+
+    await runSinCodeCommand('discover', ['--path', '.'], {
+      cwd: '/tmp/project',
+      timeoutMs: 1_000,
+    })
+
+    const opts = mockExecFile.mock.calls[0]![2] as Record<string, unknown>
+    expect(opts.cwd).toBe('/tmp/project')
+    expect(opts.timeout).toBe(1_000)
+    expect(opts.maxBuffer).toBe(8 * 1024 * 1024)
+  })
+
+  // ── Environment override ──────────────────────────────────────
+  it('uses SIN_CODE_BIN when set', async () => {
+    /** $SIN_CODE_BIN allows CI or dev installs to override the binary path. */
+    const originalBin = process.env.SIN_CODE_BIN
+    process.env.SIN_CODE_BIN = '/custom/sin-code'
+    wireMock('{"ok":true}')
+
+    await runSinCodeCommand('discover')
+
+    expect(mockExecFile.mock.calls[0]![0]).toBe('/custom/sin-code')
+    process.env.SIN_CODE_BIN = originalBin
+  })
+
+  // ── Empty stdout ──────────────────────────────────────────────
+  it('returns empty string as data when stdout is empty', async () => {
+    /** Empty stdout should parse as an empty string, not throw. */
+    wireMock('')
+
+    const result = await runSinCodeCommand('discover')
+
+    expect(result).toEqual({
+      installed: true,
+      ok: true,
+      data: '',
+    })
+  })
 })
 
 // ── getSinCodeStatus ──────────────────────────────────────────
