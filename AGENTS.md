@@ -365,6 +365,16 @@ Before starting new work, run `gh issue list --state open` and update this secti
 - **#62** ✅ — ci: verify ceo-audit + tsc-check are green on main @ 30de716
 - **#65** ✅ — feat(ui): restore v0-style sidebar dropdown + ChatHeader (legendary theme switch)
 - **#66** ✅ — fix(ui): v0-strict sidebar dropdown + chat-view hero (functional preserved)
+- **#67** ✅ — v0-Design-Audit: UI-Komponenten, Workspaces-Ausbau, Empty States
+- **#68** ✅ — docs(agents): mark #59-#66 shipped, clear open issues
+- **#69** ✅ — fix(infrastructure): mount all SQL init scripts in docker-compose
+- **#70** ✅ — fix(auth): correct kysely-adapter configuration for BetterAuth
+- **#71** ✅ — chore(compliance): LICENSE, SECURITY.md, SBOM, SPDX headers
+
+### CEO Audit
+- **Current grade: A+ (100.0/100)** — 0 Critical, 0 High, 0 findings
+- Last run: 2026-06-13
+- Reports: `~/ceo-audits/` or `/tmp/ceo-audit-webui-2/`
 
 Check the live issue list before starting any new task.
 
