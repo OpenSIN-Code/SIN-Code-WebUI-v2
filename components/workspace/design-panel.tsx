@@ -176,6 +176,46 @@ export function DesignPanel({ src }: { src: string }) {
     iframeRef.current?.contentWindow?.postMessage({ source: "sin-webui", ...msg }, "*")
   }, [])
 
+  const handleScreenshot = useCallback(async (sel: { x: number; y: number; width: number; height: number; dpr: number }) => {
+    const iframe = iframeRef.current
+    if (!iframe?.contentDocument?.body) return
+    try {
+      const canvas = await html2canvas(iframe.contentDocument.body, {
+        scale: sel.dpr,
+        logging: false,
+        useCORS: true,
+        allowTaint: true,
+      })
+      const cropCanvas = document.createElement("canvas")
+      cropCanvas.width = sel.width * sel.dpr
+      cropCanvas.height = sel.height * sel.dpr
+      const ctx = cropCanvas.getContext("2d")
+      if (!ctx) return
+      ctx.drawImage(
+        canvas,
+        sel.x * sel.dpr,
+        sel.y * sel.dpr,
+        sel.width * sel.dpr,
+        sel.height * sel.dpr,
+        0,
+        0,
+        cropCanvas.width,
+        cropCanvas.height,
+      )
+      cropCanvas.toBlob((blob) => {
+        if (!blob) return
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = `screenshot-${Date.now()}.png`
+        a.click()
+        URL.revokeObjectURL(url)
+      }, "image/png")
+    } catch (err) {
+      console.error("Screenshot failed:", err)
+    }
+  }, [])
+
   useEffect(() => {
     function onMessage(e: MessageEvent) {
       const d = e.data
@@ -218,47 +258,7 @@ export function DesignPanel({ src }: { src: string }) {
     }
     window.addEventListener("message", onMessage)
     return () => window.removeEventListener("message", onMessage)
-  }, [post])
-
-  async function handleScreenshot(sel: { x: number; y: number; width: number; height: number; dpr: number }) {
-    const iframe = iframeRef.current
-    if (!iframe?.contentDocument?.body) return
-    try {
-      const canvas = await html2canvas(iframe.contentDocument.body, {
-        scale: sel.dpr,
-        logging: false,
-        useCORS: true,
-        allowTaint: true,
-      })
-      const cropCanvas = document.createElement("canvas")
-      cropCanvas.width = sel.width * sel.dpr
-      cropCanvas.height = sel.height * sel.dpr
-      const ctx = cropCanvas.getContext("2d")
-      if (!ctx) return
-      ctx.drawImage(
-        canvas,
-        sel.x * sel.dpr,
-        sel.y * sel.dpr,
-        sel.width * sel.dpr,
-        sel.height * sel.dpr,
-        0,
-        0,
-        cropCanvas.width,
-        cropCanvas.height,
-      )
-      cropCanvas.toBlob((blob) => {
-        if (!blob) return
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement("a")
-        a.href = url
-        a.download = `screenshot-${Date.now()}.png`
-        a.click()
-        URL.revokeObjectURL(url)
-      }, "image/png")
-    } catch (err) {
-      console.error("Screenshot failed:", err)
-    }
-  }
+  }, [post, handleScreenshot])
 
   const dirty = editedClasses !== originalClasses
 
