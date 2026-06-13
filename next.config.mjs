@@ -1,3 +1,6 @@
+// Purpose: Next.js configuration for standalone build, NFT exclusions, and security headers.
+// Docs: next.config.mjs.doc.md
+
 /** @type {import('next').NextConfig} */
 // SPDX-License-Identifier: MIT
 
@@ -13,6 +16,24 @@ const nextConfig = {
   },
   turbopack: {
     root: import.meta.dirname,
+  },
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-XSS-Protection', value: '1; mode=block' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          {
+            key: 'Permissions-Policy',
+            value:
+              'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()',
+          },
+        ],
+      },
+    ]
   },
   // NFT fix (#53 / #59 / #60): child_process/fs usage in API routes makes
   // the tracer conservatively include the whole project. Exclude runtime-
