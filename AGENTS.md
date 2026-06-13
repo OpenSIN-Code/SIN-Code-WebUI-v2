@@ -355,7 +355,8 @@ All previously listed follow-ups have been shipped. See the live issue list for 
 - File-based Persistence ✅ — `.sin-webui/` workspace with JSON stores (settings, workspaces, memories, projects)
 
 ### Open Issues (check before starting any new task)
-**None.** The issue tracker is empty; `gh issue list --state open` returns no results.
+- **#89** — fix(infrastructure): Docker build fails with EOF from OrbStack daemon (workaround: local `pnpm start` on port 3100)
+
 Before starting new work, run `gh issue list --state open` and update this section.
 
 ### Recently Shipped (retained for reference)
@@ -440,4 +441,4 @@ When deploying to Docker + Cloudflare Tunnel on macOS:
 
 ---
 
-Last updated: aligned with main @ `804b74d` (post #88 merge).
+Last updated: aligned with main @ `3f6523c` (post #88 merge); open issue #89 tracked.
