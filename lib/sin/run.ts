@@ -11,9 +11,8 @@
 
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
-import { cookies, headers } from 'next/headers'
-import { AUTH_COOKIE, isAuthConfigured, verifyAnyToken } from '@/lib/auth'
-import { resolveActor } from '@/lib/session'
+import { isAuthConfigured, verifyAnyToken } from '@/lib/auth'
+import { presentedToken, resolveActor } from '@/lib/session'
 import { audit } from '@/lib/storage'
 import {
   SIN_CODE_INSTALL_CMD,
@@ -39,13 +38,9 @@ export type SinRunResult =
  */
 export async function assertAuthed(): Promise<boolean> {
   if (!isAuthConfigured()) return true
-  const cookieStore = await cookies()
-  const headerStore = await headers()
-  const cookieToken = cookieStore.get(AUTH_COOKIE)?.value
-  const headerToken = headerStore
-    .get('authorization')
-    ?.replace(/^Bearer\s+/i, '')
-  return (await verifyAnyToken(cookieToken)) || (await verifyAnyToken(headerToken))
+  const token = await presentedToken()
+  if (!token) return false
+  return await verifyAnyToken(token)
 }
 
 export async function runSin(

@@ -11,7 +11,7 @@ via `execFile` (no shell), and writes an audit entry for every run.
 ## Dependencies
 
 - `lib/sin/tools.ts` for the subcommand whitelist and install command.
-- `lib/session.ts` for actor resolution.
+- `lib/session.ts` for actor resolution and token extraction (`presentedToken`).
 - `lib/storage.ts` for audit logging.
 - `lib/auth.ts` for token verification.
 
