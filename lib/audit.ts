@@ -8,6 +8,8 @@
  * `await import()`) so the NFT tracer never sees node:fs at the call
  * boundary (#59 / #60).
  */
+// SPDX-License-Identifier: MIT
+
 
 export type AuditEntry = {
   ts: string

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import { readPreferences, listFiles, readFileContent } from "@/lib/settings/store"
 
 export async function buildAgentContext(userId: string = "global"): Promise<string> {

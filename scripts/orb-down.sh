@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+
+# SPDX-License-Identifier: MIT
 # ──────────────────────────────────────────────────────────────
 # scripts/orb-down.sh — stop the SIN-Code WebUI v2 stack
 # Pass --volumes to also delete the caddy_data / caddy_config

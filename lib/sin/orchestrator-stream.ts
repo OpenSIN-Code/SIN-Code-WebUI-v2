@@ -8,6 +8,8 @@
  * dynamic imports because Next.js 16.2.6 still flags any module that
  * transitively references node:child_process, fs, path, or process.cwd().
  */
+// SPDX-License-Identifier: MIT
+
 /* __sin_nft_clean__ */
 export async function runOrchestratorStream(
   task: string,

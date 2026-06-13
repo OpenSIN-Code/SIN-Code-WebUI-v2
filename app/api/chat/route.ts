@@ -3,6 +3,8 @@
  * Docs: POST /api/chat — UIMessage[] in, UI message stream out.
  * Body: { messages, model?: SinModelId | gateway string, agent?: SinAgentId }
  */
+// SPDX-License-Identifier: MIT
+
 import {
   convertToModelMessages,
   stepCountIs,

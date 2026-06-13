@@ -13,6 +13,8 @@
  *   NEXT_PUBLIC_SUPABASE_URL
  *   NEXT_PUBLIC_SUPABASE_ANON_KEY
  */
+// SPDX-License-Identifier: MIT
+
 import 'server-only'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 

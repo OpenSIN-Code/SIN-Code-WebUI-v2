@@ -2,6 +2,8 @@
  * Purpose: Postgres implementation of the chat history store.
  * Same exported signatures as the file-based lib/chat-history.ts.
  */
+// SPDX-License-Identifier: MIT
+
 import type { UIMessage } from 'ai'
 import { getPool } from '@/lib/db'
 import type { ChatMeta } from '@/lib/chat-history'

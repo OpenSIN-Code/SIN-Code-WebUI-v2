@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import { AppSidebar } from '@/components/app-sidebar'
 import { MemoryView } from '@/components/memory-view'
 

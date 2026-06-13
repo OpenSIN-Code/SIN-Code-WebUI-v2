@@ -2,6 +2,8 @@
  * Purpose: Public read-only view of a shared chat. No auth required —
  * access control is the unguessable slug. Renders messages statically.
  */
+// SPDX-License-Identifier: MIT
+
 import type { UIMessage } from 'ai'
 import { notFound } from 'next/navigation'
 import { Starburst } from '@/components/icons'

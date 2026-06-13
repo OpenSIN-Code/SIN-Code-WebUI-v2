@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import type { Metadata } from 'next'
 import { ChatsList } from '@/components/chats-list'
 import { PageShell } from '@/components/page-shell'

@@ -7,6 +7,8 @@
  * workspace-content store. If Supabase is not configured, POST returns 503
  * so the UI can show a clear "storage not connected" state.
  */
+// SPDX-License-Identifier: MIT
+
 import { guardRequest } from '@/lib/sin/guard'
 import { isValidWorkspaceId } from '@/lib/workspaces'
 import {

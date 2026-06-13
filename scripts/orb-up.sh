@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+
+# SPDX-License-Identifier: MIT
 # ──────────────────────────────────────────────────────────────
 # scripts/orb-up.sh — start the SIN-Code WebUI v2 stack on OrbStack
 # (or Docker, as a fallback). One command, no fuss.

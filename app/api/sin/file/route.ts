@@ -2,6 +2,8 @@
  * Purpose: File viewer API.
  * GET /api/sin/file?path=…   — sin_read with hashline anchors + outline.
  */
+// SPDX-License-Identifier: MIT
+
 import { runSin, sinJson } from '@/lib/sin/run'
 
 const SAFE_PATH = /^[\w@./\-]{1,512}$/

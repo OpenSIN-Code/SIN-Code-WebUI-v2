@@ -3,6 +3,8 @@
  * POST   /api/workspaces/[id]/bookmarks { title, url, description? }
  * DELETE /api/workspaces/[id]/bookmarks { bookmarkId }
  */
+// SPDX-License-Identifier: MIT
+
 import { guardRequest } from '@/lib/sin/guard'
 import { isValidWorkspaceId } from '@/lib/workspaces'
 import { addBookmark, removeBookmark } from '@/lib/workspace-content'

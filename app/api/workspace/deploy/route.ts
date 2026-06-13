@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import { NextResponse } from "next/server"
 import { isVercelConfigured } from "@/lib/vercel/client"
 import { createDeployment, getDeploymentStatus } from "@/lib/vercel/deploy"

@@ -2,6 +2,8 @@
  * Purpose: Audit log query API (root token only).
  * GET /api/audit?limit=200[&actor=…][&action=…][&failed=1][&format=csv]
  */
+// SPDX-License-Identifier: MIT
+
 import { cookies, headers } from 'next/headers'
 import { auditToCsv, readAudit } from '@/lib/storage'
 import { AUTH_COOKIE, verifyToken } from '@/lib/auth'

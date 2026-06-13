@@ -2,6 +2,8 @@
  * Purpose: Postgres implementation of the audit log.
  * Same exported signatures as the file-based lib/audit.ts.
  */
+// SPDX-License-Identifier: MIT
+
 import { getPool } from '@/lib/db'
 import type { AuditEntry } from '@/lib/audit'
 

@@ -3,6 +3,8 @@
  * GET  /api/sin/notifications        — list
  * POST /api/sin/notifications { id } — mark read
  */
+// SPDX-License-Identifier: MIT
+
 import { runSin, sinJson } from '@/lib/sin/run'
 
 export async function GET() {

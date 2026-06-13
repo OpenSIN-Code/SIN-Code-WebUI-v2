@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import path from "node:path"
 import fs from "node:fs/promises"
 import { createHash } from "node:crypto"

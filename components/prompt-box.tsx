@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 'use client'
 
 import { ArrowUp, Check, Mic, Paperclip, Sparkles } from 'lucide-react'

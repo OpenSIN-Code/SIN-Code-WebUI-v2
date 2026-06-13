@@ -2,6 +2,8 @@
  * Purpose: Homepage — v0-style hero with PromptBox (restored from 3f94740)
  * plus the SIN-Code backend status tile.
  */
+// SPDX-License-Identifier: MIT
+
 import { AppSidebar } from '@/components/app-sidebar'
 import { PromptBox } from '@/components/prompt-box'
 import { SinStatusTile } from '@/components/sin-status-tile'

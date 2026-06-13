@@ -4,6 +4,8 @@
  * orchestrator-stream.ts) so Turbopack's NFT tracer never sees spawn()
  * at the orchestrator-stream route boundary (#59 / #60).
  */
+// SPDX-License-Identifier: MIT
+
 export async function runOrchestratorStreamImpl(
   task: string,
   signal: AbortSignal | null,

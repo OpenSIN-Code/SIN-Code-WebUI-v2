@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import type { Metadata } from 'next'
 import { WorkspaceDetailView } from '@/components/workspace-detail-view'
 

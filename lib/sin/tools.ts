@@ -11,6 +11,8 @@
  * hand-maintain divergent copies in route handlers or prompts —
  * import from this module instead.
  */
+// SPDX-License-Identifier: MIT
+
 
 /** All 32 sin-code subcommands (v2.5.0). Source: cmd/sin-code/main.go */
 export const SIN_CODE_SUBCOMMANDS = [

@@ -3,6 +3,8 @@
  * GET /api/sin/search?q=…&mode=scout|discover[&type=regex|semantic|symbol|usage]
  * Backed by: `sin-code scout` and `sin-code discover`.
  */
+// SPDX-License-Identifier: MIT
+
 import { runSin, sinJson } from '@/lib/sin/run'
 
 const SCOUT_TYPES = ['regex', 'semantic', 'symbol', 'usage'] as const

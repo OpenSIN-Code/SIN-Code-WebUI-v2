@@ -2,6 +2,8 @@
  * Purpose: Project list + "New Project" button, wired to the project store.
  * Related issues: #14
  */
+// SPDX-License-Identifier: MIT
+
 'use client'
 
 import {

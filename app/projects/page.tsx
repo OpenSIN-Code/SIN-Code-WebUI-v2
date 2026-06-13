@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import type { Metadata } from 'next'
 import { PageShell } from '@/components/page-shell'
 import { NewProjectButton, ProjectsList } from '@/components/projects-list'

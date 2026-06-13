@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 'use client'
 /**
  * Purpose: Workspaces page — card grid in the Templates style.

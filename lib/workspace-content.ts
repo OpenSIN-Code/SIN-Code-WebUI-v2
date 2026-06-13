@@ -7,6 +7,8 @@
  * this store only persists their metadata so listing is fast and works
  * even when Supabase is briefly unavailable.
  */
+// SPDX-License-Identifier: MIT
+
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import { randomBytes } from 'node:crypto'
 import path from 'node:path'

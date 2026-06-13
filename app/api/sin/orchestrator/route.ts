@@ -3,6 +3,8 @@
  * GET  /api/sin/orchestrator                    — agents + recent runs
  * POST /api/sin/orchestrator { action, task }    — plan or run a task
  */
+// SPDX-License-Identifier: MIT
+
 import { runSin, sinJson } from '@/lib/sin/run'
 
 export async function GET() {

@@ -3,6 +3,8 @@
  * Docs: fetches /api/sin/status; shows install command when binary missing.
  * Related issues: #5
  */
+// SPDX-License-Identifier: MIT
+
 
 'use client'
 

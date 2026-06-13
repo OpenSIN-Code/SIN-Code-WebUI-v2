@@ -5,6 +5,8 @@
  * POST   /api/workspaces/[id]/projects { projectId, name }
  * DELETE /api/workspaces/[id]/projects { linkId }
  */
+// SPDX-License-Identifier: MIT
+
 import { guardRequest } from '@/lib/sin/guard'
 import { isValidWorkspaceId } from '@/lib/workspaces'
 import { addProjectLink, removeProjectLink } from '@/lib/workspace-content'

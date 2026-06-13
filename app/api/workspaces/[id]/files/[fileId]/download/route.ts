@@ -3,6 +3,8 @@
  * from Supabase Storage, then redirect to it.
  * GET /api/workspaces/[id]/files/[fileId]/download
  */
+// SPDX-License-Identifier: MIT
+
 import { guardRequest } from '@/lib/sin/guard'
 import { isValidWorkspaceId } from '@/lib/workspaces'
 import { getFileRecord } from '@/lib/workspace-content'

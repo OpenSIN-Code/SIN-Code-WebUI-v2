@@ -3,6 +3,8 @@
  * Tool calls are rendered as collapsible <details> blocks so the
  * exported file stays readable.
  */
+// SPDX-License-Identifier: MIT
+
 import type { UIMessage } from 'ai'
 
 type AnyPart = {

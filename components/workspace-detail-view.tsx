@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 'use client'
 /**
  * Purpose: Workspace detail page. A workspace is a container with a chat

@@ -4,6 +4,8 @@
  * like a specialized sin-code agent (builder / reviewer / planner /
  * scout) instead of a generic chatbot.
  */
+// SPDX-License-Identifier: MIT
+
 export const SIN_AGENTS = [
   {
     id: 'auto',

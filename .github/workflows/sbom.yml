@@ -1,9 +1,5 @@
-# Purpose: CycloneDX SBOM — generate on every release + upload to Code Scanning
-# Docs: https://github.com/CycloneDX/cyclonedx-python
-#
-# Generates a CycloneDX SBOM for Python projects and uploads it to
-# GitHub Code Scanning (SARIF wrapper). Also publishes it as a release
-# asset.
+# Purpose: CycloneDX SBOM for Node/TypeScript — generate on every release
+# and upload as a release asset + workflow artifact.
 #
 # Required secrets: none (uses GITHUB_TOKEN)
 # Triggers: release published, manual dispatch
@@ -21,84 +17,49 @@ on:
         default: 'cyclonedx-json'
 
 permissions:
-  contents: read
-  security-events: write  # required for Code Scanning upload
+  contents: write
   actions: read
 
 jobs:
   generate-sbom:
     name: Generate CycloneDX SBOM
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          python-version: '3.12'
+          node-version: '22'
+          cache: 'pnpm'
 
-      - name: Install cyclonedx-bom
-        run: python -m pip install --upgrade cyclonedx-bom
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
-      - name: Generate SBOM (cyclonedx-json)
-        run: |
-          cyclonedx-py environment \
-            --output-format json \
-            --output-file sbom.cdx.json
-          cyclonedx-py requirements \
-            --input requirements.txt \
-            --output-format json \
-            --output-file sbom-reqs.cdx.json \
-            || true  # requirements.txt may not exist
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name: Merge SBOM files
-        run: |
-          python3 - <<'PY'
-          import json
-          from pathlib import Path
-          merged = {"bomFormat": "CycloneDX", "specVersion": "1.5", "components": []}
-          for p in Path(".").glob("sbom*.cdx.json"):
-              try:
-                  data = json.loads(p.read_text())
-                  merged["components"].extend(data.get("components", []))
-                  print(f"merged {p}: {len(data.get('components', []))} components")
-              except Exception as e:
-                  print(f"skip {p}: {e}")
-          Path("sbom.merged.cdx.json").write_text(json.dumps(merged, indent=2))
-          print(f"TOTAL: {len(merged['components'])} components")
-          PY
+      - name: Generate SBOM
+        run: npx @cyclonedx/cdxgen --output bom.json --type node
 
       - name: Upload SBOM as release asset
         if: github.event_name == 'release'
-        uses: actions/upload-release-asset@v1
+        uses: softprops/action-gh-release@v2
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./sbom.merged.cdx.json
-          asset_name: sbom-${{ github.event.release.tag_name }}.cdx.json
-          asset_content_type: application/json
+          files: bom.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload SBOM as workflow artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: sbom
-          path: |
-            sbom.merged.cdx.json
-            sbom.cdx.json
-            sbom-reqs.cdx.json
+          path: bom.json
           retention-days: 90
-
-      - name: Upload to GitHub Code Scanning
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: report.sarif
-        continue-on-error: true
-        # Note: CycloneDX is JSON, not SARIF. In production, use
-        # anchore/sbom-action with --output-format spdx-json + spdx-to-sarif,
-        # OR use github/codeql-action with a CycloneDX->SARIF converter.
-        # This step is left as a hook for the integrator to wire up.

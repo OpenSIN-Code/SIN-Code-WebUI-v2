@@ -2,6 +2,8 @@
  * Purpose: GET workspace content (bookmarks, sources, files, projects).
  * GET /api/workspaces/[id]/content
  */
+// SPDX-License-Identifier: MIT
+
 import { guardRequest } from '@/lib/sin/guard'
 import { isValidWorkspaceId } from '@/lib/workspaces'
 import { getWorkspaceContent } from '@/lib/workspace-content'

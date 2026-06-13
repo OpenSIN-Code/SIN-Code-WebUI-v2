@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import { FileWorkspace } from "@/components/settings/file-workspace"
 
 export default function SkillsPage() {

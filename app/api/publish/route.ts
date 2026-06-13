@@ -7,6 +7,8 @@
  * workflow_dispatch. The VPS (or local stack) then pulls the new
  * image and restarts — no Docker socket exposure required.
  */
+// SPDX-License-Identifier: MIT
+
 
 import { NextResponse } from 'next/server'
 

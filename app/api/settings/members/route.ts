@@ -3,6 +3,8 @@
  * GET lists all users (admin only), PATCH changes a role, DELETE removes
  * a user. Invitations happen via the public /register page.
  */
+// SPDX-License-Identifier: MIT
+
 import { NextResponse } from "next/server"
 import { getPool } from "@/lib/db"
 import { isBetterAuthEnabled } from "@/lib/auth/better-auth"

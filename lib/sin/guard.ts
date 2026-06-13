@@ -4,6 +4,8 @@
  * callers) so Turbopack's NFT tracer doesn't pull node:fs / node:child_process
  * at the route boundary (#59 / #60).
  */
+// SPDX-License-Identifier: MIT
+
 import { getSession } from '@/lib/session'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import { NextResponse } from "next/server"
 import { readActivity, summarize } from "@/lib/settings/activity"
 import { guardRequest } from "@/lib/sin/guard"

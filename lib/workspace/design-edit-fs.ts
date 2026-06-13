@@ -3,6 +3,8 @@
  * Loaded via `await import()` from the route handler so Turbopack's NFT
  * tracer never sees process.cwd()/path.resolve() at the route boundary (#59).
  */
+// SPDX-License-Identifier: MIT
+
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { pushEntry } from '@/lib/workspace/design-history'

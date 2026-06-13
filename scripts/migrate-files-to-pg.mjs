@@ -5,6 +5,8 @@
  * is not attempted — audit history is appended once; re-running will
  * duplicate audit rows, so only run the audit section on a fresh table.
  */
+// SPDX-License-Identifier: MIT
+
 import { readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
 import pg from 'pg'

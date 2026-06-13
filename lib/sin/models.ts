@@ -3,6 +3,8 @@
  * strings. Env-overridable per tier. Single source of truth for the
  * PromptBox picker, the FollowUpBar picker AND /api/chat.
  */
+// SPDX-License-Identifier: MIT
+
 export const SIN_MODELS = [
   {
     id: 'sin-code-pro',

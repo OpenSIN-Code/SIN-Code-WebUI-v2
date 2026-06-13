@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import { isValidChatId, listChats, upsertChatMeta } from '@/lib/storage'
 import { guardRequest } from '@/lib/sin/guard'
 import { getSession } from '@/lib/session'

@@ -12,6 +12,8 @@
  * not installed or the server crashes, returns an empty toolset so the
  * chat still works as a plain LLM conversation (graceful degradation).
  */
+// SPDX-License-Identifier: MIT
+
 
 import { createMCPClient } from '@ai-sdk/mcp'
 import { Experimental_StdioMCPTransport as StdioMCPTransport } from '@ai-sdk/mcp/mcp-stdio'

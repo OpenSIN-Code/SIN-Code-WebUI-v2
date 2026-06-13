@@ -3,6 +3,8 @@
  * Docs: POST /api/publish/vercel → deploys workspace files to Vercel.
  * Related issues: #55
  */
+// SPDX-License-Identifier: MIT
+
 
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/session'

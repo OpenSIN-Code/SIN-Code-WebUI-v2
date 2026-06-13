@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import { NextResponse, type NextRequest } from 'next/server'
 
 // Paths that must NEVER be gated by the session proxy.

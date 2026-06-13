@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 // app/settings/agent/page.tsx
 /**
  * Purpose: Backend agent configuration (sin agent show/set), backend status,

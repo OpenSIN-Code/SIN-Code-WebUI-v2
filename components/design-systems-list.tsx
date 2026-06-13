@@ -2,6 +2,8 @@
  * Purpose: Design systems list + "New Design System" button (client component).
  * Related issues: #22
  */
+// SPDX-License-Identifier: MIT
+
 'use client'
 
 import { Clock, MoreHorizontal, Palette, Plus } from 'lucide-react'

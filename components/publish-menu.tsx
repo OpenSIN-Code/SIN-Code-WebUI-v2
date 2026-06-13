@@ -5,6 +5,8 @@
  * Cycles through idle → deploying → deployed or error. Idempotent.
  * Related issues: #19, #39, #55
  */
+// SPDX-License-Identifier: MIT
+
 'use client'
 
 import { AlertCircle, Check, ExternalLink, Globe, Loader2 } from 'lucide-react'

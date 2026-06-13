@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 "use client"
 
 import ReactMarkdown from "react-markdown"

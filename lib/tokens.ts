@@ -5,6 +5,8 @@
  * - The env SIN_UI_TOKEN keeps working as the irrevocable root token,
  *   so you can always bootstrap/recover token management.
  */
+// SPDX-License-Identifier: MIT
+
 import { createHash, randomBytes } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'

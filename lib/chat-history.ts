@@ -5,6 +5,8 @@
  * Migration path: swap implementations for SQLite/Neon later — the
  * exported function signatures are storage-agnostic.
  */
+// SPDX-License-Identifier: MIT
+
 import { mkdir, readFile, readdir, rename, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import type { UIMessage } from 'ai'

@@ -3,6 +3,8 @@
  * POST   /api/workspaces/[id]/sources { kind?, title, url, note? }
  * DELETE /api/workspaces/[id]/sources { sourceId }
  */
+// SPDX-License-Identifier: MIT
+
 import { guardRequest } from '@/lib/sin/guard'
 import { isValidWorkspaceId } from '@/lib/workspaces'
 import { addSource, removeSource } from '@/lib/workspace-content'
