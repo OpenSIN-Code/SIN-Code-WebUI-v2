@@ -23,7 +23,7 @@ export type Session =
   | { kind: 'token'; isAdmin: false; userId: null; actor: string }
   | null
 
-async function presentedToken(): Promise<string | null> {
+export async function presentedToken(): Promise<string | null> {
   const cookieStore = await cookies()
   const headerStore = await headers()
   return (

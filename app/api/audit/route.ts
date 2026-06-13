@@ -4,23 +4,17 @@
  */
 // SPDX-License-Identifier: MIT
 
-import { cookies, headers } from 'next/headers'
 import { auditToCsv, readAudit } from '@/lib/storage'
-import { AUTH_COOKIE, verifyToken } from '@/lib/auth'
+import { verifyToken } from '@/lib/auth'
 import { clientIp, rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { presentedToken } from '@/lib/session'
 
 export async function GET(req: Request) {
   const limit = rateLimit(`${clientIp(req)}:audit`, 20, 60_000)
   if (!limit.allowed) return rateLimitResponse(limit)
 
-  const cookieStore = await cookies()
-  const headerStore = await headers()
-  const cookieToken = cookieStore.get(AUTH_COOKIE)?.value
-  const headerToken = headerStore
-    .get('authorization')
-    ?.replace(/^Bearer\s+/i, '')
-
-  if (!verifyToken(cookieToken) && !verifyToken(headerToken)) {
+  const token = await presentedToken()
+  if (!token || !verifyToken(token)) {
     return Response.json(
       { ok: false, error: 'Audit log requires the root token' },
       { status: 403 },
