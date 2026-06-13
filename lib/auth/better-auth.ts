@@ -33,10 +33,7 @@ export function getAuth() {
       'http://localhost:3000',
       'http://localhost:3100',
     ],
-    database: {
-      type: 'postgres',
-      adapter: kyselyAdapter(getDb()),
-    },
+    database: kyselyAdapter(getDb(), { type: 'postgres' }),
     emailAndPassword: {
       enabled: true,
       sendResetPassword: async ({ user, url }) => {
