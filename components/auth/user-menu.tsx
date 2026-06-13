@@ -9,6 +9,7 @@ import {
   CircleUser,
   CreditCard,
   Gift,
+  LogIn,
   LogOut,
   MessageCircleQuestion,
   Monitor,
@@ -31,7 +32,7 @@ import {
 const FOOTER_LINKS = [
   { href: "/settings/preferences", label: "Profile", Icon: CircleUser },
   { href: "/settings", label: "Account Settings", Icon: SettingsIcon },
-  { href: "/settings/billing", label: "Pricing", Icon: CreditCard },
+  { href: "/settings/billing", label: "Pricing", Icon: CreditCard, external: true },
   {
     href: "https://github.com/OpenSIN-Code/SIN-Code-WebUI-v2#readme",
     label: "Documentation",
@@ -58,35 +59,19 @@ export function UserMenu() {
   const { data: session, isPending } = useSession()
   const { theme, setTheme } = useTheme()
 
-  if (isPending) {
-    return (
-      <div className="flex items-center gap-2 px-1 opacity-50">
-        <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-muted text-[9px] font-bold text-muted-foreground">
-          …
-        </span>
-      </div>
-    )
-  }
-
-  if (!session?.user) {
-    return (
-      <button
-        type="button"
-        onClick={() => router.push("/login")}
-        className="flex min-w-0 flex-1 items-center gap-1.5 rounded-md px-1.5 py-1 text-[12.5px] text-sidebar-foreground hover:bg-sidebar-accent"
-      >
-        <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-[9px] font-bold text-white">
-          ?
-        </span>
-        <span className="truncate font-medium">Anmelden</span>
-      </button>
-    )
-  }
-
-  const user = session.user as { name?: string | null; email?: string | null }
-  const displayName = user.name || user.email || "User"
-  const initial = (user.name || user.email || "U").charAt(0).toUpperCase()
-  const email = user.email || ""
+  // Show trigger even while pending / unauthenticated — the v0-style dropdown
+  // is always present at the sidebar footer.
+  const user = session?.user as
+    | { name?: string | null; email?: string | null }
+    | undefined
+  const isLoggedIn = Boolean(user?.name || user?.email)
+  const displayName = isLoggedIn
+    ? user!.name || user!.email || "User"
+    : "Anmelden"
+  const initial = isLoggedIn
+    ? (user!.name || user!.email || "U").charAt(0).toUpperCase()
+    : "?"
+  const email = user?.email || ""
 
   async function handleSignOut() {
     const { signOut } = await import("@/lib/auth/client")
@@ -95,32 +80,50 @@ export function UserMenu() {
     router.refresh()
   }
 
+  function handleSignIn() {
+    router.push("/login")
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
           <button
             type="button"
-            aria-label="User menu"
-            className="flex min-w-0 flex-1 items-center gap-1.5 rounded-md px-1.5 py-1 text-[12.5px] text-sidebar-foreground hover:bg-sidebar-accent"
+            aria-label={isLoggedIn ? "User menu" : "Sign in"}
+            className={cn(
+              "flex min-w-0 flex-1 items-center gap-1.5 rounded-md px-1.5 py-1 text-[12.5px] text-sidebar-foreground hover:bg-sidebar-accent",
+              isPending && "opacity-60",
+            )}
           />
         }
       >
         <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-[9px] font-bold text-white">
-          {initial}
+          {isPending ? "…" : initial}
         </span>
         <span className="truncate font-medium">{displayName}</span>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="start" side="top" className="w-60">
-        <div className="flex flex-col gap-0.5 px-3 py-2">
-          <span className="truncate text-[13px] font-semibold text-foreground">
-            {displayName}
-          </span>
-          {email ? (
-            <span className="truncate text-[12px] text-muted-foreground">{email}</span>
-          ) : null}
-        </div>
+        {isLoggedIn ? (
+          <div className="flex flex-col gap-0.5 px-3 py-2">
+            <span className="truncate text-[13px] font-semibold text-foreground">
+              {displayName}
+            </span>
+            {email ? (
+              <span className="truncate text-[12px] text-muted-foreground">{email}</span>
+            ) : null}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-0.5 px-3 py-2">
+            <span className="truncate text-[13px] font-semibold text-foreground">
+              Nicht angemeldet
+            </span>
+            <span className="truncate text-[12px] text-muted-foreground">
+              Melde dich an, um Chats zu speichern
+            </span>
+          </div>
+        )}
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>
@@ -129,7 +132,12 @@ export function UserMenu() {
               key={label}
               render={
                 external ? (
-                  <a href={href} target="_blank" rel="noreferrer" className="flex items-center gap-2">
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2"
+                  >
                     <Icon className="size-4" />
                     {label}
                   </a>
@@ -194,7 +202,7 @@ export function UserMenu() {
           </Link>
         </div>
 
-        {/* Chat Position — stub (single layout) */}
+        {/* Chat Position — stub */}
         <div className="flex items-center justify-between px-3 py-1.5">
           <span className="text-[13px] text-foreground">Chat Position</span>
           <Link
@@ -208,18 +216,33 @@ export function UserMenu() {
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>
-          <DropdownMenuItem
-            render={
-              <button
-                type="button"
-                onClick={handleSignOut}
-                className="flex w-full items-center gap-2"
-              >
-                <LogOut className="size-4" />
-                Sign Out
-              </button>
-            }
-          />
+          {isLoggedIn ? (
+            <DropdownMenuItem
+              render={
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="flex w-full items-center gap-2"
+                >
+                  <LogOut className="size-4" />
+                  Sign Out
+                </button>
+              }
+            />
+          ) : (
+            <DropdownMenuItem
+              render={
+                <button
+                  type="button"
+                  onClick={handleSignIn}
+                  className="flex w-full items-center gap-2"
+                >
+                  <LogIn className="size-4" />
+                  Anmelden
+                </button>
+              }
+            />
+          )}
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
