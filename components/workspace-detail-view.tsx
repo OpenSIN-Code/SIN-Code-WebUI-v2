@@ -334,7 +334,7 @@ function ProjectsTab({
     <div>
       <SectionHeader title="Linked projects" count={linked.length}>
         <div className="flex items-center gap-2">
-          <Select value={selected} onValueChange={setSelected}>
+          <Select value={selected} onValueChange={(v) => setSelected(v ?? '')}>
             <SelectTrigger size="sm" className="w-48" aria-label="Select project">
               <SelectValue placeholder="Select a project" />
             </SelectTrigger>

@@ -98,9 +98,19 @@ export function UserMenu() {
           />
         }
       >
-        <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-[9px] font-bold text-white">
-          {isPending ? "…" : initial}
-        </span>
+        {isPending ? (
+          <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-sidebar-accent text-[9px] font-bold text-muted-foreground">
+            …
+          </span>
+        ) : isLoggedIn ? (
+          <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-[9px] font-bold text-white">
+            {initial}
+          </span>
+        ) : (
+          <span className="flex size-5 shrink-0 items-center justify-center rounded-full border border-sidebar-border text-muted-foreground">
+            <CircleUser className="size-3.5" />
+          </span>
+        )}
         <span className="truncate font-medium">{displayName}</span>
       </DropdownMenuTrigger>
 

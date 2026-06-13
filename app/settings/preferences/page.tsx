@@ -162,7 +162,7 @@ export default function PreferencesPage() {
         <Row title="Language" description="The display language of the interface.">
           <Select
             value={data.language}
-            onValueChange={(v) => update({ language: v })}
+            onValueChange={(v) => update({ language: v ?? "en" })}
             items={{ en: "English", de: "Deutsch" }}
           >
             <SelectTrigger size="sm" className="w-32" aria-label="Language">

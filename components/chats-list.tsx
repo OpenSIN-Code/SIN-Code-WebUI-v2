@@ -1,17 +1,29 @@
 'use client'
 
-import { Clock, SquarePen } from 'lucide-react'
+import { Clock, MessageSquarePlus, SquarePen } from 'lucide-react'
 import Link from 'next/link'
 import { useChatStore } from '@/components/chat-store'
+import { EmptyState } from '@/components/ui/empty-state'
 
 export function ChatsList() {
   const { recentChats } = useChatStore()
 
   if (recentChats.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">
-        You haven&apos;t created any chats yet.
-      </div>
+      <EmptyState
+        icon={MessageSquarePlus}
+        title="No chats yet"
+        description="Start a conversation from the home screen or pick a workspace to begin building."
+        action={
+          <Link
+            href="/"
+            className="inline-flex h-9 items-center gap-1.5 rounded-full bg-primary px-4 text-[13px] font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            <MessageSquarePlus className="size-4" />
+            New chat
+          </Link>
+        }
+      />
     )
   }
 
