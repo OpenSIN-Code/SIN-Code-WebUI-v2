@@ -370,6 +370,9 @@ Before starting new work, run `gh issue list --state open` and update this secti
 - **#69** ✅ — fix(infrastructure): mount all SQL init scripts in docker-compose
 - **#70** ✅ — fix(auth): correct kysely-adapter configuration for BetterAuth
 - **#71** ✅ — chore(compliance): LICENSE, SECURITY.md, SBOM, SPDX headers
+- **#79** ✅ — refactor(lint): remove unused imports and parameter
+- **#80** ✅ — refactor(auth): centralize token extraction via `presentedToken`
+- **#81** ✅ — feat(security): add baseline HTTP security headers
 
 ### CEO Audit
 - **Current grade: A+ (100.0/100)** — 0 Critical, 0 High, 0 findings
