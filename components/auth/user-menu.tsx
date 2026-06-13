@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
+import { useSWRConfig } from "swr"
 import Link from "next/link"
 import {
   BookOpen,
@@ -58,6 +59,32 @@ export function UserMenu() {
   const router = useRouter()
   const { data: session, isPending } = useSession()
   const { theme, setTheme } = useTheme()
+  const { mutate } = useSWRConfig()
+
+  // Persist theme to the preferences store so ThemePreferenceSync doesn't
+  // revert the choice on the next revalidation.
+  function selectTheme(value: "system" | "light" | "dark") {
+    setTheme(value)
+    mutate(
+      "/api/settings/preferences",
+      async (current: unknown) => {
+        const res = await fetch("/api/settings/preferences", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ theme: value }),
+        })
+        if (res.ok) return res.json()
+        return current
+      },
+      {
+        optimisticData: (current: Record<string, unknown> | undefined) => ({
+          ...(current ?? {}),
+          theme: value,
+        }),
+        revalidate: false,
+      },
+    )
+  }
 
   // Show trigger even while pending / unauthenticated — the v0-style dropdown
   // is always present at the sidebar footer.
@@ -189,7 +216,7 @@ export function UserMenu() {
                 role="radio"
                 aria-checked={theme === value}
                 aria-label={label}
-                onClick={() => setTheme(value)}
+                onClick={() => selectTheme(value)}
                 className={cn(
                   "flex size-[22px] items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground",
                   theme === value && "bg-background text-foreground shadow-sm",
