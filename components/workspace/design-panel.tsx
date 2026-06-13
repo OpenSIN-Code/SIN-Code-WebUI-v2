@@ -464,7 +464,7 @@ export function DesignPanel({ src }: { src: string }) {
               type="button"
               onClick={apply}
               disabled={!dirty || applying}
-              className="flex h-7 items-center rounded-md bg-[#0072f5] px-3 text-xs font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+              className="flex h-7 items-center rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
             >
               {applying ? "Applying…" : "Apply"}
             </button>

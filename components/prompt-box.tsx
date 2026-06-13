@@ -57,7 +57,7 @@ export function PromptBox() {
   return (
     <div className="flex w-full max-w-[540px] flex-col gap-2.5">
       {/* Prompt card */}
-      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-[0_1px_4px_0_oklch(0_0_0/15%)]">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
         <textarea
           ref={textareaRef}
           value={value}

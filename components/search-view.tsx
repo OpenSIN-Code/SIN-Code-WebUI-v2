@@ -75,7 +75,7 @@ export function SearchView() {
 
       {/* Search bar */}
       <div className="mt-8 flex gap-2">
-        <div className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-xl border border-border bg-card px-3 shadow-[0_1px_4px_0_oklch(0_0_0/10%)]">
+        <div className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-xl border border-border bg-card px-3 shadow-sm">
           <Search className="size-4 shrink-0 text-muted-foreground" />
           <input
             value={query}
