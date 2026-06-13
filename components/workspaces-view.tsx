@@ -4,7 +4,7 @@
  * Click a card -> new chat preconfigured for that workspace.
  * Custom workspaces can be created, edited and deleted inline.
  */
-import { BarChart3, Code2, Globe, MessageCircle, NotebookPen, PenLine, Pencil, Plus, Sparkles, Trash2, } from 'lucide-react'
+import { BarChart3, Code2, Globe, MessageCircle, NotebookPen, PenLine, Pencil, Play, Plus, Sparkles, Trash2, } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import useSWR from 'swr'
@@ -33,6 +33,10 @@ export function WorkspacesView() {
   const workspaces: Workspace[] = Array.isArray(data?.data) ? data.data : []
 
   async function openWorkspace(ws: Workspace) {
+    router.push(`/workspaces/${ws.id}`)
+  }
+
+  async function startChat(ws: Workspace) {
     const id = `chat-${Date.now().toString(36)}`
     await addChat({
       id,
@@ -76,7 +80,7 @@ export function WorkspacesView() {
               <button
                 type="button"
                 onClick={() => openWorkspace(ws)}
-                aria-label={`Start a new ${ws.name} chat`}
+                aria-label={`Open ${ws.name} workspace`}
                 className="flex flex-col text-left"
               >
                 <div className="m-3 flex aspect-[16/10] items-center justify-center rounded-lg bg-muted/50">
@@ -105,26 +109,36 @@ export function WorkspacesView() {
                 </div>
               </button>
 
-              {!ws.builtIn && (
-                <div className="absolute right-2 top-5 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                  <button
-                    type="button"
-                    onClick={() => setEditing(ws)}
-                    aria-label={`Edit ${ws.name}`}
-                    className="flex size-7 items-center justify-center rounded-md bg-card/80 text-muted-foreground backdrop-blur hover:text-foreground"
-                  >
-                    <Pencil className="size-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => removeWorkspace(ws.id)}
-                    aria-label={`Delete ${ws.name}`}
-                    className="flex size-7 items-center justify-center rounded-md bg-card/80 text-muted-foreground backdrop-blur hover:text-destructive"
-                  >
-                    <Trash2 className="size-3.5" />
-                  </button>
-                </div>
-              )}
+              <div className="absolute right-2 top-5 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                <button
+                  type="button"
+                  onClick={() => startChat(ws)}
+                  aria-label={`Start a new ${ws.name} chat`}
+                  className="flex size-7 items-center justify-center rounded-md bg-card/80 text-muted-foreground backdrop-blur hover:text-foreground"
+                >
+                  <Play className="size-3.5" />
+                </button>
+                {!ws.builtIn && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setEditing(ws)}
+                      aria-label={`Edit ${ws.name}`}
+                      className="flex size-7 items-center justify-center rounded-md bg-card/80 text-muted-foreground backdrop-blur hover:text-foreground"
+                    >
+                      <Pencil className="size-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeWorkspace(ws.id)}
+                      aria-label={`Delete ${ws.name}`}
+                      className="flex size-7 items-center justify-center rounded-md bg-card/80 text-muted-foreground backdrop-blur hover:text-destructive"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           )
         })}

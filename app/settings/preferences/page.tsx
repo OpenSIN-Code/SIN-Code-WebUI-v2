@@ -3,37 +3,16 @@
 import useSWR from "swr"
 import { useState, useEffect } from "react"
 import type { Preferences } from "@/lib/settings/store"
+import { Switch } from "@/components/ui/switch"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
-
-function Toggle({
-  checked,
-  onChange,
-  label,
-}: {
-  checked: boolean
-  onChange: (v: boolean) => void
-  label: string
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-label={label}
-      onClick={() => onChange(!checked)}
-      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
-        checked ? "bg-primary" : "bg-muted"
-      }`}
-    >
-      <span
-        className={`absolute top-0.5 size-5 rounded-full bg-background transition-transform ${
-          checked ? "translate-x-5" : "translate-x-0.5"
-        }`}
-      />
-    </button>
-  )
-}
 
 function Row({
   title,
@@ -101,32 +80,36 @@ export default function PreferencesPage() {
           title="Suggestions"
           description="Get relevant in-chat suggestions to refine your project."
         >
-          <Toggle
+          <Switch
             checked={data.suggestions}
-            onChange={(v) => update({ suggestions: v })}
-            label="Suggestions"
+            onCheckedChange={(v) => update({ suggestions: v })}
+            aria-label="Suggestions"
           />
         </Row>
         <Row
           title="Sound Notifications"
           description="Play a sound when the agent finishes and the window is not focused."
         >
-          <Toggle
+          <Switch
             checked={data.soundNotifications}
-            onChange={(v) => update({ soundNotifications: v })}
-            label="Sound notifications"
+            onCheckedChange={(v) => update({ soundNotifications: v })}
+            aria-label="Sound notifications"
           />
         </Row>
         <Row title="Chat Position" description="Choose which side of the screen the chat is on.">
-          <select
+          <Select
             value={data.chatPosition}
-            onChange={(e) => update({ chatPosition: e.target.value as "left" | "right" })}
-            aria-label="Chat position"
-            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm"
+            onValueChange={(v) => update({ chatPosition: v as "left" | "right" })}
+            items={{ left: "Left", right: "Right" }}
           >
-            <option value="left">Left</option>
-            <option value="right">Right</option>
-          </select>
+            <SelectTrigger size="sm" className="w-32" aria-label="Chat position">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="left">Left</SelectItem>
+              <SelectItem value="right">Right</SelectItem>
+            </SelectContent>
+          </Select>
         </Row>
         <div className="px-5 py-4">
           <p className="text-sm font-medium">Custom Instructions</p>
@@ -161,27 +144,35 @@ export default function PreferencesPage() {
       </h2>
       <div className="mt-3 rounded-xl border border-border bg-card">
         <Row title="Theme" description="Choose your preferred color scheme.">
-          <select
+          <Select
             value={data.theme}
-            onChange={(e) => update({ theme: e.target.value as Preferences["theme"] })}
-            aria-label="Theme"
-            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm"
+            onValueChange={(v) => update({ theme: v as Preferences["theme"] })}
+            items={{ system: "System", light: "Light", dark: "Dark" }}
           >
-            <option value="system">System</option>
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-          </select>
+            <SelectTrigger size="sm" className="w-32" aria-label="Theme">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="system">System</SelectItem>
+              <SelectItem value="light">Light</SelectItem>
+              <SelectItem value="dark">Dark</SelectItem>
+            </SelectContent>
+          </Select>
         </Row>
         <Row title="Language" description="The display language of the interface.">
-          <select
+          <Select
             value={data.language}
-            onChange={(e) => update({ language: e.target.value })}
-            aria-label="Language"
-            className="rounded-md border border-border bg-background px-3 py-1.5 text-sm"
+            onValueChange={(v) => update({ language: v ?? "en" })}
+            items={{ en: "English", de: "Deutsch" }}
           >
-            <option value="en">English</option>
-            <option value="de">Deutsch</option>
-          </select>
+            <SelectTrigger size="sm" className="w-32" aria-label="Language">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="en">English</SelectItem>
+              <SelectItem value="de">Deutsch</SelectItem>
+            </SelectContent>
+          </Select>
         </Row>
       </div>
     </div>

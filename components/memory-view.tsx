@@ -6,6 +6,7 @@
 import { Brain, CirclePlus, Search } from 'lucide-react'
 import { useState } from 'react'
 import { useSinMemory } from '@/lib/sin/use-sin'
+import { EmptyState } from '@/components/ui/empty-state'
 
 type MemoryItem = {
   id?: string | number
@@ -89,16 +90,28 @@ export function MemoryView() {
         </button>
       </div>
 
-      <div className="mt-6 rounded-xl border border-border bg-card">
-        {notInstalled ? (
-          <p className="p-4 text-[13px] text-muted-foreground">
-            sin-code backend not installed — memory unavailable.
-          </p>
-        ) : memories.length === 0 ? (
-          <p className="p-4 text-[13px] text-muted-foreground">
-            {isLoading ? 'Loading…' : 'No memories yet.'}
-          </p>
-        ) : (
+      {notInstalled ? (
+        <div className="mt-6">
+          <EmptyState
+            icon={Brain}
+            title="Backend not connected"
+            description="The sin-code backend isn't installed, so persistent memory is unavailable."
+          />
+        </div>
+      ) : memories.length === 0 ? (
+        <div className="mt-6">
+          <EmptyState
+            icon={Brain}
+            title={isLoading ? 'Loading memories…' : 'No memories yet'}
+            description={
+              isLoading
+                ? undefined
+                : 'Capture decisions, conventions, fixes, and pitfalls above so the agent remembers them across sessions.'
+            }
+          />
+        </div>
+      ) : (
+        <div className="mt-6 rounded-xl border border-border bg-card">
           <ul className="divide-y divide-border">
             {memories.map((m, i) => (
               <li key={String(m.id ?? i)} className="flex items-start gap-3 px-4 py-3">
@@ -118,8 +131,8 @@ export function MemoryView() {
               </li>
             ))}
           </ul>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

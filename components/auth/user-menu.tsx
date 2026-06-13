@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
+import { useSWRConfig } from "swr"
 import Link from "next/link"
 import {
   BookOpen,
@@ -58,6 +59,32 @@ export function UserMenu() {
   const router = useRouter()
   const { data: session, isPending } = useSession()
   const { theme, setTheme } = useTheme()
+  const { mutate } = useSWRConfig()
+
+  // Persist theme to the preferences store so ThemePreferenceSync doesn't
+  // revert the choice on the next revalidation.
+  function selectTheme(value: "system" | "light" | "dark") {
+    setTheme(value)
+    mutate(
+      "/api/settings/preferences",
+      async (current: unknown) => {
+        const res = await fetch("/api/settings/preferences", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ theme: value }),
+        })
+        if (res.ok) return res.json()
+        return current
+      },
+      {
+        optimisticData: (current: Record<string, unknown> | undefined) => ({
+          ...(current ?? {}),
+          theme: value,
+        }),
+        revalidate: false,
+      },
+    )
+  }
 
   // Show trigger even while pending / unauthenticated — the v0-style dropdown
   // is always present at the sidebar footer.
@@ -67,7 +94,7 @@ export function UserMenu() {
   const isLoggedIn = Boolean(user?.name || user?.email)
   const displayName = isLoggedIn
     ? user!.name || user!.email || "User"
-    : "Anmelden"
+    : "Sign in"
   const initial = isLoggedIn
     ? (user!.name || user!.email || "U").charAt(0).toUpperCase()
     : "?"
@@ -98,9 +125,19 @@ export function UserMenu() {
           />
         }
       >
-        <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-[9px] font-bold text-white">
-          {isPending ? "…" : initial}
-        </span>
+        {isPending ? (
+          <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-sidebar-accent text-[9px] font-bold text-muted-foreground">
+            …
+          </span>
+        ) : isLoggedIn ? (
+          <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-[9px] font-bold text-white">
+            {initial}
+          </span>
+        ) : (
+          <span className="flex size-5 shrink-0 items-center justify-center rounded-full border border-sidebar-border text-muted-foreground">
+            <CircleUser className="size-3.5" />
+          </span>
+        )}
         <span className="truncate font-medium">{displayName}</span>
       </DropdownMenuTrigger>
 
@@ -117,10 +154,10 @@ export function UserMenu() {
         ) : (
           <div className="flex flex-col gap-0.5 px-3 py-2">
             <span className="truncate text-[13px] font-semibold text-foreground">
-              Nicht angemeldet
+              Not signed in
             </span>
             <span className="truncate text-[12px] text-muted-foreground">
-              Melde dich an, um Chats zu speichern
+              Sign in to save your chats
             </span>
           </div>
         )}
@@ -179,7 +216,7 @@ export function UserMenu() {
                 role="radio"
                 aria-checked={theme === value}
                 aria-label={label}
-                onClick={() => setTheme(value)}
+                onClick={() => selectTheme(value)}
                 className={cn(
                   "flex size-[22px] items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground",
                   theme === value && "bg-background text-foreground shadow-sm",
@@ -238,7 +275,7 @@ export function UserMenu() {
                   className="flex w-full items-center gap-2"
                 >
                   <LogIn className="size-4" />
-                  Anmelden
+                  Sign In
                 </button>
               }
             />
