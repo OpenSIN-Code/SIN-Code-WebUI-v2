@@ -39,6 +39,7 @@ interface ChatViewProps {
   onStop?: () => void
   initialModel?: string
   title?: string
+  chatId?: string
 }
 
 /* v0-style code block with copy button (preserved from initial commit) */
@@ -93,6 +94,7 @@ export function ChatView({
   onStop,
   initialModel,
   title = "New chat",
+  chatId,
 }: ChatViewProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -106,7 +108,7 @@ export function ChatView({
 
   return (
     <div className="flex h-dvh flex-col bg-background">
-      <ChatHeader title={title} />
+      <ChatHeader title={title} chatId={chatId} />
       <div className="flex-1 overflow-y-auto">
         <div className={cn("mx-auto flex flex-col px-4 py-6", hasMessages ? "max-w-3xl" : "w-full")}>
           {!hasMessages && (

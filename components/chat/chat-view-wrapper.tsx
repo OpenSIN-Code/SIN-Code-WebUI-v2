@@ -165,6 +165,7 @@ export function ChatViewWrapper({
       onStop={handleStop}
       initialModel={model}
       title={title}
+      chatId={chatId}
     />
   )
 }
