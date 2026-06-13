@@ -7,8 +7,11 @@ services:
       - POSTGRES_DB=sin_webui
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./scripts/better-auth-schema.sql:/docker-entrypoint-initdb.d/010-better-auth-schema.sql:ro
       - ./scripts/001_init.sql:/docker-entrypoint-initdb.d/001-init.sql:ro
+      - ./scripts/002_users.sql:/docker-entrypoint-initdb.d/002-users.sql:ro
+      - ./scripts/003_shares.sql:/docker-entrypoint-initdb.d/003-shares.sql:ro
+      - ./scripts/004_workspaces.sql:/docker-entrypoint-initdb.d/004-workspaces.sql:ro
+      - ./scripts/better-auth-schema.sql:/docker-entrypoint-initdb.d/010-better-auth-schema.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U app -d sin_webui"]
       interval: 5s
