@@ -31,7 +31,6 @@ const navItems = [
   { label: 'Memory', Icon: Brain, href: '/memory' },
   { label: 'Files', Icon: FileCode, href: '/files' },
   { label: 'Workspaces', Icon: LayoutGrid, href: '/workspaces' },
-  { label: 'Workspace', Icon: LayoutGrid, href: '/workspace' },
   { label: 'Settings', Icon: Settings2, href: '/settings' },
 ]
 

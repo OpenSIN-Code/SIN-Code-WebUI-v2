@@ -67,7 +67,7 @@ export function UserMenu() {
   const isLoggedIn = Boolean(user?.name || user?.email)
   const displayName = isLoggedIn
     ? user!.name || user!.email || "User"
-    : "Anmelden"
+    : "Sign in"
   const initial = isLoggedIn
     ? (user!.name || user!.email || "U").charAt(0).toUpperCase()
     : "?"
@@ -117,10 +117,10 @@ export function UserMenu() {
         ) : (
           <div className="flex flex-col gap-0.5 px-3 py-2">
             <span className="truncate text-[13px] font-semibold text-foreground">
-              Nicht angemeldet
+              Not signed in
             </span>
             <span className="truncate text-[12px] text-muted-foreground">
-              Melde dich an, um Chats zu speichern
+              Sign in to save your chats
             </span>
           </div>
         )}
@@ -238,7 +238,7 @@ export function UserMenu() {
                   className="flex w-full items-center gap-2"
                 >
                   <LogIn className="size-4" />
-                  Anmelden
+                  Sign In
                 </button>
               }
             />
