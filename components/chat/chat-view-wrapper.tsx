@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport, type UIMessage } from 'ai'
 import { ChatView, type ChatMessage, type ChatPart } from '@/components/chat/chat-view'
+import { useChatStore } from '@/components/chat-store'
 import { SIN_MODELS } from '@/lib/sin/models'
 import { useSoundNotification } from '@/hooks/use-sound-notification'
 
@@ -69,6 +70,9 @@ export function ChatViewWrapper({
   const [agent] = useState<string>('auto')
   const [initialMessages, setInitialMessages] = useState<UIMessage[] | null>(null)
   const playNotification = useSoundNotification()
+  const { recentChats } = useChatStore()
+  const chat = recentChats.find((c) => c.id === chatId)
+  const title = chat?.label || 'New chat'
 
   useEffect(() => {
     let cancelled = false
@@ -154,6 +158,7 @@ export function ChatViewWrapper({
       onSend={handleSend}
       onStop={handleStop}
       initialModel={model}
+      title={title}
     />
   )
 }

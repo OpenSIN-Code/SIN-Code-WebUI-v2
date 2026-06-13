@@ -6,6 +6,7 @@ import { ThinkingIndicator, LoadingDots } from "@/components/chat/thinking-indic
 import { ToolCall } from "@/components/chat/tool-call"
 import { PromptComposer } from "@/components/chat/prompt-composer"
 import { MarkdownMessage } from "@/components/chat/markdown-message"
+import { ChatHeader } from "@/components/chat/chat-header"
 
 export interface ChatPart {
   type: "text" | "tool"
@@ -28,9 +29,17 @@ interface ChatViewProps {
   onSend: (text: string, model: string) => void
   onStop?: () => void
   initialModel?: string
+  title?: string
 }
 
-export function ChatView({ messages, status, onSend, onStop, initialModel }: ChatViewProps) {
+export function ChatView({
+  messages,
+  status,
+  onSend,
+  onStop,
+  initialModel,
+  title = "New chat",
+}: ChatViewProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -42,6 +51,7 @@ export function ChatView({ messages, status, onSend, onStop, initialModel }: Cha
 
   return (
     <div className="flex h-dvh flex-col bg-background">
+      <ChatHeader title={title} />
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto flex max-w-3xl flex-col px-4 py-6">
           {messages.length === 0 && (

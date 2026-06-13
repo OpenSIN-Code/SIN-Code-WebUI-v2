@@ -1,27 +1,18 @@
-/**
- * Purpose: Chat page header — breadcrumb, title dropdown, project menu, share.
- * Wired to chat-store (rename, delete, favorite) and ShareMenu (visibility + link).
- * Related issues: #15, #16
- */
 'use client'
 
-import { useRouter } from 'next/navigation'
 import {
   BarChart3,
   ChevronDown,
   FileKey,
   GitBranch,
   Globe,
-  LayoutGrid,
   LayoutTemplate,
   MoreHorizontal,
   Puzzle,
+  Share2,
   Star,
 } from 'lucide-react'
 import { DashedSpinner, VercelTriangle } from '@/components/icons'
-import { useChatStore } from '@/components/chat-store'
-import { PublishMenu } from '@/components/publish-menu'
-import { ShareMenu } from '@/components/share-menu'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,41 +22,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-export function ChatHeader({
-  title,
-  chatId,
-  activeProject,
-}: {
-  title: string
-  chatId?: string
-  /** Project this chat belongs to (via project.chatIds.includes(chatId)). */
-  activeProject?: { id: string; name: string } | null
-}) {
-  const router = useRouter()
-  const { removeChat, renameChat, toggleFavorite, recentChats } = useChatStore()
-  const isFavorite = chatId
-    ? recentChats.find((c) => c.id === chatId)?.favorite
-    : false
-
-  function handleDelete() {
-    if (!chatId) return
-    if (!window.confirm(`Delete "${title}"? This cannot be undone.`)) return
-    removeChat(chatId)
-    router.push('/chats')
-  }
-
-  function handleRename() {
-    if (!chatId) return
-    const next = window.prompt('Rename chat', title)
-    const trimmed = next?.trim()
-    if (trimmed && trimmed !== title) renameChat(chatId, trimmed)
-  }
-
-  function handleToggleFavorite() {
-    if (!chatId) return
-    toggleFavorite(chatId)
-  }
-
+export function ChatHeader({ title }: { title: string }) {
   return (
     <header className="flex h-11 shrink-0 items-center gap-1.5 border-b border-border/60 px-3">
       {/* Breadcrumb */}
@@ -79,34 +36,16 @@ export function ChatHeader({
           <span>Drafts</span>
         </button>
 
+        {/* Slash separator */}
         <span className="select-none text-[14px] text-border/80">/</span>
-
-        {/* Active project badge (when the chat belongs to one) */}
-        {activeProject && (
-          <a
-            href="/projects"
-            title={`In project: ${activeProject.name}`}
-            className="ml-0.5 flex max-w-[180px] items-center gap-1 rounded-md border border-border bg-muted/40 px-1.5 py-0.5 text-[12px] font-medium text-foreground hover:bg-accent"
-          >
-            <LayoutGrid className="size-3 shrink-0 text-muted-foreground" />
-            <span className="truncate">{activeProject.name}</span>
-          </a>
-        )}
 
         {/* Star */}
         <button
           type="button"
-          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-          aria-pressed={isFavorite}
-          onClick={handleToggleFavorite}
-          disabled={!chatId}
-          className="flex size-7 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50 data-[favorite=true]:text-amber-500"
-          data-favorite={isFavorite ? 'true' : 'false'}
+          aria-label="Add to favorites"
+          className="flex size-7 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground"
         >
-          <Star
-            className="size-3.5"
-            fill={isFavorite ? 'currentColor' : 'none'}
-          />
+          <Star className="size-3.5" />
         </button>
 
         {/* Title dropdown */}
@@ -124,33 +63,21 @@ export function ChatHeader({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-48">
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={handleRename} disabled={!chatId}>
-                Rename
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={handleToggleFavorite}
-                disabled={!chatId}
-              >
-                {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
-              </DropdownMenuItem>
+              <DropdownMenuItem>Rename</DropdownMenuItem>
+              <DropdownMenuItem>Add to Favorites</DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem disabled>Settings</DropdownMenuItem>
-              <DropdownMenuItem disabled>Transfer&hellip;</DropdownMenuItem>
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={handleDelete}
-                disabled={!chatId}
-              >
-                Delete
-              </DropdownMenuItem>
+              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <DropdownMenuItem>Transfer&hellip;</DropdownMenuItem>
+              <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
       {/* Right actions */}
+      {/* "..." project options */}
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
@@ -191,10 +118,13 @@ export function ChatHeader({
       </DropdownMenu>
 
       {/* Share */}
-      <ShareMenu chatId={chatId} />
-
-      {/* Publish */}
-      <PublishMenu chatId={chatId} />
+      <button
+        type="button"
+        aria-label="Share"
+        className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+      >
+        <Share2 className="size-4" />
+      </button>
     </header>
   )
 }
