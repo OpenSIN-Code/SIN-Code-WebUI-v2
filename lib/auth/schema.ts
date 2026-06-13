@@ -2,6 +2,8 @@
  * Purpose: Drizzle schema for Better Auth (PostgreSQL).
  * Aligns with the project's existing pg Pool infrastructure.
  */
+// SPDX-License-Identifier: MIT
+
 import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core"
 
 export const users = pgTable("users", {

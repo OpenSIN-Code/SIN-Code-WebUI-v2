@@ -6,6 +6,8 @@
  * `guardRequest` lives in `./guard.ts` so the NFT tracer doesn't pull
  * node:child_process + storage into every API route boundary (#59 / #60).
  */
+// SPDX-License-Identifier: MIT
+
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import { cookies, headers } from 'next/headers'

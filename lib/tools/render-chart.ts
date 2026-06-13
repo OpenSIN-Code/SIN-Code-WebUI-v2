@@ -4,6 +4,8 @@
  * in context) and calls this tool with a chart spec. Execution is a
  * no-op pass-through — rendering happens client-side in the tool part.
  */
+// SPDX-License-Identifier: MIT
+
 
 import { tool } from 'ai'
 import { z } from 'zod'

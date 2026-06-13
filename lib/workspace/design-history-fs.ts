@@ -4,6 +4,8 @@
  * lib/workspace/design-history.ts so the NFT tracer never sees fs/path/cwd
  * at the public surface (#59 / #60).
  */
+// SPDX-License-Identifier: MIT
+
 import path from 'node:path'
 import { promises as fs } from 'node:fs'
 

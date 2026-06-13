@@ -7,6 +7,8 @@
  * YouTube / web pages), uploaded files (Supabase Storage), and links to
  * existing projects.
  */
+// SPDX-License-Identifier: MIT
+
 
 export type WorkspaceBookmark = {
   id: string

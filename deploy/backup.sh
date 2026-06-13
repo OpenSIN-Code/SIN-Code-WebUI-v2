@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+
+# SPDX-License-Identifier: MIT
 # Purpose: Nightly backup for the sincode-webui deployment.
 # Dumps Postgres + archives the data volume, keeps the last 14 backups.
 # Cron: 0 3 * * * /opt/sincode-webui/deploy/backup.sh >> /var/log/sin-backup.log 2>&1

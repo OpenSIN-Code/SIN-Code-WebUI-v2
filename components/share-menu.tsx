@@ -3,6 +3,8 @@
  * Falls back to window.prompt for the clipboard write if blocked (sandboxed iframes).
  * Related issues: #16
  */
+// SPDX-License-Identifier: MIT
+
 'use client'
 
 import { Check, Globe, Link2, Lock, Share2, Users } from 'lucide-react'

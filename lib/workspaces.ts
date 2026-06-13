@@ -4,6 +4,8 @@
  * default model + layout. Built-in presets are code-defined; custom
  * workspaces are stored per user (Postgres or data/workspaces.json).
  */
+// SPDX-License-Identifier: MIT
+
 import { randomBytes } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'

@@ -3,6 +3,8 @@
  * GET /api/sin/map?view=map|adw
  * Backed by: `sin-code map` (architecture) and `sin-code adw` (debt).
  */
+// SPDX-License-Identifier: MIT
+
 import { runSin, sinJson } from '@/lib/sin/run'
 
 export async function GET(req: Request) {

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import { NextResponse } from "next/server"
 import { promisify } from "util"
 import { execFile } from "child_process"

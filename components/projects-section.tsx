@@ -5,6 +5,8 @@
  * sidebar scannable).
  * Related issues: #31, #40
  */
+// SPDX-License-Identifier: MIT
+
 'use client'
 
 import { ChevronDown, ChevronRight, LayoutGrid } from 'lucide-react'

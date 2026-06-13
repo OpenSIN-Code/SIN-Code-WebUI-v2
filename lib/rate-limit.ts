@@ -4,6 +4,8 @@
  * Note: resets on server restart; for multi-instance setups swap this
  * for a Redis-backed limiter.
  */
+// SPDX-License-Identifier: MIT
+
 
 type Bucket = { timestamps: number[] }
 

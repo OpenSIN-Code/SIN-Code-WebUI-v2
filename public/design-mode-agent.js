@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 ;(function () {
   if (window.__sinDesignAgent) return
   window.__sinDesignAgent = true

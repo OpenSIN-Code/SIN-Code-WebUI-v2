@@ -8,6 +8,8 @@
  * The response shape matches `SinCodeStatus` from lib/sin/client.ts and the
  * `Status` type in components/sin-status-tile.tsx — keep all three in sync.
  */
+// SPDX-License-Identifier: MIT
+
 
 import { getSinCodeStatus } from '@/lib/sin/client'
 import { SIN_MCP_TOOLS } from '@/lib/sin/tools'

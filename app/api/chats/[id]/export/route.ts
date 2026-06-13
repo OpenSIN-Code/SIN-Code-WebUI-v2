@@ -3,6 +3,8 @@
  * GET /api/chats/[id]/export?format=md|json
  * Returns a downloadable file (Content-Disposition: attachment).
  */
+// SPDX-License-Identifier: MIT
+
 import { chatToMarkdown } from '@/lib/chat-export'
 import { isValidChatId, listChats, loadMessages } from '@/lib/storage'
 import { guardRequest } from '@/lib/sin/guard'

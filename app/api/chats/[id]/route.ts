@@ -4,6 +4,8 @@
  * PUT    /api/chats/[id] { messages } — save messages
  * DELETE /api/chats/[id]              — delete chat + messages
  */
+// SPDX-License-Identifier: MIT
+
 import type { UIMessage } from 'ai'
 import {
   deleteChat,

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import { getAuth } from '@/lib/auth/better-auth'
 import { toNextJsHandler } from 'better-auth/next-js'
 

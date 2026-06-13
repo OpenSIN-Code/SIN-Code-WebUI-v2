@@ -3,6 +3,8 @@
  * GET  /api/sin/memory[?q=…]      — list or search memories
  * POST /api/sin/memory { content } — persist a memory
  */
+// SPDX-License-Identifier: MIT
+
 import { runSin, sinJson } from '@/lib/sin/run'
 
 export async function GET(req: Request) {

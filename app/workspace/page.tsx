@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 "use client"
 
 import { Workspace } from "@/components/workspace/workspace"

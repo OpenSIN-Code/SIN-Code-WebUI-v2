@@ -3,6 +3,8 @@
  * Loaded via `await import('./audit-fs')` from lib/audit.ts so the NFT
  * tracer never sees node:fs/promises at the public surface (#59 / #60).
  */
+// SPDX-License-Identifier: MIT
+
 import { appendFile, mkdir, readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
 

@@ -4,6 +4,8 @@
  * POST   /api/chats/[id]/share — create share, returns public URL slug
  * DELETE /api/chats/[id]/share — revoke share
  */
+// SPDX-License-Identifier: MIT
+
 import { guardRequest } from '@/lib/sin/guard'
 import { getSession } from '@/lib/session'
 import { getShareByChatId, shareChat, unshareChat } from '@/lib/shares'

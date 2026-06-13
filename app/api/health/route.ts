@@ -2,6 +2,8 @@
  * Purpose: Health endpoint for Docker healthchecks and uptime monitoring.
  * Public by design (no auth) — returns only a coarse status, no details.
  */
+// SPDX-License-Identifier: MIT
+
 import { isDbConfigured, getPool } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'

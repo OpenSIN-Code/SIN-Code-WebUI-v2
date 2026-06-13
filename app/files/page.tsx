@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import { AppSidebar } from '@/components/app-sidebar'
 import { FileViewer } from '@/components/file-viewer'
 

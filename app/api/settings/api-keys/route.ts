@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import { NextResponse } from "next/server"
 import { listApiKeys, createApiKey, revokeApiKey } from "@/lib/settings/api-keys"
 import { guardRequest } from "@/lib/sin/guard"

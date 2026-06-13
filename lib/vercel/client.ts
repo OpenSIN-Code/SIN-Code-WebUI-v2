@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 const API = "https://api.vercel.com"
 
 export function isVercelConfigured(): boolean {

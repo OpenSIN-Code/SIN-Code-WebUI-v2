@@ -4,6 +4,8 @@
  * as the retrieval backend — no extra API key beyond AI_GATEWAY_API_KEY.
  * Returns summarized findings with source URLs.
  */
+// SPDX-License-Identifier: MIT
+
 
 import { generateText, tool } from 'ai'
 import { z } from 'zod'

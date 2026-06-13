@@ -3,6 +3,8 @@
  * GET  /api/sin/todos?view=list|ready|blocked|stats[&q=…]
  * POST /api/sin/todos { action: 'add'|'complete'|'claim', id?, title? }
  */
+// SPDX-License-Identifier: MIT
+
 import { runSin, sinJson } from '@/lib/sin/run'
 
 export async function GET(req: Request) {

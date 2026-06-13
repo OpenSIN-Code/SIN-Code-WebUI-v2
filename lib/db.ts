@@ -4,6 +4,8 @@
  * Kysely + PostgresDialect for better-auth's kysely-adapter.
  * Docs: lib/db.doc.md
  */
+// SPDX-License-Identifier: MIT
+
 import { Pool } from 'pg'
 import { Kysely, PostgresDialect } from 'kysely'
 

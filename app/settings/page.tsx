@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 // app/settings/page.tsx
 /**
  * Purpose: Settings index — redirects to the default settings section.

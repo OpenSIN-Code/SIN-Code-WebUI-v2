@@ -6,6 +6,8 @@
  * NOTE: pg is lazy-loaded inside isDbConfigured() branches to prevent
  * Turbopack's NFT tracer from pulling native bindings into the server chunk.
  */
+// SPDX-License-Identifier: MIT
+
 import { randomBytes } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'

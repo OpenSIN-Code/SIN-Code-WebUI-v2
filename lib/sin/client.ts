@@ -8,6 +8,8 @@
  * sanitization to defend against injection. Returns a structured
  * `SinCodeResult` so the UI degrades gracefully when the binary is missing.
  */
+// SPDX-License-Identifier: MIT
+
 
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'

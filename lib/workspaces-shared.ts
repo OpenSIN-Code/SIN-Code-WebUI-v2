@@ -2,6 +2,8 @@
  * Purpose: Client-safe workspace types and constants.
  * Everything here is isomorphic (no Node-only imports).
  */
+// SPDX-License-Identifier: MIT
+
 
 export type WorkspaceLayout = 'chat' | 'writing' | 'data'
 

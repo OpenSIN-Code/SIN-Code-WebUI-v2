@@ -4,6 +4,8 @@
  * POST /api/workspaces {…} — create/update a custom workspace
  * DELETE /api/workspaces { id } — delete own custom workspace
  */
+// SPDX-License-Identifier: MIT
+
 import { guardRequest } from '@/lib/sin/guard'
 import { getSession } from '@/lib/session'
 import {

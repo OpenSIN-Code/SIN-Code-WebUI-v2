@@ -3,6 +3,8 @@
  * GET  /api/sin/config                       — current agent config (agent show)
  * POST /api/sin/config { key, value }        — set a config value (agent set)
  */
+// SPDX-License-Identifier: MIT
+
 import { runSin, sinJson } from '@/lib/sin/run'
 
 const SAFE_KEY = /^[\w.-]{1,64}$/

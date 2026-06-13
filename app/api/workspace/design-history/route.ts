@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import { NextResponse } from 'next/server'
 import { getHistory, undo, redo, clearHistory } from '@/lib/workspace/design-history'
 

@@ -4,6 +4,8 @@
  * SSR-safe: deterministic default (false), hydrate in useEffect.
  * Related issues: #40
  */
+// SPDX-License-Identifier: MIT
+
 'use client'
 
 import {

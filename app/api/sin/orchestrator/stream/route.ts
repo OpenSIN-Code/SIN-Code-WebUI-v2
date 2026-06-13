@@ -8,6 +8,8 @@
  * dynamically imported so the NFT tracer never sees child_process at
  * the route boundary (#59 / #60).
  */
+// SPDX-License-Identifier: MIT
+
 import { guardRequest } from '@/lib/sin/guard'
 
 export const dynamic = 'force-dynamic'

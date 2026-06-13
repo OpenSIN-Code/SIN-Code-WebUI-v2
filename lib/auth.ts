@@ -4,6 +4,8 @@
  * tokens from lib/tokens.ts (hashed, revocable). Constant-time
  * comparison for the root token.
  */
+// SPDX-License-Identifier: MIT
+
 import { timingSafeEqual } from 'node:crypto'
 import { verifyStoredToken } from '@/lib/storage'
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import { NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'

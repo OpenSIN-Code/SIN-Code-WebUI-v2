@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+// SPDX-License-Identifier: MIT
+
 const nextConfig = {
   // Standalone output produces a self-contained server in `.next/standalone/`
   // that the Dockerfile copies into a slim runtime image.

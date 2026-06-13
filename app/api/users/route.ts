@@ -4,6 +4,8 @@
  * POST   /api/users { name, role? }  — create user + first token (shown once)
  * DELETE /api/users { id }           — delete user (cascades tokens + chats)
  */
+// SPDX-License-Identifier: MIT
+
 import { getPool } from '@/lib/db'
 import { clientIp, rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { getSession } from '@/lib/session'

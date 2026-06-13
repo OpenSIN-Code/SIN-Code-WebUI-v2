@@ -3,6 +3,8 @@
  * the template name as the initial prompt.
  * Related issues: #21
  */
+// SPDX-License-Identifier: MIT
+
 'use client'
 
 import { ArrowUpRight, LayoutTemplate } from 'lucide-react'

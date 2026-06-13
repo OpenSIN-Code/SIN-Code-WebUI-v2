@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+
+# SPDX-License-Identifier: MIT
 # ──────────────────────────────────────────────────────────────
 # scripts/tunnel-up.sh — public URL via Cloudflare quick tunnel
 # No domain or account required. Runs `cloudflared tunnel --url`

@@ -8,6 +8,8 @@
  * Replaces lib/actor.ts; resolveActor() is kept as a thin wrapper
  * so audit logging call sites stay unchanged.
  */
+// SPDX-License-Identifier: MIT
+
 import { createHash } from 'node:crypto'
 import { cookies, headers } from 'next/headers'
 import { AUTH_COOKIE, isAuthConfigured, verifyToken } from '@/lib/auth'

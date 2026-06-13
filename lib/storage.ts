@@ -7,6 +7,8 @@
  * Turbopack's NFT tracer from pulling native bindings into the server chunk.
  * See Issue #53.
  */
+// SPDX-License-Identifier: MIT
+
 import { isDbConfigured } from '@/lib/is-db-configured'
 
 /*turbopackIgnore: true*/ import * as chatFile from '@/lib/chat-history'

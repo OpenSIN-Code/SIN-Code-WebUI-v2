@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 export function SettingsPlaceholder({
   title,
   description,

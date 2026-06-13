@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 'use client'
 /**
  * Purpose: Create/edit dialog for custom workspaces — name, description,

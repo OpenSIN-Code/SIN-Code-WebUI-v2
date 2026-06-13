@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import { SettingsPlaceholder } from '@/components/settings/placeholder'
 
 export const metadata = { title: 'Billing — Settings' }

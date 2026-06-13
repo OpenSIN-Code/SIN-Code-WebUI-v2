@@ -5,6 +5,8 @@
  * Mocks child_process.execFile to avoid calling the real sin-code binary.
  * Also mocks node:util.promisify so it properly bridges to our vi.fn() mock.
  */
+// SPDX-License-Identifier: MIT
+
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { SinCodeSubcommand } from './tools'

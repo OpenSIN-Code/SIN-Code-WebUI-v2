@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 import { NextResponse } from 'next/server'
 import path from 'node:path'
 import { promises as fs } from 'node:fs'

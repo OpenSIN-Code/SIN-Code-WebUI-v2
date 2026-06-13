@@ -3,6 +3,8 @@
  * Persists to localStorage so the list survives reloads.
  * Related issues: #22
  */
+// SPDX-License-Identifier: MIT
+
 'use client'
 
 import {

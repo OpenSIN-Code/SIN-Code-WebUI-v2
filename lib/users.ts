@@ -3,6 +3,8 @@
  * Users own tokens (login identity) and chats (data scoping).
  * The env SIN_UI_TOKEN remains the irrevocable admin/root identity.
  */
+// SPDX-License-Identifier: MIT
+
 import { randomBytes } from 'node:crypto'
 import { isDbConfigured } from '@/lib/is-db-configured'
 

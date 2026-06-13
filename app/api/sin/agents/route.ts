@@ -2,6 +2,8 @@
  * Purpose: GET /api/sin/agents — list orchestrator agents + agent config.
  * POST { action: 'doctor' } — run the agent doctor.
  */
+// SPDX-License-Identifier: MIT
+
 import { runSin, sinJson } from '@/lib/sin/run'
 
 export async function GET() {

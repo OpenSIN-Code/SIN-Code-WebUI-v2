@@ -2,6 +2,8 @@
  * Purpose: Postgres implementation of the access token store.
  * Same exported signatures as the file-based lib/tokens.ts.
  */
+// SPDX-License-Identifier: MIT
+
 import { createHash, randomBytes } from 'node:crypto'
 import { getPool } from '@/lib/db'
 import type { TokenRecord } from '@/lib/tokens'

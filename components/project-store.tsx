@@ -4,6 +4,8 @@
  * to the new key (\`sin-code:projects\`) with the new \`chatIds: string[]\` shape.
  * Related issues: #25
  */
+// SPDX-License-Identifier: MIT
+
 'use client'
 
 import {

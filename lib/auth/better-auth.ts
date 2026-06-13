@@ -6,6 +6,8 @@
  * Lazy-initialized to avoid build-time database connection errors.
  * Docs: lib/auth/better-auth.doc.md
  */
+// SPDX-License-Identifier: MIT
+
 import { betterAuth } from 'better-auth'
 import { kyselyAdapter } from '@better-auth/kysely-adapter'
 import { getDb, getPool } from '@/lib/db'

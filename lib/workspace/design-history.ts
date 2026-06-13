@@ -4,6 +4,8 @@
  * (loaded via `await import()`) so the NFT tracer never sees node:fs at
  * the public surface (#59 / #60).
  */
+// SPDX-License-Identifier: MIT
+
 import { randomUUID } from 'node:crypto'
 
 export type DesignHistoryEntry = {
