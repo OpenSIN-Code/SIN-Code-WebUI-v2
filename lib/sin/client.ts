@@ -1,6 +1,6 @@
 /**
  * Purpose: Typed wrapper around the `sin-code` Go binary (SIN-Code-Bundle v2.5.0).
- * Docs: https://github.com/OpenSIN-Code/SIN-Code-Bundle/tree/main/cmd/sin-code
+ * Docs: client.doc.md
  * Related issues: #1, #3
  *
  * Replaces the deprecated Python `sin` CLI with the active Go binary.

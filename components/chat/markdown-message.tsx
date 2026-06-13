@@ -1,3 +1,7 @@
+/**
+ * Purpose: Markdown renderer for assistant message text.
+ * Docs: markdown-message.doc.md
+ */
 // SPDX-License-Identifier: MIT
 
 "use client"

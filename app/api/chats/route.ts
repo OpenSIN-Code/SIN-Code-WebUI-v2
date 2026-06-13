@@ -1,3 +1,7 @@
+/**
+ * Purpose: Chat metadata list and creation endpoint.
+ * Docs: route.doc.md
+ */
 // SPDX-License-Identifier: MIT
 
 import { isValidChatId, listChats, upsertChatMeta } from '@/lib/storage'

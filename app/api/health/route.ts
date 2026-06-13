@@ -1,6 +1,7 @@
 /**
  * Purpose: Health endpoint for Docker healthchecks and uptime monitoring.
  * Public by design (no auth) — returns only a coarse status, no details.
+ * Docs: route.doc.md
  */
 // SPDX-License-Identifier: MIT
 

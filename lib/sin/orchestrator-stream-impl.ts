@@ -3,6 +3,7 @@
  * Lives in its own module (loaded via `await import()` from
  * orchestrator-stream.ts) so Turbopack's NFT tracer never sees spawn()
  * at the orchestrator-stream route boundary (#59 / #60).
+ * Docs: orchestrator-stream.doc.md
  */
 // SPDX-License-Identifier: MIT
 

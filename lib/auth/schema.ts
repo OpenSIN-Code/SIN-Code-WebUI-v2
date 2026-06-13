@@ -1,6 +1,7 @@
 /**
  * Purpose: Drizzle schema for Better Auth (PostgreSQL).
  * Aligns with the project's existing pg Pool infrastructure.
+ * Docs: schema.doc.md
  */
 // SPDX-License-Identifier: MIT
 

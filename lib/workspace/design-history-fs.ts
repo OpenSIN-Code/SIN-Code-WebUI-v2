@@ -3,6 +3,7 @@
  * Loaded via `await import('./design-history-fs')` from
  * lib/workspace/design-history.ts so the NFT tracer never sees fs/path/cwd
  * at the public surface (#59 / #60).
+ * Docs: design-history-fs.doc.md
  */
 // SPDX-License-Identifier: MIT
 

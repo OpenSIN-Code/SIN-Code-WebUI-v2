@@ -2,7 +2,7 @@
  * Purpose: Postgres pool singleton + Kysely instance for better-auth.
  * Set DATABASE_URL to enable. pg Pool for direct queries (health checks);
  * Kysely + PostgresDialect for better-auth's kysely-adapter.
- * Docs: lib/db.doc.md
+ * Docs: db.doc.md
  */
 // SPDX-License-Identifier: MIT
 

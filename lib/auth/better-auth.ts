@@ -4,7 +4,7 @@
  * isBetterAuthEnabled() is false and the legacy token auth
  * (lib/auth.ts / lib/session.ts) remains the active system.
  * Lazy-initialized to avoid build-time database connection errors.
- * Docs: lib/auth/better-auth.doc.md
+ * Docs: better-auth.doc.md
  */
 // SPDX-License-Identifier: MIT
 

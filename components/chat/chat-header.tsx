@@ -1,3 +1,7 @@
+/**
+ * Purpose: v0-style chat header with breadcrumb, favorites, and action menus.
+ * Docs: chat-header.doc.md
+ */
 // SPDX-License-Identifier: MIT
 
 'use client'

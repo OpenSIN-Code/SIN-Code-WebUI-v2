@@ -2,6 +2,7 @@
  * Purpose: Map UI model ids (shown in pickers) to real gateway model
  * strings. Env-overridable per tier. Single source of truth for the
  * PromptBox picker, the FollowUpBar picker AND /api/chat.
+ * Docs: models.doc.md
  */
 // SPDX-License-Identifier: MIT
 

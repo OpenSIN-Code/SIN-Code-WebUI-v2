@@ -5,6 +5,7 @@
  *
  * `guardRequest` lives in `./guard.ts` so the NFT tracer doesn't pull
  * node:child_process + storage into every API route boundary (#59 / #60).
+ * Docs: run.doc.md
  */
 // SPDX-License-Identifier: MIT
 

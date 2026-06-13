@@ -1,6 +1,6 @@
 /**
  * Unit tests for lib/sin/client.ts — the sin-code CLI wrapper.
- * Docs: https://github.com/OpenSIN-Code/SIN-Code-WebUI-v2/issues/37
+ * Docs: client.test.doc.md
  *
  * Mocks child_process.execFile to avoid calling the real sin-code binary.
  * Also mocks node:util.promisify so it properly bridges to our vi.fn() mock.

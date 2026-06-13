@@ -5,6 +5,7 @@
 /**
  * Purpose: SWR hooks for all /api/sin/* endpoints.
  * Single place for polling intervals and the `installed:false` fallback.
+ * Docs: use-sin.doc.md
  */
 import useSWR from 'swr'
 

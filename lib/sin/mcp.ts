@@ -1,6 +1,6 @@
 /**
  * Purpose: MCP client bridge to the unified sin-code Go server (`sin-code serve`).
- * Docs: https://github.com/OpenSIN-Code/SIN-Code-Bundle/tree/main/cmd/sin-code
+ * Docs: mcp.doc.md
  * Related issues: #2
  *
  * AI SDK 6 note: the MCP client moved OUT of the `ai` package.

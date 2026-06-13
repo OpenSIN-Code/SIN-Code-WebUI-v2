@@ -1,3 +1,7 @@
+/**
+ * Purpose: v0-style chat view shell.
+ * Docs: chat-view.doc.md
+ */
 // SPDX-License-Identifier: MIT
 
 "use client"

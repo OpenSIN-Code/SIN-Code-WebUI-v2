@@ -1,6 +1,6 @@
 /**
  * Purpose: Vercel deployment endpoint — creates a real deployment on Vercel.
- * Docs: POST /api/publish/vercel → deploys workspace files to Vercel.
+ * Docs: route.doc.md
  * Related issues: #55
  */
 // SPDX-License-Identifier: MIT

@@ -1,6 +1,6 @@
 /**
  * Purpose: Status tile for the SIN-Code backend (visible on the homepage).
- * Docs: fetches /api/sin/status; shows install command when binary missing.
+ * Docs: sin-status-tile.doc.md
  * Related issues: #5
  */
 // SPDX-License-Identifier: MIT
