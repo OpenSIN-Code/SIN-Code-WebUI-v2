@@ -22,14 +22,17 @@ The v0-style prompt input on the landing page. Lets the user type a prompt, pick
 - `fillSuggestion(text)` → prefills the textarea from a suggestion chip
 - `enhance()` → POSTs the current prompt to `/api/enhance` and replaces the textarea with the rewritten version
 
-## Known UI buttons
-- Attachment (Paperclip) → currently visual only; no file picker wired yet
-- Project selector → hardcoded placeholder options (`No Project`, `SIN-Code-Bundle`)
-- Voice input (Mic) → visual only; no speech recognition wired yet
-- Refresh suggestions → visual only; randomization not implemented yet
+## Functional toolbar buttons
+- **Attachment (Paperclip)** → opens a hidden file input, shows selected file chips, prepends `[Attached: names]` to the prompt on submit. Max 5 files / 5 MB each.
+- **Project selector** → wired to `components/project-store.tsx`; shows real projects from localStorage plus a `No Project` option. Selected project id is passed as `p=` in the chat URL.
+- **Voice input (Mic)** → uses the browser's `SpeechRecognition` / `webkitSpeechRecognition` API. Records while the button is red; appends final transcripts to the textarea. Falls back to an alert if the browser lacks support.
+- **Enhance (Sparkles)** → POSTs the prompt to `/api/enhance` and replaces the textarea with the LLM rewrite.
+- **Refresh suggestions** → shuffles a larger suggestion pool and rotates the 4 displayed chips.
+- **Send (ArrowUp)** → creates a chat slug, persists the chat, and navigates to `/chat/[id]?q=...&m=...&p=...`.
 
 ## Related
 - `app/api/enhance/route.ts` → LLM prompt enhancement
 - `components/chat/prompt-composer.tsx` → chat-thread prompt input (no enhance button)
 - `lib/sin/models.ts` → model picker data
 - `components/chat-store.tsx` → chat persistence
+- `components/project-store.tsx` → project dropdown data
