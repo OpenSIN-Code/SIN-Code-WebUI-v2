@@ -374,6 +374,7 @@ Before starting new work, run `gh issue list --state open` and update this secti
 - **#80** ✅ — refactor(auth): centralize token extraction via `presentedToken`
 - **#81** ✅ — feat(security): add baseline HTTP security headers
 - **#83** ✅ — fix(design): align token usage with v0 design system
+- **#85** ✅ — fix(design): tokenize fallback palette for auto-generated design systems
 
 ### CEO Audit
 - **Current grade: A+ (100.0/100)** — 0 Critical, 0 High, 0 findings
