@@ -2,6 +2,7 @@
  * Purpose: Client-side store for design systems.
  * Persists to localStorage so the list survives reloads.
  * Related issues: #22
+ * Docs: design-system-store.doc.md
  */
 // SPDX-License-Identifier: MIT
 
@@ -29,7 +30,16 @@ type DesignSystemStore = {
 }
 
 const STORAGE_KEY = 'sin-code:design-systems'
-const PALETTE = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#14b8a6']
+// v0-aligned OKLCH fallback palette for auto-generated user design systems.
+// Hues mirror the original defaults (green, blue, amber, red, teal) but are
+// expressed in the same perceptual color space used by the rest of the system.
+const PALETTE = [
+  'oklch(0.69 0.17 158)',
+  'oklch(0.64 0.19 255)',
+  'oklch(0.77 0.16 80)',
+  'oklch(0.64 0.25 25)',
+  'oklch(0.71 0.13 181)',
+]
 
 const DesignSystemStoreContext = createContext<DesignSystemStore | null>(null)
 
@@ -79,7 +89,7 @@ export function DesignSystemStoreProvider({
       {
         id: `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now()}`,
         name,
-        primaryColor: PALETTE[prev.length % PALETTE.length] ?? '#10b981',
+        primaryColor: PALETTE[prev.length % PALETTE.length] ?? PALETTE[0],
         updated: nowLabel(),
       },
       ...prev,
