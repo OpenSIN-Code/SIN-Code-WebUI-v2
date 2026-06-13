@@ -355,7 +355,7 @@ All previously listed follow-ups have been shipped. See the live issue list for 
 - File-based Persistence ✅ — `.sin-webui/` workspace with JSON stores (settings, workspaces, memories, projects)
 
 ### Open Issues (check before starting any new task)
-**None.** The issue tracker is empty; `gh issue list --state open` returns no results.
+- **#91** ⏳ — feat(web-search): thin MCP integration of `sin-websearch` bundle (https://github.com/OpenSIN-Code/web_search_bundle) — consumer-only, no logic fork
 Before starting new work, run `gh issue list --state open` and update this section.
 
 ### Recently Shipped (retained for reference)
@@ -377,10 +377,13 @@ Before starting new work, run `gh issue list --state open` and update this secti
 - **#85** ✅ — fix(design): tokenize fallback palette for auto-generated design systems
 - **#87** ✅ — fix(prompt): wire Sparkles enhance button to `/api/enhance` with LLM rewrite
 - **#88** ✅ — feat(prompt): activate attachment, project, voice and refresh controls
+- **#89** ✅ — chore(infra): restore Docker stack EOF after OrbStack restart
+- **#90** ✅ — refactor(types): extract SpeechRecognition shims to `lib/dom/speech.d.ts`
+- **#92** ✅ — test(lib): expand vitest suite from 84 → 198 tests across 21 files
 
 ### CEO Audit
 - **Current grade: A+ (100.0/100)** — 0 Critical, 0 High, 0 findings
-- Last run: 2026-06-13 (post #90 merge, post #87,#88,#89 cycle)
+- Last run: 2026-06-14 (post #92 merge, ceo-audit on `5380ae1` SUCCESS)
 - Reports: `~/ceo-audits/` or `/tmp/ceo-audit-webui-2/`
 
 Check the live issue list before starting any new task.
@@ -440,4 +443,4 @@ When deploying to Docker + Cloudflare Tunnel on macOS:
 
 ---
 
-Last updated: aligned with main @ `d76e42f` (post #90 merge); ceo-audit 100/100.
+Last updated: aligned with main @ `5380ae1` (post #92 merge); ceo-audit 100/100.
