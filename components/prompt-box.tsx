@@ -1,8 +1,12 @@
+/**
+ * Purpose: v0-style landing-page prompt box with model picker, suggestions, and prompt enhancement.
+ * Docs: prompt-box.doc.md
+ */
 // SPDX-License-Identifier: MIT
 
 'use client'
 
-import { ArrowUp, Check, Mic, Paperclip, Sparkles } from 'lucide-react'
+import { ArrowUp, Check, Loader2, Mic, Paperclip, Sparkles } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
 import { useChatStore } from '@/components/chat-store'
@@ -28,9 +32,33 @@ export function PromptBox() {
   const { addChat } = useChatStore()
   const [value, setValue] = useState('')
   const [model, setModel] = useState<SinModelId>('sin-code-pro')
+  const [isEnhancing, setIsEnhancing] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const currentModel = SIN_MODELS.find((m) => m.id === model) ?? SIN_MODELS[0]
+
+  async function enhance() {
+    const trimmed = value.trim()
+    if (!trimmed || isEnhancing) return
+    setIsEnhancing(true)
+    try {
+      const res = await fetch('/api/enhance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: trimmed, model }),
+      })
+      if (!res.ok) throw new Error(`Enhance failed: ${res.status}`)
+      const data = await res.json()
+      if (typeof data.enhanced === 'string') {
+        setValue(data.enhanced)
+        textareaRef.current?.focus()
+      }
+    } catch (err) {
+      console.error('Enhance error:', err)
+    } finally {
+      setIsEnhancing(false)
+    }
+  }
 
   function handleSubmit() {
     const prompt = value.trim()
@@ -147,9 +175,16 @@ export function PromptBox() {
           <button
             type="button"
             aria-label="Enhance prompt"
-            className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            aria-busy={isEnhancing}
+            disabled={isEnhancing || !value.trim()}
+            onClick={enhance}
+            className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40"
           >
-            <Sparkles className="size-4" />
+            {isEnhancing ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Sparkles className="size-4" />
+            )}
           </button>
 
           {/* Send / Mic — round black button like v0 */}
