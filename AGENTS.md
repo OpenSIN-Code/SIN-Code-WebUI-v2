@@ -380,7 +380,7 @@ Before starting new work, run `gh issue list --state open` and update this secti
 
 ### CEO Audit
 - **Current grade: A+ (100.0/100)** — 0 Critical, 0 High, 0 findings
-- Last run: 2026-06-13
+- Last run: 2026-06-13 (post #90 merge, post #87,#88,#89 cycle)
 - Reports: `~/ceo-audits/` or `/tmp/ceo-audit-webui-2/`
 
 Check the live issue list before starting any new task.
@@ -440,4 +440,4 @@ When deploying to Docker + Cloudflare Tunnel on macOS:
 
 ---
 
-Last updated: aligned with main @ `3f6523c` (post #88 merge); #89 resolved via OrbStack restart.
+Last updated: aligned with main @ `d76e42f` (post #90 merge); ceo-audit 100/100.
