@@ -376,6 +376,7 @@ Before starting new work, run `gh issue list --state open` and update this secti
 - **#83** ✅ — fix(design): align token usage with v0 design system
 - **#85** ✅ — fix(design): tokenize fallback palette for auto-generated design systems
 - **#87** ✅ — fix(prompt): wire Sparkles enhance button to `/api/enhance` with LLM rewrite
+- **#88** ✅ — feat(prompt): activate attachment, project, voice and refresh controls
 
 ### CEO Audit
 - **Current grade: A+ (100.0/100)** — 0 Critical, 0 High, 0 findings
@@ -439,4 +440,4 @@ When deploying to Docker + Cloudflare Tunnel on macOS:
 
 ---
 
-Last updated: aligned with main @ `7556613` (post #87 merge).
+Last updated: aligned with main @ `804b74d` (post #88 merge).
