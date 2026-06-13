@@ -1,27 +1,32 @@
 # `components/chat/prompt-composer.tsx`
 
-v0-style prompt input with model picker and send/stop controls.
+## What
+v0-style prompt composer for an active chat thread. Lets the user type, pick a model, trigger voice input, and either send or stop generation.
 
-## What it does
+## Imports
+- `lucide-react` → icons (`Plus`, `ArrowUp`, `Square`, `Mic`, `ChevronDown`, `Check`)
+- `react` → state + refs
+- `lib/dom/speech` → `SpeechRecognitionCtor`, `SpeechRecognitionEventLike`, `SpeechRecognitionInstance`
 
-Provides an auto-resizing textarea, a dropdown model picker, attachment button
-placeholder, and send/stop button. Calls `onSend(text, model)` when the user
-presses Enter or clicks send.
+## State
+- `text` → textarea content
+- `model` → selected gateway model id (from local `MODELS` list)
+- `pickerOpen` → model picker visibility
+- `isListening` → speech recognition status
 
-## Dependencies
+## Key functions
+- `send()` → fires `onSend(text, model)` and clears the textarea
+- `startListening()` → kicks off `SpeechRecognition`, appends final transcripts
+- `stopListening()` → stops the current recognition
 
-- `lucide-react` icons.
-- Used by `components/chat/chat-view.tsx`.
+## UI
+- Textarea grows up to 240 px on multi-line input
+- Mic button appears only when textarea is empty and not streaming
+- Mic turns red when actively listening
+- Send button disabled when textarea is empty
+- Stop button replaces Send while streaming
 
-## Important values
-
-- Default model list: Claude Opus 4.6, Claude Sonnet 4.5, GPT-5 Mini, Gemini 3
-  Flash.
-- Textarea grows up to 240 px.
-- Enter sends; Shift+Enter inserts a newline.
-
-## Caveats
-
-The model picker uses a local hardcoded list. In the future it should read from
-`lib/sin/models.ts` or the workspace default so it stays in sync with the
-backend model tiers.
+## Related
+- `lib/dom/speech.d.ts` → shared SpeechRecognition type shims
+- `lib/sin/models.ts` → production model catalog (different from this file's local `MODELS`)
+- `components/prompt-box.tsx` → landing-page variant

@@ -29,6 +29,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import type {
+  SpeechRecognitionCtor,
+  SpeechRecognitionEventLike,
+  SpeechRecognitionInstance,
+} from '@/lib/dom/speech'
 import { SIN_MODELS, type SinModelId } from '@/lib/sin/models'
 
 const SUGGESTION_POOL = [
@@ -49,51 +54,6 @@ const SUGGESTION_POOL = [
 const MAX_FILES = 5
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5 MB
 
-// Minimal type shim for the Web Speech API — not in standard DOM types yet.
-interface SpeechRecognitionAlternativeLike {
-  transcript: string
-}
-
-interface SpeechRecognitionResultLike {
-  [index: number]: SpeechRecognitionAlternativeLike
-  isFinal: boolean
-  length: number
-}
-
-interface SpeechRecognitionResultListLike {
-  [index: number]: SpeechRecognitionResultLike
-  length: number
-}
-
-interface SpeechRecognitionEventLike {
-  results: SpeechRecognitionResultListLike
-}
-
-interface SpeechRecognitionInstanceLike {
-  lang: string
-  interimResults: boolean
-  continuous: boolean
-  onstart: (() => void) | null
-  onend: (() => void) | null
-  onerror: ((event: Event) => void) | null
-  onresult: ((event: SpeechRecognitionEventLike) => void) | null
-  start(): void
-  stop(): void
-  abort(): void
-}
-
-declare global {
-  interface Window {
-    SpeechRecognition?: new () => SpeechRecognitionInstanceLike
-    webkitSpeechRecognition?: new () => SpeechRecognitionInstanceLike
-  }
-}
-
-type SpeechRecognitionCtor =
-  | Window['SpeechRecognition']
-  | Window['webkitSpeechRecognition']
-
-type SpeechRecognitionInstance = InstanceType<NonNullable<SpeechRecognitionCtor>>
 
 export function PromptBox() {
   const router = useRouter()

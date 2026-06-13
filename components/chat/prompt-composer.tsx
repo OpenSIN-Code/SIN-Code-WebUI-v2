@@ -1,5 +1,5 @@
 /**
- * Purpose: v0-style prompt input with model picker and send/stop controls.
+ * Purpose: v0-style chat-thread prompt input with model picker, voice input, and send/stop controls.
  * Docs: prompt-composer.doc.md
  */
 // SPDX-License-Identifier: MIT
@@ -7,7 +7,12 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Plus, ArrowUp, Square, ChevronDown, Check } from "lucide-react"
+import { Plus, ArrowUp, Square, Mic, ChevronDown, Check } from "lucide-react"
+import type {
+  SpeechRecognitionCtor,
+  SpeechRecognitionEventLike,
+  SpeechRecognitionInstance,
+} from "@/lib/dom/speech"
 
 const MODELS = [
   { id: "anthropic/claude-opus-4.6", label: "Claude Opus 4.6" },
@@ -34,8 +39,10 @@ export function PromptComposer({
   const [text, setText] = useState("")
   const [model, setModel] = useState(initialModel ?? MODELS[0].id)
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [isListening, setIsListening] = useState(false)
   const taRef = useRef<HTMLTextAreaElement>(null)
   const pickerRef = useRef<HTMLDivElement>(null)
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
 
   useEffect(() => {
     const ta = taRef.current
@@ -54,11 +61,59 @@ export function PromptComposer({
     return () => document.removeEventListener("mousedown", onClickOutside)
   }, [])
 
+  useEffect(() => {
+    return () => {
+      recognitionRef.current?.abort()
+      recognitionRef.current = null
+    }
+  }, [])
+
   function send() {
     const trimmed = text.trim()
     if (!trimmed || isStreaming) return
     onSend(trimmed, model)
     setText("")
+  }
+
+  function startListening() {
+    if (isListening) return
+    const SR = (window.SpeechRecognition ?? window.webkitSpeechRecognition) as
+      | SpeechRecognitionCtor
+      | undefined
+    if (!SR) {
+      alert("Voice input is not supported in this browser.")
+      return
+    }
+
+    const recognition = new SR()
+    recognition.lang = "en-US"
+    recognition.interimResults = true
+    recognition.continuous = true
+
+    recognition.onstart = () => setIsListening(true)
+    recognition.onend = () => setIsListening(false)
+    recognition.onerror = (event: Event) => {
+      console.error("Speech recognition error:", event)
+      setIsListening(false)
+    }
+    recognition.onresult = (event: SpeechRecognitionEventLike) => {
+      const results = event.results
+      if (!results?.length) return
+      const last = results[results.length - 1]
+      const transcript = last[0]?.transcript ?? ""
+      if (last.isFinal) {
+        setText((prev) => (prev ? prev + " " + transcript : transcript))
+      }
+    }
+
+    recognitionRef.current = recognition
+    recognition.start()
+  }
+
+  function stopListening() {
+    recognitionRef.current?.stop()
+    recognitionRef.current = null
+    setIsListening(false)
   }
 
   const activeModel = MODELS.find((m) => m.id === model) ?? MODELS[0]
@@ -131,26 +186,43 @@ export function PromptComposer({
           </div>
         </div>
 
-        {isStreaming ? (
-          <button
-            type="button"
-            onClick={onStop}
-            aria-label="Stop generating"
-            className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity hover:opacity-90"
-          >
-            <Square className="size-3.5 fill-current" />
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={send}
-            disabled={!text.trim()}
-            aria-label="Send message"
-            className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground transition-all hover:opacity-90 disabled:opacity-30"
-          >
-            <ArrowUp className="size-4" strokeWidth={2.25} />
-          </button>
-        )}
+        <div className="flex items-center gap-1">
+          {!text.trim() && !isStreaming && (
+            <button
+              type="button"
+              aria-label={isListening ? "Stop voice input" : "Voice input"}
+              onClick={isListening ? stopListening : startListening}
+              className={`flex size-8 items-center justify-center rounded-full transition-opacity hover:opacity-80 ${
+                isListening
+                  ? "bg-red-500 text-white"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              <Mic className="size-4" />
+            </button>
+          )}
+
+          {isStreaming ? (
+            <button
+              type="button"
+              onClick={onStop}
+              aria-label="Stop generating"
+              className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              <Square className="size-3.5 fill-current" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={send}
+              disabled={!text.trim()}
+              aria-label="Send message"
+              className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground transition-all hover:opacity-90 disabled:opacity-30"
+            >
+              <ArrowUp className="size-4" strokeWidth={2.25} />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )
