@@ -3,7 +3,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { codeToHtml } from "shiki"
 
 const EXT_TO_LANG: Record<string, string> = {
   ts: "typescript",
@@ -28,11 +27,14 @@ export function HighlightedCode({ code, path }: { code: string; path: string }) 
     const ext = path.split(".").pop() ?? ""
     const lang = EXT_TO_LANG[ext] ?? "text"
 
-    codeToHtml(code, {
-      lang,
-      themes: { light: "github-light", dark: "github-dark-default" },
-      defaultColor: false,
-    })
+    import("shiki")
+      .then(({ codeToHtml }) =>
+        codeToHtml(code, {
+          lang,
+          themes: { light: "github-light", dark: "github-dark-default" },
+          defaultColor: false,
+        }),
+      )
       .then((result: string) => {
         if (!cancelled) setHtml(result)
       })

@@ -2,7 +2,7 @@
 
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono, Inter } from 'next/font/google'
+import { Geist_Mono, Inter } from 'next/font/google'
 import { DesignSystemStoreProvider } from '@/components/design-system-store'
 import { ProjectStoreProvider } from '@/components/project-store'
 import { SidebarStoreProvider } from '@/components/sidebar-store'
@@ -14,7 +14,6 @@ const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
 })
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -48,7 +47,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${geistSans.variable} ${geistMono.variable}`}
+      className={`${inter.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
       <body className="bg-background font-sans text-foreground antialiased">
