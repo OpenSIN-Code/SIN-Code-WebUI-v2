@@ -6,7 +6,7 @@
  * Purpose: Settings page — backend agent config (sin agent show/set) as an
  * editable key/value form, backend status, and the model tier mapping.
  */
-import { Check, KeyRound, Pencil, RefreshCw, X } from 'lucide-react'
+import { Check, Pencil, RefreshCw, X } from 'lucide-react'
 import { useState } from 'react'
 import useSWR from 'swr'
 import { Starburst } from '@/components/icons'

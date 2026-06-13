@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-import { Cable, Terminal, KeySquare } from "lucide-react"
+import { Terminal, KeySquare } from "lucide-react"
 import { McpManager } from "@/components/settings/mcp-manager"
 
 function IntegrationCard({

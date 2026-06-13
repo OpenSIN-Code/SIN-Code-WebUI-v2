@@ -50,12 +50,12 @@ export function ProjectsSection({ collapsed = false }: { collapsed?: boolean }) 
           Projects{open ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
         </button>
       </div>
-      {open && (<div className="flex flex-col pt-0.5">{projects.map((project) => { const chats = project.chatIds.map((id) => recentChats.find((c) => c.id === id)).filter((c): c is NonNullable<typeof c> => c !== undefined); return (<ProjectGroup key={project.id} projectId={project.id} projectName={project.name} chats={chats} pathname={pathname} />) })}</div>)}
+      {open && (<div className="flex flex-col pt-0.5">{projects.map((project) => { const chats = project.chatIds.map((id) => recentChats.find((c) => c.id === id)).filter((c): c is NonNullable<typeof c> => c !== undefined); return (<ProjectGroup key={project.id} projectName={project.name} chats={chats} pathname={pathname} />) })}</div>)}
     </div>
   )
 }
 
-function ProjectGroup({ projectId, projectName, chats, pathname }: { projectId: string; projectName: string; chats: { id: string; label: string }[]; pathname: string }) {
+function ProjectGroup({ projectName, chats, pathname }: { projectName: string; chats: { id: string; label: string }[]; pathname: string }) {
   const [expanded, setExpanded] = useState(false)
   return (
     <div className="flex flex-col">
