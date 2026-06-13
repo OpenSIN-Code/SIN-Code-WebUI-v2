@@ -373,6 +373,7 @@ Before starting new work, run `gh issue list --state open` and update this secti
 - **#79** ✅ — refactor(lint): remove unused imports and parameter
 - **#80** ✅ — refactor(auth): centralize token extraction via `presentedToken`
 - **#81** ✅ — feat(security): add baseline HTTP security headers
+- **#83** ✅ — fix(design): align token usage with v0 design system
 
 ### CEO Audit
 - **Current grade: A+ (100.0/100)** — 0 Critical, 0 High, 0 findings
