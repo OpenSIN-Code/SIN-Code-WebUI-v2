@@ -1,6 +1,6 @@
 /**
  * Purpose: Publish endpoint — triggers the GitHub Actions docker.yml workflow.
- * Docs: POST /api/publish → dispatches workflow_dispatch, returns 202.
+ * Docs: route.doc.md
  * Related issues: #39
  *
  * Uses GitHub's REST API to trigger the docker.yml workflow via

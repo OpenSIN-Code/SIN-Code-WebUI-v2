@@ -1,3 +1,7 @@
+/**
+ * Purpose: Collapsible tool-call badge for assistant messages.
+ * Docs: tool-call.doc.md
+ */
 // SPDX-License-Identifier: MIT
 
 "use client"

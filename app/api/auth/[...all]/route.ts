@@ -1,3 +1,7 @@
+/**
+ * Purpose: Better Auth catch-all handler.
+ * Docs: route.doc.md
+ */
 // SPDX-License-Identifier: MIT
 
 import { getAuth } from '@/lib/auth/better-auth'

@@ -3,6 +3,7 @@
  * GET /api/workspaces — built-ins + own custom workspaces
  * POST /api/workspaces {…} — create/update a custom workspace
  * DELETE /api/workspaces { id } — delete own custom workspace
+ * Docs: route.doc.md
  */
 // SPDX-License-Identifier: MIT
 

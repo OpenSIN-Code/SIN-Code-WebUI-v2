@@ -1,3 +1,7 @@
+/**
+ * Purpose: Chat container that wires the AI SDK 6 useChat hook to the backend.
+ * Docs: chat-view-wrapper.doc.md
+ */
 // SPDX-License-Identifier: MIT
 
 'use client'

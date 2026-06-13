@@ -1,6 +1,6 @@
 /**
  * Purpose: Chat endpoint wired to the sin-code Go MCP backend.
- * Docs: POST /api/chat — UIMessage[] in, UI message stream out.
+ * Docs: route.doc.md
  * Body: { messages, model?: SinModelId | gateway string, agent?: SinAgentId }
  */
 // SPDX-License-Identifier: MIT

@@ -1,8 +1,6 @@
 /**
  * Purpose: Expose sin-code backend status to the frontend.
- * Docs: GET /api/sin/status →
- *   installed: { installed: true, version, capabilities }
- *   missing:   { installed: false, error, installCmd }
+ * Docs: route.doc.md
  * Related issues: #3, #5
  *
  * The response shape matches `SinCodeStatus` from lib/sin/client.ts and the

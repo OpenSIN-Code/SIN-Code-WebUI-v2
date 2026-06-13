@@ -1,3 +1,7 @@
+/**
+ * Purpose: v0-style prompt input with model picker and send/stop controls.
+ * Docs: prompt-composer.doc.md
+ */
 // SPDX-License-Identifier: MIT
 
 "use client"

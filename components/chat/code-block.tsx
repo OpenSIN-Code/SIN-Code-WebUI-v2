@@ -1,3 +1,7 @@
+/**
+ * Purpose: Fenced code block with copy button and language label.
+ * Docs: code-block.doc.md
+ */
 // SPDX-License-Identifier: MIT
 
 "use client"

@@ -1,3 +1,7 @@
+/**
+ * Purpose: Individual chat bubble with copy/retry actions.
+ * Docs: message.doc.md
+ */
 // SPDX-License-Identifier: MIT
 
 "use client"

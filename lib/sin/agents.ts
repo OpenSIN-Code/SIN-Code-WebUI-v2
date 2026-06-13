@@ -3,6 +3,7 @@
  * routing-policy block into the system prompt so the model behaves
  * like a specialized sin-code agent (builder / reviewer / planner /
  * scout) instead of a generic chatbot.
+ * Docs: agents.doc.md
  */
 // SPDX-License-Identifier: MIT
 

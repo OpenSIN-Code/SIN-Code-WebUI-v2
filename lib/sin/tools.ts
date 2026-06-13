@@ -1,6 +1,6 @@
 /**
  * Purpose: Single source of truth for the sin-code Go backend surface.
- * Docs: https://github.com/OpenSIN-Code/SIN-Code-Bundle (cmd/sin-code)
+ * Docs: tools.doc.md
  * Related issues: #1, #2, #3, #4, #5
  *
  * Generated from SIN-Code-Bundle@main:

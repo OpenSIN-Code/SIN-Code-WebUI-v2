@@ -3,6 +3,7 @@
  * Lives in its own module (loaded via `await import()` from heavy
  * callers) so Turbopack's NFT tracer doesn't pull node:fs / node:child_process
  * at the route boundary (#59 / #60).
+ * Docs: guard.doc.md
  */
 // SPDX-License-Identifier: MIT
 

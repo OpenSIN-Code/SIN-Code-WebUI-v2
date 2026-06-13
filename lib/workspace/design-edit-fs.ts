@@ -2,6 +2,7 @@
  * Purpose: All dynamic fs/path access for the design-edit route lives here.
  * Loaded via `await import()` from the route handler so Turbopack's NFT
  * tracer never sees process.cwd()/path.resolve() at the route boundary (#59).
+ * Docs: design-edit-fs.doc.md
  */
 // SPDX-License-Identifier: MIT
 

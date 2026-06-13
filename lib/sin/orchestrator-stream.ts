@@ -7,6 +7,7 @@
  * also stays NFT-clean. The whole file is split across two layers of
  * dynamic imports because Next.js 16.2.6 still flags any module that
  * transitively references node:child_process, fs, path, or process.cwd().
+ * Docs: orchestrator-stream.doc.md
  */
 // SPDX-License-Identifier: MIT
 

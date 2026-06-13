@@ -3,6 +3,7 @@
  * The actual fs/path/cwd work lives in lib/workspace/design-history-fs.ts
  * (loaded via `await import()`) so the NFT tracer never sees node:fs at
  * the public surface (#59 / #60).
+ * Docs: design-history.doc.md
  */
 // SPDX-License-Identifier: MIT
 

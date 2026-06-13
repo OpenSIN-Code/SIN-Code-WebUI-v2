@@ -1,3 +1,7 @@
+/**
+ * Purpose: Loading indicators for the submitted state.
+ * Docs: thinking-indicator.doc.md
+ */
 // SPDX-License-Identifier: MIT
 
 "use client"

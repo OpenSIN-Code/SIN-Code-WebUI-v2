@@ -1,3 +1,7 @@
+/**
+ * Purpose: React client for Better Auth.
+ * Docs: client.doc.md
+ */
 // SPDX-License-Identifier: MIT
 
 'use client'
