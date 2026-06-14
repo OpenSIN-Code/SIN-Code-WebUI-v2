@@ -56,3 +56,22 @@ a single `ToolSet`. Each client's lifecycle is tracked individually by its
   a fallback for the model.
 - Tool names cannot collide across siblings. Sibling authors MUST prefix
   their tools (e.g. `autodev_status`, `sin_websearch_search`).
+
+## Sister project — AutoDev-CLI
+
+The `autodev-mcp` server is owned by
+[`OpenSIN-Code/autodev-cli`](https://github.com/OpenSIN-Code/autodev-cli).
+Its consumer-side design (bridge pattern, no business logic in the MCP
+adapter, stdout JSON-RPC + 300 s timeout) is documented in
+[`docs/MCP.md`](https://github.com/OpenSIN-Code/autodev-cli/blob/main/docs/MCP.md).
+
+When extending this file to a new sibling:
+
+1. Add the server command to the table in **What it does**.
+2. Update the `available` map type in `lib/sin/mcp.ts`.
+3. Add the tool list to `SIN_MCP_TOOLS` / `AUTODEV_MCP_TOOLS` (or a new
+   `*_MCP_TOOLS` const) in `lib/sin/tools.ts` — never hand-maintain a
+   copy elsewhere.
+4. Add a `*.test.ts` exercising success + degrade paths.
+5. Update this `.doc.md` and the AGENTS.md §3 row.
+6. Cross-link the sibling's user-facing docs in this section.
