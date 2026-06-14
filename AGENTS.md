@@ -110,11 +110,23 @@ sin-code-web-ui-v2/
 | **[SIN-Code-WebUI-v2](https://github.com/OpenSIN-Code/SIN-Code-WebUI-v2)** | This repo. The chat surface. | Most of your work. |
 | **[SIN-Code-Context-Bridge-Skill](https://github.com/OpenSIN-Code/SIN-Code-Context-Bridge-Skill)** | Unified context query across SCKG + sin-brain + GitNexus. | Use via the `sin_context` MCP tool when an agent needs cross-source context. |
 | **[SIN-Brain](https://github.com/OpenSIN-Code/SIN-Brain)** (private) | "Ultra-best self-editing, evidence-grounded memory cortex". Persistent rules + memory across sessions. | Use via `sin_context` for cross-session recall. Adds rules via the brain MCP tools. |
+| **[autodev-cli](https://github.com/OpenSIN-Code/autodev-cli)** | Python implementation of the autoresearch loop fused with SIN-Code M1/M3/M4 invariants. Exposes status / lessons / run-experiment / init via `autodev-mcp` stdio server. | When a new MCP tool is added: update `lib/sin/tools.ts` here only if you want to surface it in the chat agent. CLI is the single source of truth. |
 
 Skills: `~/.config/opencode/skills/` has **30+** SIN skills (ceo-audit,
 sin-git-workflow, sin-frontend-design, sin-context-bridge, sin-honcho,
 sin-honcho-rollback, sin-doc-coauthoring, sin-mcp-server-builder, etc.).
 Read the relevant `SKILL.md` once per session.
+
+### Sister MCP servers (auto-detected when installed)
+
+The chat agent picks them up via `lib/sin/mcp.ts` (`createMCPClient`).
+Install commands from these projects' READMEs; if the binary is missing
+the tool is silently dropped from the toolset.
+
+- `sin-code serve` — core SIN-Code (always-on)
+- `sin-websearch serve` — web search bundle (#91, planned)
+- `autodev-mcp` — autoresearch loop bridge (this section was added)
+- `sin-context-bridge serve` — cross-source context queries
 
 ---
 

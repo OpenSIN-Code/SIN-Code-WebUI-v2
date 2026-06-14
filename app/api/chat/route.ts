@@ -13,7 +13,7 @@ import {
 } from 'ai'
 import { buildAgentContext } from '@/lib/settings/agent-context'
 import { agentPrompt } from '@/lib/sin/agents'
-import { getSinTools } from '@/lib/sin/mcp'
+import { getAllMcpTools } from '@/lib/sin/mcp'
 import { resolveModel } from '@/lib/sin/models'
 import { guardRequest } from '@/lib/sin/guard'
 import { SIN_CODE_INSTALL_CMD, SIN_MCP_TOOLS } from '@/lib/sin/tools'
@@ -99,17 +99,22 @@ export async function POST(req: Request) {
   const session = await getSession()
   const workspace = await getWorkspace(workspaceId ?? 'code', session?.userId ?? null) ?? BUILT_IN_WORKSPACES[0]
 
-  const sin = await getSinTools()
+  const mcp = await getAllMcpTools()
   const selectedModel = resolveModel(bodyModel)
 
   const persona = agentPrompt(agent)
   const agentContext = await buildAgentContext()
-  const system = [SYSTEM_PROMPT, persona, agentContext, sin.available ? '' : FALLBACK_NOTICE]
+  const system = [
+    SYSTEM_PROMPT,
+    persona,
+    agentContext,
+    mcp.available['sin-code'] ? '' : FALLBACK_NOTICE,
+  ]
     .filter(Boolean)
     .join('\n\n')
 
   const allTools = {
-    ...sin.tools,
+    ...mcp.tools,
     web_search: webSearchTool,
     render_chart: renderChartTool,
   }
@@ -124,10 +129,10 @@ export async function POST(req: Request) {
     messages: await convertToModelMessages(messages),
     ...(Object.keys(tools).length > 0 ? { tools, stopWhen: stepCountIs(15) } : {}),
     onFinish: async () => {
-      await sin.close()
+      await mcp.close()
     },
     onError: async () => {
-      await sin.close()
+      await mcp.close()
     },
   })
 

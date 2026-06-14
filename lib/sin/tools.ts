@@ -121,6 +121,20 @@ export const SIN_MCP_TOOLS = [
 
 export type SinMcpTool = (typeof SIN_MCP_TOOLS)[number]
 
+// ── Sibling MCP servers (autodev-mcp, future sin-websearch, …) ────────
+// NOT loaded via sin-code. Each binary spawns its own stdio MCP client.
+// See lib/sin/mcp.ts (`getAllMcpTools`).
+export const AUTODEV_MCP_TOOLS = [
+  'autodev_status',
+  'autodev_lessons',
+  'autodev_run_experiment',
+  'autodev_init',
+] as const
+export type AutodevMcpTool = (typeof AUTODEV_MCP_TOOLS)[number]
+
+export const AUTODEV_INSTALL_CMD =
+  'pip install --break-system-packages git+https://github.com/OpenSIN-Code/autodev-cli.git'
+
 export const SIN_CODE_INSTALL_CMD =
   'go install github.com/OpenSIN-Code/SIN-Code-Bundle/cmd/sin-code@latest'
 
