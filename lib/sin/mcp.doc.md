@@ -17,9 +17,9 @@ Currently supported servers (auto-spawned in parallel by
 |---|---|---|
 | `sin-code` | `serve` | `$SIN_CODE_BIN` or `sin-code` |
 | `autodev-mcp` | `[]` | `$AUTODEV_MCP_BIN` or `autodev-mcp` |
+| `sin-websearch-server` | `[]` | `$SIN_WEBSEARCH_BIN` or `sin-websearch-server` |
 
 Future siblings (planned) will join this file conditionally:
-- `sin-websearch serve` (#91)
 - `sin-context-bridge serve`
 
 ## Dependencies
@@ -65,13 +65,28 @@ Its consumer-side design (bridge pattern, no business logic in the MCP
 adapter, stdout JSON-RPC + 300 s timeout) is documented in
 [`docs/MCP.md`](https://github.com/OpenSIN-Code/autodev-cli/blob/main/docs/MCP.md).
 
-When extending this file to a new sibling:
+## Sister project — sin-websearch
+
+The `sin-websearch-server` MCP exposes the
+[SerpAPI multi-key pool](https://github.com/OpenSIN-Code/sin-websearch)
+to the chat model. Five tools (`websearch_search`, `websearch_status`,
+`websearch_cache`, `websearch_history`, `websearch_rate_limit`). Tool
+names carry the `websearch_*` prefix to avoid colliding with the
+sin-code `sin_*` namespace.
+
+Install: `pipx install sin-websearch` (note: the entry-point script is
+named `sin-websearch-server`, not `sin-websearch` — see
+`resolveSinWebsearchBin()`).
+
+## Checklist — add a new sibling
+
+When extending this file to a third / fourth / … sibling:
 
 1. Add the server command to the table in **What it does**.
-2. Update the `available` map type in `lib/sin/mcp.ts`.
-3. Add the tool list to `SIN_MCP_TOOLS` / `AUTODEV_MCP_TOOLS` (or a new
-   `*_MCP_TOOLS` const) in `lib/sin/tools.ts` — never hand-maintain a
-   copy elsewhere.
-4. Add a `*.test.ts` exercising success + degrade paths.
-5. Update this `.doc.md` and the AGENTS.md §3 row.
+2. Update the `available` map type in `lib/sin/mcp.ts:getAllMcpTools()`.
+3. Add the tool list to a new `*_MCP_TOOLS` const in `lib/sin/tools.ts`
+   — never hand-maintain a copy elsewhere. Also export `*_REPO_URL`
+   and `*_INSTALL_CMD` for the Settings panel.
+4. Add `*.test.ts` exercising success + degrade paths (5–6 per sibling).
+5. Update this `.doc.md` and `AGENTS.md` §3 row.
 6. Cross-link the sibling's user-facing docs in this section.

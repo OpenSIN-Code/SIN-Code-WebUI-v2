@@ -17,6 +17,15 @@ const { mockAutodevFail } = vi.hoisted(() => ({
   mockAutodevFail: vi.fn().mockReturnValue(false),
 }))
 
+const { mockWebsearchTools, mockWebsearchClose } = vi.hoisted(() => ({
+  mockWebsearchTools: vi.fn(),
+  mockWebsearchClose: vi.fn().mockResolvedValue(undefined),
+}))
+
+const { mockWebsearchFail } = vi.hoisted(() => ({
+  mockWebsearchFail: vi.fn().mockReturnValue(false),
+}))
+
 vi.mock('@ai-sdk/mcp', () => ({
   createMCPClient: ((opts: { transport: { serverParams?: { command: string; args: string[] } } }) => {
     const cmd = opts.transport?.serverParams?.command
@@ -27,6 +36,12 @@ vi.mock('@ai-sdk/mcp', () => ({
     if (cmd === 'autodev-mcp') {
       if (mockAutodevFail()) throw new Error('binary missing')
       return Promise.resolve({ tools: mockAutodevTools, close: mockAutodevClose })
+    }
+    // sin-websearch pyproject.toml registers entry-point as
+    // `sin-websearch-server` — see resolveSinWebsearchBin().
+    if (cmd === 'sin-websearch-server') {
+      if (mockWebsearchFail()) throw new Error('binary missing')
+      return Promise.resolve({ tools: mockWebsearchTools, close: mockWebsearchClose })
     }
     throw new Error(`unexpected MCP command: ${String(cmd)}`)
   }) as unknown as typeof import('@ai-sdk/mcp').createMCPClient,
@@ -43,7 +58,7 @@ vi.mock('@ai-sdk/mcp/mcp-stdio', () => ({
   },
 }))
 
-import { getSinTools, getAutodevTools, getAllMcpTools } from './mcp'
+import { getSinTools, getAutodevTools, getSinWebsearchTools, getAllMcpTools } from './mcp'
 
 beforeEach(() => {
   mockSinTools.mockReset()
@@ -52,6 +67,9 @@ beforeEach(() => {
   mockAutodevTools.mockReset()
   mockAutodevClose.mockReset().mockResolvedValue(undefined)
   mockAutodevFail.mockReset().mockReturnValue(false)
+  mockWebsearchTools.mockReset()
+  mockWebsearchClose.mockReset().mockResolvedValue(undefined)
+  mockWebsearchFail.mockReset().mockReturnValue(false)
 })
 
 describe('getSinTools', () => {
@@ -100,42 +118,108 @@ describe('getAutodevTools', () => {
   })
 })
 
+describe('getSinWebsearchTools', () => {
+  it('returns the websearch_* toolset when sin-websearch-server is reachable', async () => {
+    mockWebsearchTools.mockResolvedValue({
+      websearch_search: { description: 'multi-key pool search' },
+      websearch_status: { description: 'pool stats' },
+    })
+    const r = await getSinWebsearchTools()
+    expect(r.available).toBe(true)
+    expect(r.tools).toEqual({
+      websearch_search: { description: 'multi-key pool search' },
+      websearch_status: { description: 'pool stats' },
+    })
+    await r.close()
+    expect(mockWebsearchClose).toHaveBeenCalled()
+  })
+
+  it('degrades gracefully when sin-websearch-server binary is missing', async () => {
+    mockWebsearchFail.mockReturnValue(true)
+    const r = await getSinWebsearchTools()
+    expect(r.available).toBe(false)
+    expect(r.tools).toEqual({})
+    await r.close()
+    expect(mockWebsearchClose).not.toHaveBeenCalled()
+  })
+})
+
 describe('getAllMcpTools', () => {
-  it('merges sin and autodev toolsets via Promise.all', async () => {
+  it('merges sin + autodev + websearch toolsets via Promise.all', async () => {
     mockSinTools.mockResolvedValue({ sin_status: {}, sin_execute: {} })
     mockAutodevTools.mockResolvedValue({ autodev_status: {}, autodev_lessons: {} })
+    mockWebsearchTools.mockResolvedValue({
+      websearch_search: {},
+      websearch_status: {},
+    })
     const r = await getAllMcpTools()
     expect(Object.keys(r.tools).sort()).toEqual([
       'autodev_lessons',
       'autodev_status',
       'sin_execute',
       'sin_status',
+      'websearch_search',
+      'websearch_status',
     ])
     expect(r.available['sin-code']).toBe(true)
     expect(r.available.autodev).toBe(true)
+    expect(r.available['sin-websearch']).toBe(true)
     await r.close()
     expect(mockSinClose).toHaveBeenCalled()
     expect(mockAutodevClose).toHaveBeenCalled()
+    expect(mockWebsearchClose).toHaveBeenCalled()
   })
 
-  it('reports sin-code unavailable while autodev stays up', async () => {
+  it('reports sin-code unavailable while siblings stay up', async () => {
     mockSinClientFail.mockReturnValue(true)
     mockAutodevTools.mockResolvedValue({ autodev_status: {} })
+    mockWebsearchTools.mockResolvedValue({ websearch_search: {} })
     const r = await getAllMcpTools()
     expect(r.available['sin-code']).toBe(false)
     expect(r.available.autodev).toBe(true)
-    expect(r.tools).toEqual({ autodev_status: {} })
+    expect(r.available['sin-websearch']).toBe(true)
+    expect(r.tools).toEqual({ autodev_status: {}, websearch_search: {} })
     await r.close()
     expect(mockAutodevClose).toHaveBeenCalled()
+    expect(mockWebsearchClose).toHaveBeenCalled()
   })
 
-  it('returns empty toolset when both clients drop out, no exception', async () => {
+  it('returns partial toolset when only sin-websearch drops out', async () => {
+    mockSinTools.mockResolvedValue({ sin_status: {} })
+    mockAutodevTools.mockResolvedValue({ autodev_status: {} })
+    mockWebsearchFail.mockReturnValue(true)
+    const r = await getAllMcpTools()
+    expect(r.available['sin-code']).toBe(true)
+    expect(r.available.autodev).toBe(true)
+    expect(r.available['sin-websearch']).toBe(false)
+    expect(r.tools).toEqual({ sin_status: {}, autodev_status: {} })
+    await r.close()
+  })
+
+  it('returns empty toolset when all three clients drop out, no exception', async () => {
     mockSinClientFail.mockReturnValue(true)
     mockAutodevFail.mockReturnValue(true)
+    mockWebsearchFail.mockReturnValue(true)
     const r = await getAllMcpTools()
     expect(r.available['sin-code']).toBe(false)
     expect(r.available.autodev).toBe(false)
+    expect(r.available['sin-websearch']).toBe(false)
     expect(r.tools).toEqual({})
     await r.close()
+  })
+
+  it('keeps a single toolset key when sibling names ever collide (sin_* > autodev_* > websearch_*)', async () => {
+    // Defensive: if a future sibling ever shipped a colliding name, last
+    // spread wins (websearch_* beats autodev_* beats sin_*). Documented
+    // intent in lib/sin/mcp.ts.
+    mockSinTools.mockResolvedValue({ shared_key: { source: 'sin' } })
+    mockAutodevTools.mockResolvedValue({ shared_key: { source: 'autodev' } })
+    mockWebsearchTools.mockResolvedValue({ shared_key: { source: 'websearch' } })
+    const r = await getAllMcpTools()
+    expect(Object.keys(r.tools)).toEqual(['shared_key'])
+    expect(
+      (r.tools as unknown as { shared_key: { source: string } }).shared_key
+        .source,
+    ).toBe('websearch')
   })
 })

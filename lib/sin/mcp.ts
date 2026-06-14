@@ -27,9 +27,19 @@ function resolveSinCodeBin(): string {
   return process.env.SIN_CODE_BIN ?? 'sin-code'
 }
 
-/** Resolve the autodev-mcp binary path. NO env override yet (PyPI install only). */
+/** Resolve the autodev-mcp binary path. */
 function resolveAutodevMcpBin(): string {
   return process.env.AUTODEV_MCP_BIN ?? 'autodev-mcp'
+}
+
+/**
+ * Resolve the sin-websearch MCP server binary path.
+ * The upstream pyproject.toml registers the entry-point as
+ * `sin-websearch-server` (NOT `sin-websearch`); the pipx package itself
+ * is named `sin-websearch`.
+ */
+function resolveSinWebsearchBin(): string {
+  return process.env.SIN_WEBSEARCH_BIN ?? 'sin-websearch-server'
 }
 
 /**
@@ -105,6 +115,21 @@ export async function getAutodevTools(): Promise<{
 }
 
 /**
+ * Connect to `sin-websearch-server`
+ * (https://github.com/OpenSIN-Code/sin-websearch) over stdio and return
+ * the 5 `websearch_*` tools. Gracefully returns an empty toolset if the
+ * package is not installed. Tool NAMES do not collide with sin-code
+ * (which uses `sin_*`) or autodev (`autodev_*`).
+ */
+export async function getSinWebsearchTools(): Promise<{
+  tools: ToolSet
+  close: () => Promise<void>
+  available: boolean
+}> {
+  return getMcpToolsFrom(resolveSinWebsearchBin(), [], 'sin-websearch-server')
+}
+
+/**
  * Aggregate MCP clients: spawns every sibling server in parallel, merges
  * their toolsets into a single ToolSet, and returns a single combined
  * `close()` that closes every client. The chat agent receives one big
@@ -113,15 +138,32 @@ export async function getAutodevTools(): Promise<{
 export async function getAllMcpTools(): Promise<{
   tools: ToolSet
   close: () => Promise<void>
-  available: { 'sin-code': boolean; autodev: boolean }
+  available: { 'sin-code': boolean; autodev: boolean; 'sin-websearch': boolean }
 }> {
-  const [sin, autodev] = await Promise.all([getSinTools(), getAutodevTools()])
-  const tools: ToolSet = { ...sin.tools, ...autodev.tools }
+  const [sin, autodev, websearch] = await Promise.all([
+    getSinTools(),
+    getAutodevTools(),
+    getSinWebsearchTools(),
+  ])
+  const tools: ToolSet = {
+    ...sin.tools,
+    // autodev_* must come AFTER sin-* in case a future sibling adds a
+    // colliding name; ordering preserves explicit overrides. Same for
+    // websearch_*.
+    ...autodev.tools,
+    ...websearch.tools,
+  }
   return {
     tools,
     close: async () => {
-      await Promise.all([sin.close(), autodev.close()])
+      // Parallel close — clients are independent. Always await each
+      // (even if `available=false`, the no-op close is cheap).
+      await Promise.all([sin.close(), autodev.close(), websearch.close()])
     },
-    available: { 'sin-code': sin.available, autodev: autodev.available },
+    available: {
+      'sin-code': sin.available,
+      autodev: autodev.available,
+      'sin-websearch': websearch.available,
+    },
   }
 }

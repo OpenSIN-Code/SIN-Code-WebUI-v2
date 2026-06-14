@@ -132,10 +132,27 @@ export const AUTODEV_MCP_TOOLS = [
 ] as const
 export type AutodevMcpTool = (typeof AUTODEV_MCP_TOOLS)[number]
 
+/** Sibling: sin-websearch (SerpAPI multi-key pool). */
+export const SIN_WEBSEARCH_MCP_TOOLS = [
+  'websearch_search',
+  'websearch_status',
+  'websearch_cache',
+  'websearch_history',
+  'websearch_rate_limit',
+] as const
+export type SinWebsearchMcpTool = (typeof SIN_WEBSEARCH_MCP_TOOLS)[number]
+
 export const AUTODEV_INSTALL_CMD =
   'pip install --break-system-packages git+https://github.com/OpenSIN-Code/autodev-cli.git'
+
+export const SIN_WEBSEARCH_INSTALL_CMD =
+  'pipx install sin-websearch'
+// ^ the entry-point created by pyproject.toml [project.scripts] is named
+// `sin-websearch-server` (not `sin-websearch`) — see resolveSinWebsearchBin().
 
 export const SIN_CODE_INSTALL_CMD =
   'go install github.com/OpenSIN-Code/SIN-Code-Bundle/cmd/sin-code@latest'
 
 export const SIN_CODE_REPO_URL = 'https://github.com/OpenSIN-Code/SIN-Code-Bundle'
+export const AUTODEV_REPO_URL = 'https://github.com/OpenSIN-Code/autodev-cli'
+export const SIN_WEBSEARCH_REPO_URL = 'https://github.com/OpenSIN-Code/sin-websearch'
