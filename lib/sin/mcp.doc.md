@@ -72,6 +72,11 @@ for the SpawnCoordinator architecture and
 [`docs/ARCHITECTURE.md`](https://github.com/OpenSIN-Code/autodev-cli/blob/main/docs/ARCHITECTURE.md)
 for the data-flow diagram.
 
+As of **v0.4.0**, the toolset adds `autodev_session_log` (time-travel
+fork/snapshot/diff/merge across branch-scoped lessons). Schema
+details and safety invariants live in
+[`docs/SESSIONS.md`](https://github.com/OpenSIN-Code/autodev-cli/blob/main/docs/SESSIONS.md).
+
 ## Sister project — sin-websearch
 
 The `sin-websearch-server` MCP exposes the
