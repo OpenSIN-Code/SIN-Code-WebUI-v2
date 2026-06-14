@@ -129,6 +129,7 @@ export const AUTODEV_MCP_TOOLS = [
   'autodev_lessons',
   'autodev_run_experiment',
   'autodev_init',
+  'autodev_swarm',
 ] as const
 export type AutodevMcpTool = (typeof AUTODEV_MCP_TOOLS)[number]
 

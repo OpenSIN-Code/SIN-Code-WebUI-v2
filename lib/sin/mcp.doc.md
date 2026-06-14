@@ -65,6 +65,13 @@ Its consumer-side design (bridge pattern, no business logic in the MCP
 adapter, stdout JSON-RPC + 300 s timeout) is documented in
 [`docs/MCP.md`](https://github.com/OpenSIN-Code/autodev-cli/blob/main/docs/MCP.md).
 
+As of **v0.3.0**, the toolset includes `autodev_swarm` (parallel
+profile-based races with first-verified-wins). See
+[`docs/SWARM.md`](https://github.com/OpenSIN-Code/autodev-cli/blob/main/docs/SWARM.md)
+for the SpawnCoordinator architecture and
+[`docs/ARCHITECTURE.md`](https://github.com/OpenSIN-Code/autodev-cli/blob/main/docs/ARCHITECTURE.md)
+for the data-flow diagram.
+
 ## Sister project — sin-websearch
 
 The `sin-websearch-server` MCP exposes the
